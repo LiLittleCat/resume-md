@@ -9,9 +9,6 @@ contact:
   github: https://github.com/helenapark
   linkedin: https://linkedin.com/in/helenapark
   website: https://helenapark.dev
-
-locale: en-US
-theme: minimal
 ---
 
 # Summary

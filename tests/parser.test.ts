@@ -91,9 +91,10 @@ describe("parseResumeMarkdown", () => {
   });
 
   it("parses the English example with English dates", () => {
-    const { resume, warnings } = parseResumeMarkdown(loadExample("resume.en-US.md"));
+    const { resume, warnings, frontMatter } = parseResumeMarkdown(loadExample("resume.en-US.md"));
     expect(warnings).toEqual([]);
-    expect(resume.locale).toBe("en-US");
+    expect(frontMatter.locale).toBeUndefined();
+    expect(frontMatter.theme).toBeUndefined();
     expect(resume.profile.name).toBe("Helena Park");
 
     const experience = resume.sections.find((section) => section.id === "experience");

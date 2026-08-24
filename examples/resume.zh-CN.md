@@ -8,9 +8,6 @@ contact:
   location: 杭州
   github: https://github.com/zhangsan
   website: https://zhangsan.dev
-
-locale: zh-CN
-theme: minimal
 ---
 
 # 个人简介
