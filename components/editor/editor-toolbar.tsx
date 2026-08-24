@@ -19,8 +19,6 @@ export function EditorToolbar({
   const [exporting, setExporting] = useState(false);
   const source = useEditorStore((state) => state.source);
   const config = useEditorStore((state) => state.config);
-  const previewScale = useEditorStore((state) => state.previewScale);
-  const setPreviewScale = useEditorStore((state) => state.setPreviewScale);
   const loadDocument = useEditorStore((state) => state.loadDocument);
   const uiLocale = useUiLocale();
   const ui = useUi();
@@ -116,18 +114,6 @@ export function EditorToolbar({
         </IconToggleGroup>
       </div>
       <div className="flex items-center gap-2">
-        <label className="mr-2 flex items-center gap-2 text-[11px] text-muted-foreground">
-          {ui.scale}
-          <input
-            type="range"
-            min={0.55}
-            max={1.1}
-            step={0.05}
-            value={previewScale}
-            onChange={(event) => setPreviewScale(Number(event.target.value))}
-            className="w-24 accent-primary"
-          />
-        </label>
         <Button
           size="sm"
           onClick={exportPdf}

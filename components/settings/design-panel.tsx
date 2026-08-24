@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { compileResume } from "@/core/compile";
+import { configWithTheme } from "@/core/style";
 import { hasPath } from "@/core/style/merge";
 import { resolveLocale } from "@/core/locale";
 import type {
@@ -13,6 +14,7 @@ import type {
   SectionOverride,
   SkillsLayout,
   SpacingPreset,
+  ThemeId,
 } from "@/core/schema";
 import { useUi, useUiLocale } from "@/components/editor/use-ui";
 import { Button } from "@/components/ui/button";
@@ -95,9 +97,11 @@ function DocumentDesign() {
   return (
     <>
       <PanelBlock title={ui.theme}>
-        <Segmented
+        <Segmented<ThemeId>
           value={style.themeId}
-          onChange={(theme) => patchConfig({ theme })}
+          onChange={(theme) =>
+            useEditorStore.setState({ config: configWithTheme(config, theme) })
+          }
           options={[
             { value: "minimal", label: ui.themes.minimal },
             { value: "modern", label: ui.themes.modern },

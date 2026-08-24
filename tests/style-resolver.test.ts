@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveStyle } from "@/core/style";
+import { configWithTheme, resolveStyle } from "@/core/style";
 import { minimalTheme } from "@/themes/minimal";
 
 describe("resolveStyle", () => {
@@ -95,6 +95,23 @@ describe("resolveStyle", () => {
   it("falls back to minimal for unknown themes", () => {
     const style = resolveStyle({ themeId: "does-not-exist" });
     expect(style.themeId).toBe("minimal");
+  });
+
+  it("lets switching to modern restore contact icons", () => {
+    const config = configWithTheme({ theme: "minimal", icons: { mode: "section" } }, "modern");
+    expect(config.theme).toBe("modern");
+    expect(config.icons?.mode).toBe("full");
+    const style = resolveStyle({ config, localeId: "zh-CN" });
+    expect(style.icons.mode).toBe("full");
+    expect(style.icons.showContactIcons).toBe(true);
+  });
+
+  it("keeps modern section icons on while titles can be uppercase", () => {
+    const style = resolveStyle({ themeId: "modern", localeId: "zh-CN" });
+    expect(style.components.sectionTitle.transform).toBe("uppercase");
+    expect(style.icons.mode).toBe("full");
+    expect(style.sections.summary.showSectionIcon).toBe(true);
+    expect(style.sections.summary.icon).toBe("summary");
   });
 
   it("resolves icon visibility from mode", () => {

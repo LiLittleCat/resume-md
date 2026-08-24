@@ -148,6 +148,7 @@
 
 .desk-canvas {
   background: var(--desk);
+  overscroll-behavior: contain;
 }
 
 .resume-paper {

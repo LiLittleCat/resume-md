@@ -23,7 +23,7 @@ export function SectionHeading({
       data-rule={rule ? "true" : "false"}
     >
       {showIcon && icon ? <ResumeGlyph icon={icon} /> : null}
-      <span>{title}</span>
+      <span className="resume-section-title-text">{title}</span>
     </h2>
   );
 }

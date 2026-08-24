@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import type { ResumeConfig, SectionId } from "@/core/schema";
+import { PREVIEW_SCALE, clampPreviewScale } from "@/lib/preview-scale";
 import { deepMerge, deletePath } from "@/core/style";
 import type { ColorSchemePreference } from "@/lib/color-scheme";
 
@@ -32,7 +33,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   config: {},
   selectedSectionId: null,
   selectedSectionTitle: null,
-  previewScale: 0.82,
+  previewScale: PREVIEW_SCALE.default,
   leftPanelWidth: 380,
   rightPanelWidth: 220,
   colorScheme: "system",
@@ -44,7 +45,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     }),
   selectSection: (selectedSectionId, selectedSectionTitle = null) =>
     set({ selectedSectionId, selectedSectionTitle }),
-  setPreviewScale: (previewScale) => set({ previewScale }),
+  setPreviewScale: (previewScale) => set({ previewScale: clampPreviewScale(previewScale) }),
   setLeftPanelWidth: (leftPanelWidth) => set({ leftPanelWidth }),
   setRightPanelWidth: (rightPanelWidth) => set({ rightPanelWidth }),
   setColorScheme: (colorScheme) => set({ colorScheme }),

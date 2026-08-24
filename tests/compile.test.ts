@@ -13,4 +13,13 @@ describe("compileResume", () => {
     expect(compiled.locale.id).toBe("zh-CN");
     expect(compiled.style.sections.experience.icon).toBe("briefcase");
   });
+
+  it("keeps the summary icon when compiling the modern theme", () => {
+    const source = readFileSync(path.join(process.cwd(), "examples/resume.zh-CN.md"), "utf8");
+    const compiled = compileResume({ source, config: { theme: "modern" } });
+    expect(compiled.resume.sections[0]?.id).toBe("summary");
+    expect(compiled.style.sections.summary.showSectionIcon).toBe(true);
+    expect(compiled.style.sections.summary.icon).toBe("summary");
+    expect(compiled.style.components.sectionTitle.transform).toBe("uppercase");
+  });
 });

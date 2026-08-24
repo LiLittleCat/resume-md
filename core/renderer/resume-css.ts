@@ -115,7 +115,7 @@ export const RESUME_DOCUMENT_CSS = `
   page-break-after: avoid;
 }
 
-.resume-section-title[data-transform="uppercase"] {
+.resume-section-title[data-transform="uppercase"] .resume-section-title-text {
   text-transform: uppercase;
 }
 
@@ -130,12 +130,20 @@ export const RESUME_DOCUMENT_CSS = `
   height: var(--resume-icon-size);
   flex: 0 0 var(--resume-icon-size);
   color: currentColor;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .resume-icon svg {
   width: 100%;
   height: 100%;
   stroke-width: var(--resume-icon-stroke);
+}
+
+.resume-icon[data-filled="true"] svg {
+  fill: currentColor;
+  stroke: none;
+  stroke-width: 0;
 }
 
 .resume-item {

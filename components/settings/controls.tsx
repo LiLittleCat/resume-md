@@ -72,7 +72,7 @@ export function Segmented<T extends string>({
     <ToggleGroup
       value={[value]}
       onValueChange={(next) => {
-        const selected = next[0];
+        const selected = next[0] ?? value;
         if (selected) onChange(selected as T);
       }}
       variant="outline"

@@ -10,8 +10,10 @@ import { ContentPanel } from "./content-panel";
 import { EditorToolbar } from "./editor-toolbar";
 import { FloatingOutline } from "./floating-outline";
 import { clampPanelWidth, PANEL_LAYOUT } from "./panel-layout";
+import { formatPreviewScale } from "@/lib/preview-scale";
 import { ResizeHandle } from "./resize-handle";
 import { useColorScheme } from "./use-color-scheme";
+import { usePreviewZoom } from "./use-preview-zoom";
 import { useUi, useUiLocale } from "./use-ui";
 
 function readPanelWidth(side: "left" | "right", value: number | undefined): number {
@@ -117,6 +119,7 @@ function EditorShell({ examples }: { examples: Record<LocaleId, string> }) {
   useColorScheme();
   const workspaceRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  const hudScale = usePreviewZoom(previewRef);
   const leftPanelWidth = useEditorStore((state) => state.leftPanelWidth);
   const rightPanelWidth = useEditorStore((state) => state.rightPanelWidth);
   const setLeftPanelWidth = useEditorStore((state) => state.setLeftPanelWidth);
@@ -164,6 +167,16 @@ function EditorShell({ examples }: { examples: Record<LocaleId, string> }) {
           <div ref={previewRef} className="desk-canvas h-full overflow-auto">
             <A4Preview />
           </div>
+          {hudScale !== null ? (
+            <div
+              role="status"
+              aria-live="polite"
+              aria-label={`${ui.scale} ${formatPreviewScale(hudScale)}`}
+              className="pointer-events-none absolute right-4 bottom-4 z-10 rounded-md bg-foreground px-2 py-1 text-[11px] tabular-nums text-background shadow-md"
+            >
+              {formatPreviewScale(hudScale)}
+            </div>
+          ) : null}
         </section>
         <section
           className="relative min-h-0 shrink-0 bg-chrome"

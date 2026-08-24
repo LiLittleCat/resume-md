@@ -36,6 +36,10 @@ export function getTheme(id: string | undefined | null): ThemeDefinition {
   return themes[resolveThemeId(id)];
 }
 
+export function configWithTheme(config: ResumeConfig, theme: ThemeId): ResumeConfig {
+  return deepMerge(config, { theme, icons: { mode: getTheme(theme).icons.mode } });
+}
+
 export function resolveStyle(input: ResolveStyleInput): ResolvedDocumentStyle {
   const config = input.config ?? {};
   const runtime = input.runtime ?? {};
