@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import type { ResumeConfig, SectionId } from "@/core/schema";
 import { PREVIEW_SCALE, clampPreviewScale } from "@/lib/preview-scale";
-import { deepMerge, deletePath } from "@/core/style";
+import { deepMerge, deletePath, resetDocumentDesign as clearDocumentDesign } from "@/core/style";
 import type { ColorSchemePreference } from "@/lib/color-scheme";
 
 export interface EditorState {
@@ -18,6 +18,7 @@ export interface EditorState {
   setSource: (source: string) => void;
   patchConfig: (patch: ResumeConfig) => void;
   resetConfigPath: (path: string[]) => void;
+  resetDocumentDesign: () => void;
   selectSection: (id: SectionId | null, title?: string | null) => void;
   setPreviewScale: (scale: number) => void;
   setLeftPanelWidth: (width: number) => void;
@@ -43,6 +44,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     set({
       config: deletePath(get().config as Record<string, unknown>, path) as ResumeConfig,
     }),
+  resetDocumentDesign: () => set({ config: clearDocumentDesign(get().config) }),
   selectSection: (selectedSectionId, selectedSectionTitle = null) =>
     set({ selectedSectionId, selectedSectionTitle }),
   setPreviewScale: (previewScale) => set({ previewScale: clampPreviewScale(previewScale) }),

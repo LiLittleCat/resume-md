@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { configWithTheme, resolveStyle } from "@/core/style";
+import {
+  configWithTheme,
+  hasDocumentDesignOverrides,
+  resetDocumentDesign,
+  resolveStyle,
+} from "@/core/style";
 import { minimalTheme } from "@/themes/minimal";
 
 describe("resolveStyle", () => {
@@ -138,5 +143,30 @@ describe("resolveStyle", () => {
     expect(none.icons.showContactIcons).toBe(false);
     expect(full.sections.experience.showSectionIcon).toBe(true);
     expect(full.icons.showContactIcons).toBe(true);
+  });
+});
+
+describe("resetDocumentDesign", () => {
+  it("keeps theme, locale, and section overrides", () => {
+    const reset = resetDocumentDesign({
+      theme: "classic",
+      locale: "zh-CN",
+      typography: { name: { fontSize: 18 } },
+      spacing: { itemGap: 9 },
+      sections: { projects: { icon: "rocket" } },
+    });
+    expect(reset).toEqual({
+      theme: "classic",
+      locale: "zh-CN",
+      sections: { projects: { icon: "rocket" } },
+    });
+    expect(hasDocumentDesignOverrides(reset)).toBe(false);
+  });
+
+  it("detects document-level design edits", () => {
+    expect(hasDocumentDesignOverrides({ theme: "minimal", locale: "zh-CN" })).toBe(false);
+    expect(hasDocumentDesignOverrides({ theme: "minimal", typography: { body: { fontSize: 10 } } })).toBe(
+      true,
+    );
   });
 });

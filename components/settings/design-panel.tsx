@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
+import { RotateCcw } from "lucide-react";
 import { compileResume } from "@/core/compile";
-import { configWithTheme } from "@/core/style";
+import { configWithTheme, hasDocumentDesignOverrides } from "@/core/style";
 import { hasPath } from "@/core/style/merge";
 import { resolveLocale } from "@/core/locale";
 import type {
@@ -23,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useEditorStore } from "@/store/editor-store";
 import { Field, NumberSlider, PanelBlock, Segmented } from "./controls";
 import { IconPicker } from "./icon-picker";
@@ -47,6 +49,9 @@ export function DesignPanel() {
   const sectionTitle = selectedSectionId
     ? selectedSectionTitle || resolveLocale(uiLocale).labels[selectedSectionId]
     : ui.design;
+  const canReset = selectedSectionId
+    ? hasPath(config, ["sections", selectedSectionId])
+    : hasDocumentDesignOverrides(config);
 
   if (!compiled) {
     return <aside className="flex h-full items-center justify-center text-sm text-muted-foreground">{ui.noDocument}</aside>;
@@ -58,15 +63,38 @@ export function DesignPanel() {
         <p className="ui-kicker text-muted-foreground">
           {sectionTitle}
         </p>
-        {selectedSectionId ? (
-          <button
-            type="button"
-            className="text-xs text-muted-foreground hover:text-foreground"
-            onClick={() => useEditorStore.getState().selectSection(null)}
-          >
-            {ui.document}
-          </button>
-        ) : null}
+        <div className="flex items-center gap-2">
+          {selectedSectionId ? (
+            <button
+              type="button"
+              className="text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => useEditorStore.getState().selectSection(null)}
+            >
+              {ui.document}
+            </button>
+          ) : null}
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  disabled={!canReset}
+                  aria-label={ui.reset}
+                  onClick={() => {
+                    const store = useEditorStore.getState();
+                    if (selectedSectionId) store.resetConfigPath(["sections", selectedSectionId]);
+                    else store.resetDocumentDesign();
+                  }}
+                >
+                  <RotateCcw className="size-3.5" />
+                </Button>
+              }
+            />
+            <TooltipContent side="bottom">{ui.reset}</TooltipContent>
+          </Tooltip>
+        </div>
       </header>
       <ScrollArea className="min-h-0 flex-1">
         <div className="grid gap-6 px-4 py-4">
@@ -268,10 +296,8 @@ function SectionDesign({ sectionId }: { sectionId: SectionId }) {
   const config = useEditorStore((state) => state.config);
   const source = useEditorStore((state) => state.source);
   const patchConfig = useEditorStore((state) => state.patchConfig);
-  const resetConfigPath = useEditorStore((state) => state.resetConfigPath);
   const compiled = compileResume({ source, config });
   const sectionStyle = compiled.style.sections[sectionId];
-  const overridden = hasPath(config, ["sections", sectionId]);
   const ui = useUi();
 
   const patchSection = (patch: SectionOverride) => {
@@ -284,17 +310,7 @@ function SectionDesign({ sectionId }: { sectionId: SectionId }) {
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-foreground/80">{ui.inheritHint}</p>
-        <Button
-          variant="ghost"
-          size="xs"
-          disabled={!overridden}
-          onClick={() => resetConfigPath(["sections", sectionId])}
-        >
-          {ui.reset}
-        </Button>
-      </div>
+      <p className="text-sm text-foreground/80">{ui.inheritHint}</p>
       <Separator />
 
       <PanelBlock title={ui.typography}>
