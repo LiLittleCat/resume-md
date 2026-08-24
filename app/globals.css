@@ -152,7 +152,7 @@
 }
 
 .resume-paper {
-  background: #fff;
+  background: var(--resume-color-background, #fff);
   box-shadow: var(--paper-shadow);
 }
 

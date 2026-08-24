@@ -132,6 +132,7 @@ export function A4Preview() {
               width: `${pageWidth}mm`,
               height: `${pageHeight}mm`,
               padding: `${style.page.margin.top}mm ${style.page.margin.right}mm ${style.page.margin.bottom}mm ${style.page.margin.left}mm`,
+              background: style.colors.background,
               transform: `scale(${previewScale})`,
               transformOrigin: "top left",
             }}

@@ -38,7 +38,6 @@ export function PrintResume() {
   useEffect(() => {
     document.documentElement.classList.remove("dark");
     document.documentElement.style.colorScheme = "light";
-    document.body.style.background = "#fff";
   }, []);
 
   if (!payload?.source) {
@@ -59,7 +58,7 @@ export function PrintResume() {
         html, body {
           margin: 0 !important;
           padding: 0 !important;
-          background: #ffffff !important;
+          background: ${style.colors.background} !important;
           color-scheme: light !important;
         }
         nextjs-portal,
