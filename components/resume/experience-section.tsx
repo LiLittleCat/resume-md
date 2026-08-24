@@ -52,22 +52,6 @@ function ExperienceHeader({
 }) {
   const dates = formatDateRange(item.startDate, item.endDate, locale.id, locale.labels.present);
 
-  if (layout === "compact") {
-    return (
-      <div className="resume-item-header">
-        <Spread
-          left={
-            <p className="resume-item-title">
-              {item.company}
-              {item.position ? ` · ${item.position}` : ""}
-            </p>
-          }
-          right={dates}
-        />
-      </div>
-    );
-  }
-
   if (layout === "stacked") {
     return (
       <div className="resume-item-header">

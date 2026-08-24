@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { compileResume } from "@/core/compile";
-import { packPages } from "@/core/layout";
+import { collectPageOffsets, packPages, sameOffsets } from "@/core/layout";
 import type { SectionId } from "@/core/schema";
 import { ResumeDocument } from "@/components/resume";
 import { useUi } from "@/components/editor/use-ui";
@@ -26,8 +26,9 @@ export function A4Preview() {
   }, [source, config]);
 
   const measureRef = useRef<HTMLDivElement>(null);
+  const offsetsRef = useRef<number[]>([0]);
   const [offsets, setOffsets] = useState<number[]>([0]);
-  const [pageCount, setPageCount] = useState(1);
+  const pageCount = offsets.length;
 
   const style = compiled?.style;
   const innerHeightMm = style
@@ -39,9 +40,11 @@ export function A4Preview() {
 
   useEffect(() => {
     const node = measureRef.current;
-    if (!node || !style) return;
+    if (!node || !compiled) return;
 
+    let cancelled = false;
     const measure = () => {
+      if (cancelled) return;
       const boxes = [...node.querySelectorAll<HTMLElement>("[data-box]")].map((el, index) => {
         const styles = window.getComputedStyle(el);
         const marginTop = Number.parseFloat(styles.marginTop) || 0;
@@ -55,31 +58,29 @@ export function A4Preview() {
         };
       });
 
-      const mmInPx = node.clientWidth / innerWidthMm;
+      const mmInPx = innerWidthMm > 0 ? node.clientWidth / innerWidthMm : 0;
       const pageHeightPx = innerHeightMm * mmInPx;
       const pages = packPages(boxes, pageHeightPx);
-      const nextOffsets = pages.map((page) => {
-        const first = page.boxIds[0];
-        if (first === undefined) return 0;
-        return boxes[Number(first)]?.top ?? 0;
+      const nextOffsets = collectPageOffsets({
+        boxTops: boxes.map((box) => box.top),
+        pages,
+        contentHeight: node.scrollHeight,
+        pageHeight: pageHeightPx,
       });
-      const offsets = nextOffsets.length > 0 ? nextOffsets : [0];
-      const contentHeight = node.scrollHeight;
-      let cursor = offsets[offsets.length - 1] ?? 0;
-      while (contentHeight - cursor > pageHeightPx + 2) {
-        cursor += pageHeightPx;
-        offsets.push(cursor);
-      }
-      setOffsets(offsets);
-      setPageCount(offsets.length);
+      if (sameOffsets(offsetsRef.current, nextOffsets)) return;
+      offsetsRef.current = nextOffsets;
+      setOffsets(nextOffsets);
     };
 
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(node);
     void document.fonts.ready.then(measure);
-    return () => observer.disconnect();
-  }, [compiled, innerHeightMm, innerWidthMm, style]);
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+    };
+  }, [compiled, innerHeightMm, innerWidthMm]);
 
   if (!compiled || !style) {
     return (

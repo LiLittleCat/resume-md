@@ -61,3 +61,39 @@ export function estimatePageCount(contentHeight: number, pageHeight: number): nu
   if (pageHeight <= 0) return 1;
   return Math.max(1, Math.ceil(contentHeight / pageHeight));
 }
+
+const MAX_PREVIEW_PAGES = 50;
+
+export function collectPageOffsets(input: {
+  boxTops: number[];
+  pages: PackedPage[];
+  contentHeight: number;
+  pageHeight: number;
+}): number[] {
+  const offsets = input.pages.map((page) => {
+    const first = page.boxIds[0];
+    if (first === undefined) return 0;
+    return input.boxTops[Number(first)] ?? 0;
+  });
+  const result = offsets.length > 0 ? offsets : [0];
+  const pageHeight = input.pageHeight;
+  if (!(pageHeight > 0) || !Number.isFinite(pageHeight)) return result;
+
+  let cursor = result[result.length - 1] ?? 0;
+  while (
+    result.length < MAX_PREVIEW_PAGES &&
+    input.contentHeight - cursor > pageHeight + 2
+  ) {
+    cursor += pageHeight;
+    result.push(cursor);
+  }
+  return result;
+}
+
+export function sameOffsets(left: number[], right: number[]): boolean {
+  if (left.length !== right.length) return false;
+  for (let index = 0; index < left.length; index += 1) {
+    if (Math.abs((left[index] ?? 0) - (right[index] ?? 0)) > 0.5) return false;
+  }
+  return true;
+}

@@ -6,13 +6,9 @@ import { configWithTheme } from "@/core/style";
 import { hasPath } from "@/core/style/merge";
 import { resolveLocale } from "@/core/locale";
 import type {
-  EducationLayout,
-  ExperienceLayout,
   IconMode,
-  ProjectLayout,
   SectionId,
   SectionOverride,
-  SkillsLayout,
   SpacingPreset,
   ThemeId,
 } from "@/core/schema";
@@ -65,7 +61,7 @@ export function DesignPanel() {
         {selectedSectionId ? (
           <button
             type="button"
-            className="text-[11px] text-muted-foreground hover:text-foreground"
+            className="text-xs text-muted-foreground hover:text-foreground"
             onClick={() => useEditorStore.getState().selectSection(null)}
           >
             {ui.document}
@@ -92,7 +88,6 @@ function DocumentDesign() {
   const compiled = compileResume({ source, config });
   const { style } = compiled;
   const ui = useUi();
-  const labels = resolveLocale(useUiLocale()).labels;
 
   return (
     <>
@@ -224,51 +219,6 @@ function DocumentDesign() {
         </Field>
       </PanelBlock>
 
-      <PanelBlock title={ui.layout}>
-        <Field label={labels.experience}>
-          <Segmented<ExperienceLayout>
-            value={style.layout.experience}
-            onChange={(experience) => patchConfig({ layout: { experience } })}
-            options={[
-              { value: "default", label: ui.experienceLayouts.default },
-              { value: "compact", label: ui.experienceLayouts.compact },
-              { value: "stacked", label: ui.experienceLayouts.stacked },
-            ]}
-          />
-        </Field>
-        <Field label={labels.projects}>
-          <Segmented<ProjectLayout>
-            value={style.layout.projects}
-            onChange={(projects) => patchConfig({ layout: { projects } })}
-            options={[
-              { value: "default", label: ui.projectLayouts.default },
-              { value: "compact", label: ui.projectLayouts.compact },
-            ]}
-          />
-        </Field>
-        <Field label={labels.skills}>
-          <Segmented<SkillsLayout>
-            value={style.layout.skills}
-            onChange={(skills) => patchConfig({ layout: { skills } })}
-            options={[
-              { value: "inline", label: ui.skillsLayouts.inline },
-              { value: "stacked", label: ui.skillsLayouts.stacked },
-              { value: "columns", label: ui.skillsLayouts.columns },
-            ]}
-          />
-        </Field>
-        <Field label={labels.education}>
-          <Segmented<EducationLayout>
-            value={style.layout.education}
-            onChange={(education) => patchConfig({ layout: { education } })}
-            options={[
-              { value: "default", label: ui.educationLayouts.default },
-              { value: "compact", label: ui.educationLayouts.compact },
-            ]}
-          />
-        </Field>
-      </PanelBlock>
-
       <PanelBlock title={ui.icons}>
         <Segmented<IconMode>
           value={style.icons.mode}
@@ -347,57 +297,6 @@ function SectionDesign({ sectionId }: { sectionId: SectionId }) {
       </div>
       <Separator />
 
-      {sectionId === "experience" ? (
-        <PanelBlock title={ui.layout}>
-          <Segmented<ExperienceLayout>
-            value={(sectionStyle.layout as ExperienceLayout) ?? "default"}
-            onChange={(layout) => patchSection({ layout })}
-            options={[
-              { value: "default", label: ui.experienceLayouts.default },
-              { value: "compact", label: ui.experienceLayouts.compact },
-              { value: "stacked", label: ui.experienceLayouts.stacked },
-            ]}
-          />
-        </PanelBlock>
-      ) : null}
-      {sectionId === "projects" ? (
-        <PanelBlock title={ui.layout}>
-          <Segmented<ProjectLayout>
-            value={(sectionStyle.layout as ProjectLayout) ?? "default"}
-            onChange={(layout) => patchSection({ layout })}
-            options={[
-              { value: "default", label: ui.projectLayouts.default },
-              { value: "compact", label: ui.projectLayouts.compact },
-            ]}
-          />
-        </PanelBlock>
-      ) : null}
-      {sectionId === "skills" ? (
-        <PanelBlock title={ui.layout}>
-          <Segmented<SkillsLayout>
-            value={(sectionStyle.layout as SkillsLayout) ?? "inline"}
-            onChange={(layout) => patchSection({ layout })}
-            options={[
-              { value: "inline", label: ui.skillsLayouts.inline },
-              { value: "stacked", label: ui.skillsLayouts.stacked },
-              { value: "columns", label: ui.skillsLayouts.columns },
-            ]}
-          />
-        </PanelBlock>
-      ) : null}
-      {sectionId === "education" ? (
-        <PanelBlock title={ui.layout}>
-          <Segmented<EducationLayout>
-            value={(sectionStyle.layout as EducationLayout) ?? "default"}
-            onChange={(layout) => patchSection({ layout })}
-            options={[
-              { value: "default", label: ui.educationLayouts.default },
-              { value: "compact", label: ui.educationLayouts.compact },
-            ]}
-          />
-        </PanelBlock>
-      ) : null}
-
       <PanelBlock title={ui.typography}>
         <Field label={ui.title} hint={`${sectionStyle.typography.sectionTitle.fontSize} pt`}>
           <NumberSlider
@@ -414,7 +313,9 @@ function SectionDesign({ sectionId }: { sectionId: SectionId }) {
             min={8}
             max={13}
             step={0.5}
-            onChange={(fontSize) => patchSection({ typography: { body: { fontSize } } })}
+            onChange={(fontSize) =>
+              patchSection({ typography: { base: { fontSize }, body: { fontSize } } })
+            }
           />
         </Field>
         <Field label={ui.meta} hint={`${sectionStyle.typography.meta.fontSize} pt`}>

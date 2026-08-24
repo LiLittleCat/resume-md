@@ -44,7 +44,7 @@ export function IconPicker({
           </p>
           <button
             type="button"
-            className="text-[11px] text-primary hover:underline"
+            className="text-xs text-primary hover:underline"
             onClick={() => setViewAll((current) => !current)}
           >
             {viewAll ? ui.recommended : ui.viewAll}

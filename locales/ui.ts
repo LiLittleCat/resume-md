@@ -11,6 +11,7 @@ import type {
 
 export interface UiCopy {
   content: string;
+  loadExample: string;
   design: string;
   document: string;
   noDocument: string;
@@ -67,6 +68,7 @@ export interface UiCopy {
 export const uiCopy: Record<LocaleId, UiCopy> = {
   "zh-CN": {
     content: "内容",
+    loadExample: "加载示例",
     design: "设计",
     document: "文档",
     noDocument: "没有文档",
@@ -147,6 +149,7 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
   },
   "en-US": {
     content: "Content",
+    loadExample: "Load example",
     design: "Design",
     document: "Document",
     noDocument: "No document",

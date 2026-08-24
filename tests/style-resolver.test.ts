@@ -34,9 +34,26 @@ describe("resolveStyle", () => {
     });
     expect(style.typography.name.fontSize).toBe(18);
     expect(style.typography.body.fontSize).toBe(10);
+    expect(style.typography.itemTitle.fontSize).toBe(minimalTheme.typography.itemTitle.fontSize);
+    expect(style.typography.itemSubtitle.fontSize).toBe(minimalTheme.typography.itemSubtitle.fontSize);
+    expect(style.sections.projects.typography.itemTitle.fontSize).toBe(
+      minimalTheme.typography.itemTitle.fontSize,
+    );
     expect(style.typography.sectionTitle.fontSize).toBe(minimalTheme.typography.sectionTitle.fontSize);
     expect(style.spacing.sectionGap).toBe(8);
     expect(style.layout.skills).toBe("stacked");
+  });
+
+  it("scales project item titles with the section title size", () => {
+    const style = resolveStyle({
+      themeId: "minimal",
+      localeId: "zh-CN",
+      config: { typography: { sectionTitle: { fontSize: 16 } } },
+    });
+    expect(style.typography.sectionTitle.fontSize).toBe(16);
+    expect(style.sections.projects.typography.sectionTitle.fontSize).toBe(16);
+    expect(style.typography.itemTitle.fontSize).toBe(15);
+    expect(style.sections.projects.typography.itemTitle.fontSize).toBe(15);
   });
 
   it("applies spacing presets before custom spacing overrides", () => {

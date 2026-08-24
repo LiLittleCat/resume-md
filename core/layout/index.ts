@@ -1,1 +1,8 @@
-export { packPages, estimatePageCount, type LayoutBox, type PackedPage } from "./pagination";
+export {
+  packPages,
+  estimatePageCount,
+  collectPageOffsets,
+  sameOffsets,
+  type LayoutBox,
+  type PackedPage,
+} from "./pagination";

@@ -1,10 +1,8 @@
 import type { CSSProperties } from "react";
 import { RESUME_DOCUMENT_CSS, toDocumentCssVars, toSectionCssVars } from "@/core/renderer";
 import type {
-  EducationLayout,
   ExperienceLayout,
   LocaleDefinition,
-  ProjectLayout,
   Resume,
   ResumeSection,
   SectionId,
@@ -131,34 +129,18 @@ function SectionBody({
         />
       );
     case "projects":
-      return (
-        <ProjectsBody items={section.items} layout={asProjectLayout(layout)} locale={locale} />
-      );
+      return <ProjectsBody items={section.items} locale={locale} />;
     case "education":
-      return (
-        <EducationBody
-          items={section.items}
-          layout={asEducationLayout(layout)}
-          locale={locale}
-        />
-      );
+      return <EducationBody items={section.items} locale={locale} />;
     default:
       return <GenericBody section={section} locale={locale} />;
   }
 }
 
 function asExperienceLayout(value: string | undefined): ExperienceLayout {
-  return value === "compact" || value === "stacked" ? value : "default";
-}
-
-function asProjectLayout(value: string | undefined): ProjectLayout {
-  return value === "compact" ? value : "default";
+  return value === "stacked" ? "stacked" : "default";
 }
 
 function asSkillsLayout(value: string | undefined): SkillsLayout {
-  return value === "stacked" || value === "columns" ? value : "inline";
-}
-
-function asEducationLayout(value: string | undefined): EducationLayout {
-  return value === "compact" ? value : "default";
+  return value === "stacked" || value === "columns" ? "stacked" : "inline";
 }

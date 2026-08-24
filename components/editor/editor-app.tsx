@@ -151,7 +151,7 @@ function EditorShell({ examples }: { examples: Record<LocaleId, string> }) {
           className="relative min-h-0 shrink-0 overflow-visible bg-chrome"
           style={{ width: leftPanelWidth }}
         >
-          <ContentPanel />
+          <ContentPanel examples={examples} />
           <FloatingOutline scrollRootRef={previewRef} />
           <ResizeHandle
             side="left"

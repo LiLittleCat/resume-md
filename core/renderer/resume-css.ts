@@ -107,12 +107,15 @@ export const RESUME_DOCUMENT_CSS = `
   gap: var(--resume-icon-gap);
   margin: 0 0 var(--resume-content-gap);
   color: var(--resume-color-accent);
+  break-after: avoid-page;
+  page-break-after: avoid;
+}
+
+.resume-section-title-text {
   font-size: var(--resume-section-title-size);
   font-weight: var(--resume-section-title-weight);
   letter-spacing: var(--resume-section-title-tracking);
   line-height: var(--resume-section-title-leading);
-  break-after: avoid-page;
-  page-break-after: avoid;
 }
 
 .resume-section-title[data-transform="uppercase"] .resume-section-title-text {
@@ -282,30 +285,13 @@ export const RESUME_DOCUMENT_CSS = `
   margin-bottom: 0.6mm;
 }
 
-.resume-skills[data-layout="columns"] {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 8mm;
-  row-gap: var(--resume-item-gap);
-}
-
-.resume-skills[data-layout="columns"] .resume-skill-name {
-  font-size: var(--resume-item-title-size);
-  font-weight: var(--resume-item-title-weight);
-  margin-bottom: 0.6mm;
-}
-
 .resume-tech {
   margin-top: var(--resume-content-gap);
   color: var(--resume-color-muted);
-  font-family: var(--resume-font-mono), var(--resume-font-latin), monospace;
-  font-size: var(--resume-meta-size);
-  line-height: var(--resume-meta-leading);
-}
-
-.resume-compact-title {
-  font-size: var(--resume-item-title-size);
-  font-weight: var(--resume-item-title-weight);
+  font-size: var(--resume-body-size);
+  font-weight: var(--resume-body-weight);
+  letter-spacing: var(--resume-body-tracking);
+  line-height: var(--resume-body-leading);
 }
 
 .resume-stacked-meta {

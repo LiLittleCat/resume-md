@@ -22,7 +22,7 @@ export function Field({
           {label}
         </Label>
         {hint ? (
-          <span className="font-mono text-[11px] text-muted-foreground tabular-nums">{hint}</span>
+          <span className="font-mono text-xs text-muted-foreground tabular-nums">{hint}</span>
         ) : null}
       </div>
       {children}
@@ -84,7 +84,7 @@ export function Segmented<T extends string>({
       style={{ gridTemplateColumns: `repeat(${columns ?? options.length}, minmax(0, 1fr))` }}
     >
       {options.map((option) => (
-        <ToggleGroupItem key={option.value} value={option.value} className="px-1.5 text-[11px]">
+        <ToggleGroupItem key={option.value} value={option.value} className="px-1.5 text-xs">
           {option.label}
         </ToggleGroupItem>
       ))}

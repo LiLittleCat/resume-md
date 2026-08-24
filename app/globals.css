@@ -162,12 +162,12 @@
 }
 
 .ui-kicker {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
 }
 
 [data-ui-locale="en-US"] .ui-kicker {
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 

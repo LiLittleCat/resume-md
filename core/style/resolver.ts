@@ -211,5 +211,15 @@ function mergeTypography(
       });
     }
   }
+  if (override.sectionTitle?.fontSize !== undefined && !override.itemTitle) {
+    const sizeDelta = override.sectionTitle.fontSize - base.sectionTitle.fontSize;
+    next.itemTitle = deepMerge(next.itemTitle, {
+      fontSize: roundTypeSize(base.itemTitle.fontSize + sizeDelta),
+    });
+  }
   return next;
+}
+
+function roundTypeSize(size: number): number {
+  return Math.max(8, Math.round(size * 2) / 2);
 }
