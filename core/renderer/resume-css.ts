@@ -31,6 +31,13 @@ export const RESUME_DOCUMENT_CSS = `
   margin-bottom: var(--resume-header-gap);
 }
 
+.resume-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6mm;
+  min-width: 0;
+}
+
 .resume-header[data-align="center"] {
   align-items: center;
   text-align: center;
@@ -39,6 +46,77 @@ export const RESUME_DOCUMENT_CSS = `
 .resume-header[data-rule="true"] {
   padding-bottom: 3mm;
   border-bottom: 0.45pt solid var(--resume-color-rule);
+}
+
+.resume-header[data-avatar="left"],
+.resume-header[data-avatar="right"] {
+  display: grid;
+  align-items: center;
+  column-gap: 4.5mm;
+  text-align: left;
+}
+
+.resume-header[data-avatar="left"] {
+  grid-template-columns: var(--resume-avatar-size) minmax(0, 1fr);
+}
+
+.resume-header[data-avatar="right"] {
+  grid-template-columns: minmax(0, 1fr) var(--resume-avatar-size);
+}
+
+.resume-header[data-avatar="left"] .resume-avatar {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.resume-header[data-avatar="left"] .resume-identity {
+  grid-column: 2;
+}
+
+.resume-header[data-avatar="right"] .resume-identity {
+  grid-column: 1;
+}
+
+.resume-header[data-avatar="right"] .resume-avatar {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.resume-header[data-avatar="left"] .resume-contact,
+.resume-header[data-avatar="right"] .resume-contact {
+  justify-content: flex-start;
+}
+
+.resume-header[data-avatar="center"] {
+  align-items: center;
+  text-align: center;
+  gap: 2.2mm;
+}
+
+.resume-header[data-avatar] {
+  overflow: hidden;
+}
+
+.resume-root .resume-avatar {
+  display: block;
+  width: var(--resume-avatar-size);
+  height: var(--resume-avatar-size);
+  max-width: var(--resume-avatar-size);
+  max-height: var(--resume-avatar-size);
+  flex: 0 0 var(--resume-avatar-size);
+  object-fit: cover;
+  object-position: center top;
+  background: var(--resume-color-muted);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.resume-root .resume-avatar[data-shape="circle"] {
+  border-radius: 50%;
+}
+
+.resume-root .resume-avatar[data-shape="square"] {
+  border-radius: 0.8mm;
 }
 
 .resume-name {

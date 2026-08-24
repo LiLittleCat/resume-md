@@ -1,5 +1,7 @@
 import { z } from "zod";
 import {
+  AvatarPositionSchema,
+  AvatarShapeSchema,
   EducationLayoutSchema,
   ExperienceLayoutSchema,
   LocaleIdSchema,
@@ -58,9 +60,18 @@ export const SectionTitleStyleSchema = z.object({
 
 export type SectionTitleStyle = z.infer<typeof SectionTitleStyleSchema>;
 
+export const AvatarStyleSchema = z.object({
+  position: AvatarPositionSchema,
+  shape: AvatarShapeSchema,
+  sizeMm: z.number().positive(),
+});
+
+export type AvatarStyle = z.infer<typeof AvatarStyleSchema>;
+
 export const ComponentStylesSchema = z.object({
   header: HeaderStyleSchema,
   sectionTitle: SectionTitleStyleSchema,
+  avatar: AvatarStyleSchema,
 });
 
 export type ComponentStyles = z.infer<typeof ComponentStylesSchema>;

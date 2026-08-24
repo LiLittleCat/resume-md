@@ -80,6 +80,11 @@ export const modernTheme: ThemeDefinition = {
       transform: "uppercase",
       rule: true,
     },
+    avatar: {
+      position: "right",
+      shape: "circle",
+      sizeMm: 22,
+    },
   },
   flexibleSpacing: {
     sectionGap: { min: 5, ideal: 7, max: 9.5 },

@@ -1,5 +1,7 @@
 import { z } from "zod";
 import {
+  AvatarPositionSchema,
+  AvatarShapeSchema,
   EducationLayoutSchema,
   ExperienceLayoutSchema,
   LocaleIdSchema,
@@ -54,6 +56,13 @@ export const ResumeConfigSchema = z.object({
   page: PageOverrideSchema.optional(),
   icons: IconConfigSchema.optional(),
   layout: LayoutConfigSchema.optional(),
+  avatar: z
+    .object({
+      position: AvatarPositionSchema.optional(),
+      shape: AvatarShapeSchema.optional(),
+      sizeMm: z.number().positive().optional(),
+    })
+    .optional(),
   sections: z.partialRecord(SectionIdSchema, SectionOverrideSchema).optional(),
 });
 

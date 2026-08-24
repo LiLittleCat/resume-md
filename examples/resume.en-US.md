@@ -1,6 +1,7 @@
 ---
 name: Helena Park
 title: Senior Backend Engineer
+avatar: /examples/helena-park.jpg
 
 contact:
   phone: +1 (415) 555-0186

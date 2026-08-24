@@ -27,6 +27,7 @@ export function toDocumentCssVars(style: ResolvedDocumentStyle): CssVarMap {
     "--resume-icon-size": `${style.icons.size}pt`,
     "--resume-icon-stroke": String(style.icons.strokeWidth),
     "--resume-icon-gap": `${style.icons.gap}mm`,
+    "--resume-avatar-size": `${style.components.avatar.sizeMm}mm`,
     ...typographyVars(style.typography),
     ...spacingVars(style.spacing),
   };

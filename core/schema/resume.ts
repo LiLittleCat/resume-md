@@ -18,6 +18,7 @@ export type Contact = z.infer<typeof ContactSchema>;
 export const ProfileSchema = z.object({
   name: z.string(),
   title: z.string().optional(),
+  avatar: z.string().min(1).optional(),
   contact: ContactSchema,
 });
 
@@ -168,6 +169,7 @@ export type Resume = z.infer<typeof ResumeSchema>;
 export const FrontMatterSchema = z.object({
   name: z.string().optional(),
   title: z.string().optional(),
+  avatar: z.string().min(1).optional(),
   contact: ContactSchema.optional(),
   locale: LocaleIdSchema.optional(),
   theme: z.string().optional(),

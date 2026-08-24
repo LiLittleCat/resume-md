@@ -74,6 +74,11 @@ export const classicTheme: ThemeDefinition = {
       transform: "none",
       rule: true,
     },
+    avatar: {
+      position: "center",
+      shape: "square",
+      sizeMm: 24,
+    },
   },
   flexibleSpacing: {
     sectionGap: { min: 4.5, ideal: 6.2, max: 8.5 },

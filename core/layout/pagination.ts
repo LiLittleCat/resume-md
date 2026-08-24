@@ -64,30 +64,53 @@ export function estimatePageCount(contentHeight: number, pageHeight: number): nu
 
 const MAX_PREVIEW_PAGES = 50;
 
+export interface OffsetBox {
+  top: number;
+  height: number;
+  keepTogether?: boolean;
+  keepWithNext?: boolean;
+}
+
 export function collectPageOffsets(input: {
-  boxTops: number[];
-  pages: PackedPage[];
+  boxes: OffsetBox[];
   contentHeight: number;
   pageHeight: number;
 }): number[] {
-  const offsets = input.pages.map((page) => {
-    const first = page.boxIds[0];
-    if (first === undefined) return 0;
-    return input.boxTops[Number(first)] ?? 0;
-  });
-  const result = offsets.length > 0 ? offsets : [0];
   const pageHeight = input.pageHeight;
-  if (!(pageHeight > 0) || !Number.isFinite(pageHeight)) return result;
+  if (!(pageHeight > 0) || !Number.isFinite(pageHeight)) return [0];
 
-  let cursor = result[result.length - 1] ?? 0;
+  const offsets = [0];
+  let pageStart = 0;
+  const boxes = input.boxes;
+
+  for (let index = 0; index < boxes.length; index += 1) {
+    const box = boxes[index];
+    if (!box) continue;
+    const next = boxes[index + 1];
+    const top = box.top;
+    const bottom =
+      box.keepWithNext && next ? next.top + next.height : box.top + box.height;
+    const pageBottom = pageStart + pageHeight;
+    if (bottom > pageBottom + 1 && top > pageStart + 1) {
+      offsets.push(top);
+      pageStart = top;
+    }
+    if (box.keepWithNext && next) index += 1;
+  }
+
+  let cursor = offsets[offsets.length - 1] ?? 0;
   while (
-    result.length < MAX_PREVIEW_PAGES &&
+    offsets.length < MAX_PREVIEW_PAGES &&
     input.contentHeight - cursor > pageHeight + 2
   ) {
-    cursor += pageHeight;
-    result.push(cursor);
+    const sliced = boxes.find(
+      (box) => cursor + pageHeight > box.top + 1 && cursor + pageHeight < box.top + box.height - 1,
+    );
+    cursor = sliced ? sliced.top + sliced.height : cursor + pageHeight;
+    if (cursor <= (offsets[offsets.length - 1] ?? 0) + 1) break;
+    offsets.push(cursor);
   }
-  return result;
+  return offsets;
 }
 
 export function sameOffsets(left: number[], right: number[]): boolean {

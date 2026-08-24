@@ -80,6 +80,11 @@ export const minimalTheme: ThemeDefinition = {
       transform: "none",
       rule: true,
     },
+    avatar: {
+      position: "right",
+      shape: "square",
+      sizeMm: 22,
+    },
   },
   flexibleSpacing: {
     sectionGap: { min: 4.5, ideal: 6.5, max: 9 },

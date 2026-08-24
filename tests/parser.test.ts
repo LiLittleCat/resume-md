@@ -31,6 +31,7 @@ describe("parseResumeMarkdown", () => {
 
     expect(warnings).toEqual([]);
     expect(frontMatter.name).toBe("张三");
+    expect(resume.profile.avatar).toBe("/examples/zhangsan.jpg");
     expect(resume.locale).toBe("zh-CN");
     expect(resume.profile.title).toBe("后端开发工程师");
     expect(resume.profile.contact.email).toBe("zhangsan@example.com");
@@ -112,6 +113,21 @@ describe("parseResumeMarkdown", () => {
       expect(education.items[0]?.school).toBe("University of Washington");
       expect(education.items[0]?.degree).toBe("B.S. Computer Science");
     }
+  });
+
+  it("reads the avatar url from front matter", () => {
+    const source = `---
+name: Test
+avatar: https://cdn.example.com/photo.jpg
+---
+
+# 个人简介
+
+hello
+`;
+    const { resume, warnings } = parseResumeMarkdown(source);
+    expect(warnings).toEqual([]);
+    expect(resume.profile.avatar).toBe("https://cdn.example.com/photo.jpg");
   });
 
   it("keeps custom headings as generic sections", () => {

@@ -1,4 +1,4 @@
-export const EDITOR_STORAGE_KEY = "resume-md:v2";
+export const EDITOR_STORAGE_KEY = "resume-md:v3";
 
 export const COLOR_SCHEMES = ["light", "dark", "system"] as const;
 

@@ -5,4 +5,5 @@ export {
   sameOffsets,
   type LayoutBox,
   type PackedPage,
+  type OffsetBox,
 } from "./pagination";

@@ -99,6 +99,7 @@ function buildProfile(frontMatter: FrontMatter): Profile {
   return {
     name: frontMatter.name?.trim() ?? "",
     title: frontMatter.title?.trim() || undefined,
+    avatar: frontMatter.avatar?.trim() || undefined,
     contact,
   };
 }

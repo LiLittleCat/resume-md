@@ -1,4 +1,6 @@
 import type {
+  AvatarPosition,
+  AvatarShape,
   EducationLayout,
   ExperienceLayout,
   IconMode,
@@ -63,6 +65,15 @@ export interface UiCopy {
   skillsLayouts: Record<SkillsLayout, string>;
   educationLayouts: Record<EducationLayout, string>;
   iconModes: Record<IconMode, string>;
+  avatar: string;
+  avatarPosition: string;
+  avatarShape: string;
+  avatarPositions: Record<AvatarPosition, string>;
+  avatarShapes: Record<AvatarShape, string>;
+  avatarUpload: string;
+  avatarChange: string;
+  avatarRemove: string;
+  avatarInvalid: string;
 }
 
 export const uiCopy: Record<LocaleId, UiCopy> = {
@@ -146,6 +157,22 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
       section: "章节",
       full: "全部",
     },
+    avatar: "头像",
+    avatarPosition: "位置",
+    avatarShape: "形状",
+    avatarPositions: {
+      left: "左侧",
+      center: "居中",
+      right: "右侧",
+    },
+    avatarShapes: {
+      square: "方形",
+      circle: "圆形",
+    },
+    avatarUpload: "上传",
+    avatarChange: "更换",
+    avatarRemove: "移除",
+    avatarInvalid: "请选择一张图片",
   },
   "en-US": {
     content: "Content",
@@ -227,6 +254,22 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
       section: "Section",
       full: "Full",
     },
+    avatar: "Photo",
+    avatarPosition: "Position",
+    avatarShape: "Shape",
+    avatarPositions: {
+      left: "Left",
+      center: "Center",
+      right: "Right",
+    },
+    avatarShapes: {
+      square: "Square",
+      circle: "Circle",
+    },
+    avatarUpload: "Upload",
+    avatarChange: "Replace",
+    avatarRemove: "Remove",
+    avatarInvalid: "Please choose an image",
   },
 };
 

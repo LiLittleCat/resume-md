@@ -26,6 +26,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useEditorStore } from "@/store/editor-store";
+import { AvatarField } from "./avatar-field";
 import { Field, NumberSlider, PanelBlock, Segmented } from "./controls";
 import { IconPicker } from "./icon-picker";
 
@@ -130,6 +131,14 @@ function DocumentDesign() {
             { value: "modern", label: ui.themes.modern },
             { value: "classic", label: ui.themes.classic },
           ]}
+        />
+      </PanelBlock>
+
+      <PanelBlock title={ui.avatar}>
+        <AvatarField
+          avatar={compiled.resume.profile.avatar}
+          position={style.components.avatar.position}
+          shape={style.components.avatar.shape}
         />
       </PanelBlock>
 

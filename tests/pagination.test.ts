@@ -32,18 +32,32 @@ describe("packPages", () => {
 describe("collectPageOffsets", () => {
   it("does not grow forever when page height is zero", () => {
     const offsets = collectPageOffsets({
-      boxTops: [0, 40],
-      pages: [{ boxIds: ["0", "1"], height: 80 }],
+      boxes: [
+        { top: 0, height: 40 },
+        { top: 40, height: 40 },
+      ],
       contentHeight: 800,
       pageHeight: 0,
     });
     expect(offsets).toEqual([0]);
   });
 
+  it("starts the next page at a keep-with-next title instead of slicing it", () => {
+    const offsets = collectPageOffsets({
+      boxes: [
+        { top: 0, height: 80, keepTogether: true },
+        { top: 90, height: 20, keepWithNext: true },
+        { top: 110, height: 40, keepTogether: true },
+      ],
+      contentHeight: 150,
+      pageHeight: 100,
+    });
+    expect(offsets).toEqual([0, 90]);
+  });
+
   it("fills remaining scroll height with whole pages", () => {
     const offsets = collectPageOffsets({
-      boxTops: [0],
-      pages: [{ boxIds: ["0"], height: 100 }],
+      boxes: [{ top: 0, height: 100, keepTogether: true }],
       contentHeight: 250,
       pageHeight: 100,
     });

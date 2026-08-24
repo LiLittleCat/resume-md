@@ -15,6 +15,17 @@ describe("resolveStyle", () => {
     expect(style.spacing.sectionGap).toBe(minimalTheme.spacingPresets.normal.sectionGap);
     expect(style.layout.experience).toBe("default");
     expect(style.icons.mode).toBe("section");
+    expect(style.components.avatar).toEqual({ position: "right", shape: "square", sizeMm: 22 });
+  });
+
+  it("lets document config override avatar placement", () => {
+    const style = resolveStyle({
+      themeId: "classic",
+      config: { avatar: { position: "left", shape: "circle" } },
+    });
+    expect(style.components.avatar.position).toBe("left");
+    expect(style.components.avatar.shape).toBe("circle");
+    expect(style.components.avatar.sizeMm).toBe(24);
   });
 
   it("applies locale typography presets after the theme", () => {

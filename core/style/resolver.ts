@@ -75,7 +75,13 @@ export function resolveStyle(input: ResolveStyleInput): ResolvedDocumentStyle {
       showContactIcons: iconMode === "full",
     },
     layout: documentLayer.layout,
-    components: theme.components,
+    components: {
+      ...theme.components,
+      avatar: deepMerge(
+        deepMerge(theme.components.avatar, config.avatar),
+        runtime.avatar,
+      ),
+    },
     pagination: theme.pagination,
     contactIcons: DEFAULT_CONTACT_ICONS,
     sections,

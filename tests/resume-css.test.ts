@@ -27,6 +27,13 @@ describe("resume document CSS", () => {
     );
   });
 
+  it("lays out an avatar beside or above the identity block", () => {
+    expect(RESUME_DOCUMENT_CSS).toMatch(/\.resume-header\[data-avatar="right"\]/);
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-root \.resume-avatar\[data-shape="circle"\] \{\s*border-radius:\s*50%/,
+    );
+  });
+
   it("lets project tech stack follow body type", () => {
     expect(RESUME_DOCUMENT_CSS).toMatch(
       /\.resume-tech \{[\s\S]*?font-size:\s*var\(--resume-body-size\)/,

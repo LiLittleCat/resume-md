@@ -61,6 +61,14 @@ export const EDUCATION_LAYOUTS = ["default", "compact"] as const;
 export type EducationLayout = (typeof EDUCATION_LAYOUTS)[number];
 export const EducationLayoutSchema = z.enum(EDUCATION_LAYOUTS);
 
+export const AVATAR_POSITIONS = ["left", "center", "right"] as const;
+export type AvatarPosition = (typeof AVATAR_POSITIONS)[number];
+export const AvatarPositionSchema = z.enum(AVATAR_POSITIONS);
+
+export const AVATAR_SHAPES = ["square", "circle"] as const;
+export type AvatarShape = (typeof AVATAR_SHAPES)[number];
+export const AvatarShapeSchema = z.enum(AVATAR_SHAPES);
+
 export const ICON_MODES = ["none", "section", "full"] as const;
 export type IconMode = (typeof ICON_MODES)[number];
 export const IconModeSchema = z.enum(ICON_MODES);

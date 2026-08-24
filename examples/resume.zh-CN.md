@@ -1,6 +1,7 @@
 ---
 name: 张三
 title: 后端开发工程师
+avatar: /examples/zhangsan.jpg
 
 contact:
   phone: 138-0000-1111

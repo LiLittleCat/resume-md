@@ -1,4 +1,4 @@
-import { parse as parseYaml } from "yaml";
+import { parse as parseYaml, parseDocument } from "yaml";
 import { FrontMatterSchema, type FrontMatter, type ParseWarning } from "../schema";
 
 const FRONT_MATTER_RE = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
@@ -41,4 +41,24 @@ export function splitFrontMatter(source: string): SplitFrontMatterResult {
   }
 
   return { data: result.data, content, warnings };
+}
+
+export function setFrontMatterAvatar(source: string, avatar: string | null): string {
+  const match = FRONT_MATTER_RE.exec(source);
+  if (!match) {
+    if (!avatar) return source;
+    return `---\navatar: ${JSON.stringify(avatar)}\n---\n\n${source.replace(/^\n+/, "")}`;
+  }
+
+  const raw = match[1] ?? "";
+  const body = source.slice(match[0].length);
+  const document = parseDocument(raw);
+  if (document.errors.length > 0) return source;
+
+  if (avatar) document.set("avatar", avatar);
+  else document.delete("avatar");
+
+  const dumped = document.toString({ lineWidth: 0 }).replace(/\n+$/, "");
+  if (!dumped) return body.replace(/^\n+/, "");
+  return `---\n${dumped}\n---\n${body.replace(/^\n/, "")}`;
 }

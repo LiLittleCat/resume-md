@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { compileResume } from "@/core/compile";
-import { collectPageOffsets, packPages, sameOffsets } from "@/core/layout";
+import { collectPageOffsets, sameOffsets } from "@/core/layout";
 import type { SectionId } from "@/core/schema";
 import { ResumeDocument } from "@/components/resume";
 import { useUi } from "@/components/editor/use-ui";
@@ -28,6 +28,7 @@ export function A4Preview() {
   const measureRef = useRef<HTMLDivElement>(null);
   const offsetsRef = useRef<number[]>([0]);
   const [offsets, setOffsets] = useState<number[]>([0]);
+  const [pageHeightPx, setPageHeightPx] = useState(1);
   const pageCount = offsets.length;
 
   const style = compiled?.style;
@@ -60,13 +61,12 @@ export function A4Preview() {
 
       const mmInPx = innerWidthMm > 0 ? node.clientWidth / innerWidthMm : 0;
       const pageHeightPx = innerHeightMm * mmInPx;
-      const pages = packPages(boxes, pageHeightPx);
       const nextOffsets = collectPageOffsets({
-        boxTops: boxes.map((box) => box.top),
-        pages,
+        boxes,
         contentHeight: node.scrollHeight,
         pageHeight: pageHeightPx,
       });
+      setPageHeightPx(pageHeightPx);
       if (sameOffsets(offsetsRef.current, nextOffsets)) return;
       offsetsRef.current = nextOffsets;
       setOffsets(nextOffsets);
@@ -75,6 +75,9 @@ export function A4Preview() {
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(node);
+    for (const image of node.querySelectorAll("img")) {
+      if (!image.complete) image.addEventListener("load", measure, { once: true });
+    }
     void document.fonts.ready.then(measure);
     return () => {
       cancelled = true;
@@ -118,7 +121,12 @@ export function A4Preview() {
         <ResumeDocument {...documentProps} />
       </div>
 
-      {Array.from({ length: pageCount }, (_, index) => (
+      {Array.from({ length: pageCount }, (_, index) => {
+        const start = offsets[index] ?? 0;
+        const next = offsets[index + 1];
+        const clipPx =
+          next === undefined ? pageHeightPx : Math.max(0, Math.min(pageHeightPx, next - start));
+        return (
         <div
           key={index}
           style={{
@@ -139,15 +147,16 @@ export function A4Preview() {
           >
             <div
               className="relative overflow-hidden"
-              style={{ width: `${innerWidthMm}mm`, height: `${innerHeightMm}mm` }}
+              style={{ width: `${innerWidthMm}mm`, height: `${clipPx}px` }}
             >
-              <div style={{ transform: `translateY(-${offsets[index] ?? 0}px)` }}>
+              <div style={{ transform: `translateY(-${start}px)` }}>
                 <ResumeDocument {...documentProps} />
               </div>
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
