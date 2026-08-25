@@ -2,9 +2,9 @@
 
 [中文](./README.md) | English
 
-Write a resume in Markdown, preview it on a real A4 page, and export a PDF.
+**Write your resume in Markdown, preview the layout as you type, and export it directly to PDF when you're done.**
 
-Markdown stays content. Parser, theme, and style resolution live in `core/`. The page renders semantic resume components. Playwright prints the same HTML you see in preview.
+Edit the content on the left, see a live preview in the middle, and adjust the theme, fonts, spacing, avatar, and icons on the right. You can create and manage multiple resumes in either Chinese or English.
 
 ```
 Markdown → Parser → Resume AST → Style Resolver → Semantic components → HTML/CSS → Chromium PDF
@@ -55,5 +55,5 @@ app/api/pdf    Playwright export
 - Resume components only read resolved style
 - Icons are semantic ids (`briefcase`), not Lucide component names
 - Section identity is `section.id`, never the visible heading
-- A4 is print-first: `210mm × 297mm`, margins in mm, type in pt
+- Print layout uses physical units: margins in mm and type in pt
 - Resume document CSS uses physical units. Product chrome uses Tailwind
