@@ -1,5 +1,7 @@
 import { compileResume } from "@/core/compile";
 import { ResumeConfigSchema } from "@/core/schema";
+import serverlessChromium from "@sparticuz/chromium";
+import { chromium } from "playwright-core";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -34,8 +36,7 @@ async function renderPdf(
   source: string,
   config: unknown,
 ): Promise<Buffer> {
-  const { chromium } = await import("playwright");
-  const browser = await launchChromium(chromium);
+  const browser = await launchChromium();
   try {
     const page = await browser.newPage();
     const printUrl = new URL("/print", request.url);
@@ -70,10 +71,17 @@ async function renderPdf(
   }
 }
 
-async function launchChromium(
-  chromium: typeof import("playwright").chromium,
-) {
+async function launchChromium() {
   const args = ["--no-sandbox", "--disable-dev-shm-usage", "--font-render-hinting=none"];
+
+  if (process.env.VERCEL) {
+    return chromium.launch({
+      headless: true,
+      executablePath: await serverlessChromium.executablePath(),
+      args: [...serverlessChromium.args, ...args],
+    });
+  }
+
   try {
     return await chromium.launch({
       headless: true,
