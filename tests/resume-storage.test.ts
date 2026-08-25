@@ -177,9 +177,14 @@ describe("resume library mutations", () => {
   });
 
   it("updates chrome without touching documents", () => {
-    const library = updateResumeChrome(twoDocs(), { colorScheme: "light", leftPanelWidth: 360 });
+    const library = updateResumeChrome(twoDocs(), {
+      colorScheme: "light",
+      leftPanelRatio: 0.6,
+      designPanelCollapsed: true,
+    });
     expect(library.chrome.colorScheme).toBe("light");
-    expect(library.chrome.leftPanelWidth).toBe(360);
+    expect(library.chrome.leftPanelRatio).toBe(0.6);
+    expect(library.chrome.designPanelCollapsed).toBe(true);
     expect(library.documents.a.source).toBe(zhSource);
   });
 });

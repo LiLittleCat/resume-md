@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { RotateCcw } from "lucide-react";
+import { PanelRightClose, RotateCcw } from "lucide-react";
 import { compileResume } from "@/core/compile";
 import { configWithTheme, hasDocumentDesignOverrides } from "@/core/style";
 import { hasPath } from "@/core/style/merge";
@@ -33,7 +33,7 @@ import { IconPicker } from "./icon-picker";
 const LATIN_FONTS = ["Inter", "Source Serif 4"];
 const CJK_FONTS = ["Noto Sans SC", "Noto Serif SC"];
 
-export function DesignPanel() {
+export function DesignPanel({ onCollapse }: { onCollapse: () => void }) {
   const source = useEditorStore((state) => state.source);
   const config = useEditorStore((state) => state.config);
   const selectedSectionId = useEditorStore((state) => state.selectedSectionId);
@@ -94,6 +94,22 @@ export function DesignPanel() {
               }
             />
             <TooltipContent side="bottom">{ui.reset}</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  aria-label={ui.collapseDesign}
+                  onClick={onCollapse}
+                >
+                  <PanelRightClose className="size-3.5" />
+                </Button>
+              }
+            />
+            <TooltipContent side="bottom">{ui.collapseDesign}</TooltipContent>
           </Tooltip>
         </div>
       </header>

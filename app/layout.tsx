@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "@fontsource/noto-sans-sc/chinese-simplified-400.css";
 import "@fontsource/noto-sans-sc/chinese-simplified-500.css";
 import "@fontsource/noto-sans-sc/chinese-simplified-600.css";
@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-editor-mono" });
 
 export const metadata: Metadata = {
   title: "Resume MD",
@@ -22,7 +23,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="zh-CN" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
+    <html
+      lang="zh-CN"
+      className={cn("font-sans", geist.variable, geistMono.variable)}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: COLOR_SCHEME_BOOT_SCRIPT }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

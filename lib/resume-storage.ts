@@ -26,8 +26,11 @@ export interface ResumeDocumentRecord {
 
 export interface ResumeChrome {
   colorScheme: ColorSchemePreference;
+  leftPanelRatio?: number;
+  /** Legacy pixel width retained for reading existing libraries. */
   leftPanelWidth?: number;
   rightPanelWidth?: number;
+  designPanelCollapsed?: boolean;
 }
 
 export interface ResumeLibrary {
@@ -246,8 +249,10 @@ function parseLegacyLibrary(raw: string | null, seed: SeedInput): ResumeLibrary 
       activeId: id,
       chrome: {
         colorScheme: parseColorScheme(parsed.colorScheme),
+        leftPanelRatio: asFiniteNumber(parsed.leftPanelRatio),
         leftPanelWidth: asFiniteNumber(parsed.leftPanelWidth),
         rightPanelWidth: asFiniteNumber(parsed.rightPanelWidth),
+        designPanelCollapsed: asBoolean(parsed.designPanelCollapsed),
       },
       documents: {
         [id]: { id, source, config, createdAt: now, updatedAt: now },
@@ -276,8 +281,10 @@ function parseChrome(value: unknown): ResumeChrome {
   const chrome = value as Record<string, unknown>;
   return {
     colorScheme: parseColorScheme(chrome.colorScheme),
+    leftPanelRatio: asFiniteNumber(chrome.leftPanelRatio),
     leftPanelWidth: asFiniteNumber(chrome.leftPanelWidth),
     rightPanelWidth: asFiniteNumber(chrome.rightPanelWidth),
+    designPanelCollapsed: asBoolean(chrome.designPanelCollapsed),
   };
 }
 
@@ -287,6 +294,10 @@ function parseColorScheme(value: unknown): ColorSchemePreference {
 
 function asFiniteNumber(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function asBoolean(value: unknown): boolean | undefined {
+  return typeof value === "boolean" ? value : undefined;
 }
 
 function repairLibrary(library: ResumeLibrary): { library: ResumeLibrary; changed: boolean } {

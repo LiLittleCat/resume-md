@@ -6,7 +6,7 @@ import { ListTree } from "lucide-react";
 import { compileResume } from "@/core/compile";
 import { cn } from "@/lib/utils";
 import { useEditorStore } from "@/store/editor-store";
-import { outlineEntries } from "./outline";
+import { isOutlineEntrySelected, outlineEntries } from "./outline";
 import { useUi } from "./use-ui";
 
 export function FloatingOutline({
@@ -18,6 +18,7 @@ export function FloatingOutline({
   const config = useEditorStore((state) => state.config);
   const selectedSectionId = useEditorStore((state) => state.selectedSectionId);
   const selectedSectionTitle = useEditorStore((state) => state.selectedSectionTitle);
+  const headingFocus = useEditorStore((state) => state.headingFocus);
   const selectSection = useEditorStore((state) => state.selectSection);
   const focusHeading = useEditorStore((state) => state.focusHeading);
   const ui = useUi();
@@ -33,11 +34,15 @@ export function FloatingOutline({
   if (outline.length === 0) return null;
 
   return (
-    <aside className="group/outline absolute top-1/2 right-2 z-30 -translate-y-1/2">
+    <aside className="group/outline absolute top-24 right-2 z-30">
       <div className="overflow-hidden rounded-xl border border-border bg-chrome/92 shadow-lg backdrop-blur-md">
-        <div className="flex size-10 items-center justify-center text-muted-foreground group-hover/outline:hidden group-focus-within/outline:hidden">
+        <button
+          type="button"
+          aria-label={ui.outline}
+          className="flex size-10 items-center justify-center text-muted-foreground group-hover/outline:hidden group-focus-within/outline:hidden"
+        >
           <ListTree className="size-4" />
-        </div>
+        </button>
         <div className="hidden w-56 group-hover/outline:block group-focus-within/outline:block">
           <div className="flex h-10 items-center gap-2 px-2.5 text-muted-foreground">
             <ListTree className="size-4 shrink-0" />
@@ -46,9 +51,11 @@ export function FloatingOutline({
           <nav className="max-h-[min(60vh,28rem)] overflow-y-auto px-1.5 pb-2">
             <ol className="flex flex-col">
               {outline.map((entry, index) => {
-                const selected =
-                  selectedSectionId === entry.sectionId &&
-                  (entry.sectionId !== "custom" || selectedSectionTitle === entry.sectionTitle);
+                const selected = isOutlineEntrySelected(entry, {
+                  sectionId: selectedSectionId,
+                  sectionTitle: selectedSectionTitle,
+                  heading: headingFocus,
+                });
                 return (
                   <li key={`${index}-${entry.sectionId}-${entry.depth}-${entry.title}`}>
                     <button

@@ -3,6 +3,7 @@ import {
   applyKeyboardZoom,
   applyWheelZoom,
   clampPreviewScale,
+  fitPreviewScale,
   formatPreviewScale,
   isZoomWheel,
   parseZoomKey,
@@ -41,6 +42,30 @@ describe("applyKeyboardZoom", () => {
     expect(applyKeyboardZoom(1, "in")).toBeCloseTo(1.1);
     expect(applyKeyboardZoom(1.1, "out")).toBeCloseTo(1);
     expect(applyKeyboardZoom(1.4, "reset")).toBe(PREVIEW_SCALE.default);
+  });
+});
+
+describe("fitPreviewScale", () => {
+  it("fits a page within both available dimensions", () => {
+    expect(
+      fitPreviewScale({
+        containerWidth: 900,
+        containerHeight: 1000,
+        pageWidth: 800,
+        pageHeight: 1200,
+      }),
+    ).toBe(0.78);
+  });
+
+  it("keeps very narrow previews inside the supported scale range", () => {
+    expect(
+      fitPreviewScale({
+        containerWidth: 200,
+        containerHeight: 800,
+        pageWidth: 800,
+        pageHeight: 1200,
+      }),
+    ).toBe(PREVIEW_SCALE.min);
   });
 });
 

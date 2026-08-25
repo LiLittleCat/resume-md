@@ -15,8 +15,8 @@ export async function POST(request: Request) {
 
     const config = ResumeConfigSchema.parse(body.config ?? {});
     const compiled = compileResume({ source: body.source, config });
-    const pdf = await renderPdf(request, body.source, config);
     const rawName = compiled.resume.profile.name || "resume";
+    const pdf = await renderPdf(request, body.source, config, rawName);
     const asciiName = (rawName.replace(/[^\x20-\x7E]/g, "").trim() || "resume").replace(/\s+/g, "-");
     const encodedName = encodeURIComponent(`${rawName}.pdf`);
     return new Response(new Uint8Array(pdf), {
@@ -35,6 +35,7 @@ async function renderPdf(
   request: Request,
   source: string,
   config: unknown,
+  title: string,
 ): Promise<Buffer> {
   const browser = await launchChromium();
   try {
@@ -48,6 +49,9 @@ async function renderPdf(
     );
     await page.goto(printUrl.toString(), { waitUntil: "networkidle", timeout: 30_000 });
     await page.waitForSelector(".resume-root", { timeout: 15_000 });
+    await page.evaluate((documentTitle) => {
+      document.title = documentTitle;
+    }, title);
     await page.evaluate(async () => {
       const sample = document.querySelector(".resume-root")?.textContent ?? "中文简历";
       const families = ["Noto Sans SC", "Noto Serif SC", "Inter", "Source Serif 4", "JetBrains Mono"];

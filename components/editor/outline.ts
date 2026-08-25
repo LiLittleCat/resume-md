@@ -7,6 +7,20 @@ export type OutlineEntry = {
   sectionTitle: string;
 };
 
+export function isOutlineEntrySelected(
+  entry: OutlineEntry,
+  selection: {
+    sectionId: SectionId | null;
+    sectionTitle: string | null;
+    heading: { title: string; depth: 1 | 2 } | null;
+  },
+): boolean {
+  if (selection.sectionId !== entry.sectionId) return false;
+  if (entry.sectionId === "custom" && selection.sectionTitle !== entry.sectionTitle) return false;
+  if (!selection.heading) return entry.depth === 1;
+  return entry.title === selection.heading.title && entry.depth === selection.heading.depth;
+}
+
 export function outlineEntries(resume: Resume): OutlineEntry[] {
   const entries: OutlineEntry[] = [];
   for (const section of resume.sections) {

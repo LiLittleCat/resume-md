@@ -52,6 +52,8 @@ export interface UiCopy {
   viewAll: string;
   resizeContent: string;
   resizeDesign: string;
+  collapseDesign: string;
+  expandDesign: string;
   localeZh: string;
   localeEn: string;
   schemeLight: string;
@@ -138,6 +140,8 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     viewAll: "查看全部",
     resizeContent: "调整内容栏宽度",
     resizeDesign: "调整设计栏宽度",
+    collapseDesign: "收起设计栏",
+    expandDesign: "展开设计栏",
     localeZh: "中文",
     localeEn: "English",
     schemeLight: "日间",
@@ -276,6 +280,8 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     viewAll: "View all",
     resizeContent: "Resize content panel",
     resizeDesign: "Resize design panel",
+    collapseDesign: "Collapse design panel",
+    expandDesign: "Expand design panel",
     localeZh: "Chinese",
     localeEn: "English",
     schemeLight: "Light",

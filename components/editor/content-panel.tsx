@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { ChevronLeft, FileText } from "lucide-react";
+import { ChevronLeft, FileInput } from "lucide-react";
 import type { LocaleId } from "@/core/schema";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -67,7 +67,7 @@ export function ContentPanel({
                   })
                 }
               >
-                <FileText className="size-3.5" />
+                <FileInput className="size-3.5" />
               </Button>
             }
           />
@@ -80,7 +80,7 @@ export function ContentPanel({
         onChange={(event) => setSource(event.target.value)}
         spellCheck={false}
         aria-label={ui.markdownAria}
-        className="min-h-0 flex-1 resize-none border-0 bg-transparent px-4 py-3 font-mono text-[13px] leading-[22px] text-foreground/80 outline-none"
+        className="markdown-editor min-h-0 flex-1 resize-none border-0 bg-transparent px-4 py-3 text-[13px] leading-[22px] text-foreground/80 outline-none"
       />
     </div>
   );

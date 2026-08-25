@@ -6,6 +6,7 @@ import {
   applyKeyboardZoom,
   applyWheelZoom,
   clampPreviewScale,
+  fitPreviewScale,
   isZoomWheel,
   parseZoomKey,
 } from "@/lib/preview-scale";
@@ -27,6 +28,7 @@ export function usePreviewZoom(containerRef: RefObject<HTMLElement | null>) {
   const [hudScale, setHudScale] = useState<number | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scaleRef = useRef(previewScale);
+  const autoFitRef = useRef(true);
   const gestureOrigin = useRef(previewScale);
   const usingGesture = useRef(false);
   const anchorRef = useRef<{
@@ -51,6 +53,7 @@ export function usePreviewZoom(containerRef: RefObject<HTMLElement | null>) {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+    let observedPaper: HTMLElement | null = null;
 
     const showHud = (scale: number) => {
       setHudScale(scale);
@@ -80,10 +83,45 @@ export function usePreviewZoom(containerRef: RefObject<HTMLElement | null>) {
       showHud(clamped);
     };
 
+    const fitPreview = () => {
+      if (!autoFitRef.current) return;
+      const paper = container.querySelector<HTMLElement>(".resume-paper");
+      if (!paper) return;
+      const fitted = fitPreviewScale({
+        containerWidth: container.clientWidth,
+        containerHeight: container.clientHeight,
+        pageWidth: paper.offsetWidth,
+        pageHeight: paper.offsetHeight,
+      });
+      anchorRef.current = null;
+      scaleRef.current = fitted;
+      setPreviewScale(fitted);
+    };
+
+    const resizeObserver = new ResizeObserver(fitPreview);
+    resizeObserver.observe(container);
+
+    const observePaper = () => {
+      const paper = container.querySelector<HTMLElement>(".resume-paper");
+      if (paper === observedPaper) {
+        fitPreview();
+        return;
+      }
+      if (observedPaper) resizeObserver.unobserve(observedPaper);
+      observedPaper = paper;
+      if (observedPaper) resizeObserver.observe(observedPaper);
+      fitPreview();
+    };
+
+    const mutationObserver = new MutationObserver(observePaper);
+    mutationObserver.observe(container, { childList: true, subtree: true });
+    observePaper();
+
     const onWheel = (event: WheelEvent) => {
       if (usingGesture.current) return;
       if (!isZoomWheel(event)) return;
       event.preventDefault();
+      autoFitRef.current = false;
       commitScale(
         applyWheelZoom(scaleRef.current, event.deltaY, event.deltaMode),
         event.clientX,
@@ -94,6 +132,7 @@ export function usePreviewZoom(containerRef: RefObject<HTMLElement | null>) {
     const onGestureStart = (event: Event) => {
       event.preventDefault();
       usingGesture.current = true;
+      autoFitRef.current = false;
       gestureOrigin.current = scaleRef.current;
     };
 
@@ -113,6 +152,13 @@ export function usePreviewZoom(containerRef: RefObject<HTMLElement | null>) {
       const action = parseZoomKey(event);
       if (!action) return;
       event.preventDefault();
+      if (action === "reset") {
+        autoFitRef.current = true;
+        fitPreview();
+        showHud(scaleRef.current);
+        return;
+      }
+      autoFitRef.current = false;
       commitScale(applyKeyboardZoom(scaleRef.current, action));
     };
 
@@ -127,6 +173,8 @@ export function usePreviewZoom(containerRef: RefObject<HTMLElement | null>) {
       container.removeEventListener("gesturechange", onGestureChange);
       container.removeEventListener("gestureend", onGestureEnd);
       window.removeEventListener("keydown", onKeyDown);
+      mutationObserver.disconnect();
+      resizeObserver.disconnect();
       if (hideTimer.current) clearTimeout(hideTimer.current);
     };
   }, [containerRef, setPreviewScale]);

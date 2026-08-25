@@ -1,6 +1,6 @@
 export const PREVIEW_SCALE = {
-  min: 0.4,
-  max: 2,
+  min: 0.25,
+  max: 3,
   default: 0.82,
 } as const;
 
@@ -13,6 +13,27 @@ export function clampPreviewScale(scale: number): number {
 
 export function formatPreviewScale(scale: number): string {
   return `${Math.round(clampPreviewScale(scale) * 100)}%`;
+}
+
+export function fitPreviewScale({
+  containerWidth,
+  containerHeight,
+  pageWidth,
+  pageHeight,
+  paddingX = 64,
+  paddingY = 64,
+}: {
+  containerWidth: number;
+  containerHeight: number;
+  pageWidth: number;
+  pageHeight: number;
+  paddingX?: number;
+  paddingY?: number;
+}): number {
+  if (pageWidth <= 0 || pageHeight <= 0) return PREVIEW_SCALE.default;
+  const widthScale = Math.max(0, containerWidth - paddingX) / pageWidth;
+  const heightScale = Math.max(0, containerHeight - paddingY) / pageHeight;
+  return clampPreviewScale(Math.min(widthScale, heightScale));
 }
 
 export function applyWheelZoom(scale: number, deltaY: number, deltaMode = 0): number {

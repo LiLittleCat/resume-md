@@ -12,8 +12,9 @@ export interface EditorState {
   selectedSectionId: SectionId | null;
   selectedSectionTitle: string | null;
   previewScale: number;
-  leftPanelWidth: number;
+  leftPanelRatio: number;
   rightPanelWidth: number;
+  designPanelCollapsed: boolean;
   colorScheme: ColorSchemePreference;
   setSource: (source: string) => void;
   patchConfig: (patch: ResumeConfig) => void;
@@ -21,8 +22,9 @@ export interface EditorState {
   resetDocumentDesign: () => void;
   selectSection: (id: SectionId | null, title?: string | null) => void;
   setPreviewScale: (scale: number) => void;
-  setLeftPanelWidth: (width: number) => void;
+  setLeftPanelRatio: (ratio: number) => void;
   setRightPanelWidth: (width: number) => void;
+  setDesignPanelCollapsed: (collapsed: boolean) => void;
   setColorScheme: (colorScheme: ColorSchemePreference) => void;
   headingFocus: { title: string; depth: 1 | 2; nonce: number } | null;
   focusHeading: (title: string, depth: 1 | 2) => void;
@@ -35,8 +37,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   selectedSectionId: null,
   selectedSectionTitle: null,
   previewScale: PREVIEW_SCALE.default,
-  leftPanelWidth: 380,
-  rightPanelWidth: 220,
+  leftPanelRatio: 0.5,
+  rightPanelWidth: 260,
+  designPanelCollapsed: false,
   colorScheme: "system",
   setSource: (source) => set({ source }),
   patchConfig: (patch) => set({ config: deepMerge(get().config, patch) }),
@@ -46,10 +49,11 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     }),
   resetDocumentDesign: () => set({ config: clearDocumentDesign(get().config) }),
   selectSection: (selectedSectionId, selectedSectionTitle = null) =>
-    set({ selectedSectionId, selectedSectionTitle }),
+    set({ selectedSectionId, selectedSectionTitle, headingFocus: null }),
   setPreviewScale: (previewScale) => set({ previewScale: clampPreviewScale(previewScale) }),
-  setLeftPanelWidth: (leftPanelWidth) => set({ leftPanelWidth }),
+  setLeftPanelRatio: (leftPanelRatio) => set({ leftPanelRatio }),
   setRightPanelWidth: (rightPanelWidth) => set({ rightPanelWidth }),
+  setDesignPanelCollapsed: (designPanelCollapsed) => set({ designPanelCollapsed }),
   setColorScheme: (colorScheme) => set({ colorScheme }),
   headingFocus: null,
   focusHeading: (title, depth) =>
@@ -60,6 +64,6 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       config: config ?? {},
       selectedSectionId: null,
       selectedSectionTitle: null,
+      headingFocus: null,
     }),
 }));
-

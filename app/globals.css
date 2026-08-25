@@ -166,6 +166,12 @@
   font-weight: 500;
 }
 
+.markdown-editor {
+  font-family: var(--font-editor-mono), "Noto Sans SC", "Microsoft YaHei UI", monospace;
+  font-variant-ligatures: none;
+  font-style: normal;
+}
+
 [data-ui-locale="en-US"] .ui-kicker {
   letter-spacing: 0.12em;
   text-transform: uppercase;
