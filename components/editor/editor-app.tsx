@@ -1,11 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { parseResumeMarkdown } from "@/core/parser";
+import { useRouter } from "next/navigation";
 import type { LocaleId, ResumeConfig } from "@/core/schema";
 import { A4Preview } from "@/components/preview/a4-preview";
 import { DesignPanel } from "@/components/settings/design-panel";
-import { EDITOR_STORAGE_KEY, useEditorStore } from "@/store/editor-store";
+import { persistLibraryOrToast } from "@/components/library/persist";
+import {
+  hydrateResumeLibrary,
+  updateResumeChrome,
+  updateResumeDocument,
+  type ResumeLibrary,
+} from "@/lib/resume-storage";
+import { useEditorStore } from "@/store/editor-store";
 import { ContentPanel } from "./content-panel";
 import { EditorToolbar } from "./editor-toolbar";
 import { FloatingOutline } from "./floating-outline";
@@ -16,60 +23,13 @@ import { useColorScheme } from "./use-color-scheme";
 import { usePreviewZoom } from "./use-preview-zoom";
 import { useUi, useUiLocale } from "./use-ui";
 
+const PERSIST_DEBOUNCE_MS = 300;
+
 function readPanelWidth(side: "left" | "right", value: number | undefined): number {
   if (typeof value !== "number") return PANEL_LAYOUT[side].default;
   if (side === "left" && value === 320) return PANEL_LAYOUT.left.default;
   if (side === "right" && value === 300) return PANEL_LAYOUT.right.default;
   return value;
-}
-
-function withLocale(source: string, config: ResumeConfig): ResumeConfig {
-  if (config.locale) return config;
-  const parsed = parseResumeMarkdown(source);
-  return { ...config, locale: parsed.frontMatter.locale ?? parsed.resume.locale };
-}
-
-function readStoredDocument(
-  examples: Record<LocaleId, string>,
-  defaultConfig: ResumeConfig,
-): {
-  source: string;
-  config: ResumeConfig;
-  leftPanelWidth: number;
-  rightPanelWidth: number;
-  colorScheme: "light" | "dark" | "system";
-} {
-  const fallback = {
-    source: examples["zh-CN"],
-    config: withLocale(examples["zh-CN"], defaultConfig),
-    leftPanelWidth: PANEL_LAYOUT.left.default,
-    rightPanelWidth: PANEL_LAYOUT.right.default,
-    colorScheme: "system" as const,
-  };
-  const saved = window.localStorage.getItem(EDITOR_STORAGE_KEY);
-  if (!saved) return fallback;
-  try {
-    const parsed = JSON.parse(saved) as {
-      source?: string;
-      config?: ResumeConfig;
-      leftPanelWidth?: number;
-      rightPanelWidth?: number;
-      colorScheme?: "light" | "dark" | "system";
-    };
-    const source = parsed.source || examples["zh-CN"];
-    return {
-      source,
-      config: withLocale(source, parsed.config ?? defaultConfig),
-      leftPanelWidth: readPanelWidth("left", parsed.leftPanelWidth),
-      rightPanelWidth: readPanelWidth("right", parsed.rightPanelWidth),
-      colorScheme:
-        parsed.colorScheme === "light" || parsed.colorScheme === "dark" || parsed.colorScheme === "system"
-          ? parsed.colorScheme
-          : "system",
-    };
-  } catch {
-    return fallback;
-  }
 }
 
 export function EditorApp({
@@ -80,31 +40,65 @@ export function EditorApp({
   defaultConfig: ResumeConfig;
 }) {
   const [ready, setReady] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    const document = readStoredDocument(examples, defaultConfig);
-    useEditorStore.setState({
-      source: document.source,
-      config: document.config,
-      selectedSectionId: null,
-      leftPanelWidth: document.leftPanelWidth,
-      rightPanelWidth: document.rightPanelWidth,
-      colorScheme: document.colorScheme,
+    const library = hydrateResumeLibrary(window.localStorage, {
+      source: examples["zh-CN"],
+      config: defaultConfig,
     });
-    setReady(true);
-    return useEditorStore.subscribe((state) => {
-      window.localStorage.setItem(
-        EDITOR_STORAGE_KEY,
-        JSON.stringify({
+    const active = library.activeId ? library.documents[library.activeId] : undefined;
+    if (!active) {
+      router.replace("/resumes");
+      return;
+    }
+
+    useEditorStore.setState({
+      source: active.source,
+      config: active.config,
+      selectedSectionId: null,
+      selectedSectionTitle: null,
+      leftPanelWidth: readPanelWidth("left", library.chrome.leftPanelWidth),
+      rightPanelWidth: readPanelWidth("right", library.chrome.rightPanelWidth),
+      colorScheme: library.chrome.colorScheme,
+    });
+
+    const libraryRef = { current: library };
+    const activeId = active.id;
+    let lastSerialized = JSON.stringify({ source: active.source, config: active.config });
+    let timer = 0;
+
+    const flush = () => {
+      persistLibraryOrToast(libraryRef.current, useEditorStore.getState().config.locale);
+    };
+
+    const unsubscribe = useEditorStore.subscribe((state) => {
+      const serialized = JSON.stringify({ source: state.source, config: state.config });
+      let next: ResumeLibrary = libraryRef.current;
+      if (serialized !== lastSerialized) {
+        lastSerialized = serialized;
+        next = updateResumeDocument(next, activeId, {
           source: state.source,
           config: state.config,
-          leftPanelWidth: state.leftPanelWidth,
-          rightPanelWidth: state.rightPanelWidth,
-          colorScheme: state.colorScheme,
-        }),
-      );
+        });
+      }
+      next = updateResumeChrome(next, {
+        colorScheme: state.colorScheme,
+        leftPanelWidth: state.leftPanelWidth,
+        rightPanelWidth: state.rightPanelWidth,
+      });
+      libraryRef.current = next;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(flush, PERSIST_DEBOUNCE_MS);
     });
-  }, [defaultConfig, examples]);
+
+    setReady(true);
+    return () => {
+      unsubscribe();
+      window.clearTimeout(timer);
+      flush();
+    };
+  }, [defaultConfig, examples, router]);
 
   if (!ready) {
     return <div className="h-screen bg-background" />;
@@ -145,7 +139,7 @@ function EditorShell({ examples }: { examples: Record<LocaleId, string> }) {
       lang={locale}
       className="flex h-screen min-w-[1180px] flex-col bg-background text-foreground"
     >
-      <EditorToolbar examples={examples} />
+      <EditorToolbar />
       <div ref={workspaceRef} className="flex min-h-0 flex-1">
         <section
           className="relative min-h-0 shrink-0 overflow-visible bg-chrome"

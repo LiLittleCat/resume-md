@@ -74,6 +74,21 @@ export interface UiCopy {
   avatarChange: string;
   avatarRemove: string;
   avatarInvalid: string;
+  back: string;
+  resumes: string;
+  newResume: string;
+  newFromZh: string;
+  newFromEn: string;
+  duplicateResume: string;
+  deleteResume: string;
+  deleteResumeTitle: string;
+  deleteResumeConfirm: string;
+  cancel: string;
+  unnamedResume: string;
+  editingNow: string;
+  resumesEmpty: string;
+  resumesEmptyHint: string;
+  storageFull: string;
 }
 
 export const uiCopy: Record<LocaleId, UiCopy> = {
@@ -173,6 +188,21 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     avatarChange: "更换",
     avatarRemove: "移除",
     avatarInvalid: "请选择一张图片",
+    back: "返回",
+    resumes: "所有简历",
+    newResume: "新建简历",
+    newFromZh: "中文示例",
+    newFromEn: "英文示例",
+    duplicateResume: "复制",
+    deleteResume: "删除",
+    deleteResumeTitle: "删除这份简历？",
+    deleteResumeConfirm: "删除后无法恢复。",
+    cancel: "取消",
+    unnamedResume: "未命名简历",
+    editingNow: "编辑中",
+    resumesEmpty: "还没有简历",
+    resumesEmptyHint: "从一份示例开始，再回到这里管理所有版本。",
+    storageFull: "浏览器存储已满，这次修改没有写入本地。",
   },
   "en-US": {
     content: "Content",
@@ -270,6 +300,21 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     avatarChange: "Replace",
     avatarRemove: "Remove",
     avatarInvalid: "Please choose an image",
+    back: "Back",
+    resumes: "All resumes",
+    newResume: "New resume",
+    newFromZh: "Chinese example",
+    newFromEn: "English example",
+    duplicateResume: "Duplicate",
+    deleteResume: "Delete",
+    deleteResumeTitle: "Delete this resume?",
+    deleteResumeConfirm: "This cannot be undone.",
+    cancel: "Cancel",
+    unnamedResume: "Untitled resume",
+    editingNow: "Editing",
+    resumesEmpty: "No resumes yet",
+    resumesEmptyHint: "Start from an example, then come back here to manage every version.",
+    storageFull: "Browser storage is full. This change was not saved locally.",
   },
 };
 

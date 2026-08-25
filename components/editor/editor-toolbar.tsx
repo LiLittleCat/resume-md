@@ -5,31 +5,25 @@ import { FileDown, Loader2, Monitor, Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { compileResume } from "@/core/compile";
 import type { LocaleId } from "@/core/schema";
+import { ProductMark } from "@/components/chrome/product-mark";
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store/editor-store";
 import { IconToggle, IconToggleGroup } from "./icon-toggle";
 import { useColorScheme } from "./use-color-scheme";
 import { useUi, useUiLocale } from "./use-ui";
 
-export function EditorToolbar({
-  examples,
-}: {
-  examples: Record<LocaleId, string>;
-}) {
+export function EditorToolbar() {
   const [exporting, setExporting] = useState(false);
   const source = useEditorStore((state) => state.source);
   const config = useEditorStore((state) => state.config);
-  const loadDocument = useEditorStore((state) => state.loadDocument);
+  const patchConfig = useEditorStore((state) => state.patchConfig);
   const uiLocale = useUiLocale();
   const ui = useUi();
   const { preference, setColorScheme } = useColorScheme();
 
   const switchLocale = (locale: LocaleId) => {
     if (locale === uiLocale) return;
-    loadDocument(examples[locale], {
-      ...config,
-      locale,
-    });
+    patchConfig({ locale });
   };
 
   const exportPdf = async () => {
@@ -64,14 +58,7 @@ export function EditorToolbar({
   return (
     <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4">
       <div className="flex items-center gap-3">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-[15px] font-medium tracking-[-0.02em] text-foreground">
-            Resume
-          </span>
-          <span className="text-[15px] font-medium tracking-[-0.02em] text-primary">
-            MD
-          </span>
-        </div>
+        <ProductMark href="/resumes" title={ui.back} />
         <div className="h-4 w-px bg-border" />
         <IconToggleGroup>
           <IconToggle

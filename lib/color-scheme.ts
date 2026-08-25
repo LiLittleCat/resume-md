@@ -1,4 +1,5 @@
-export const EDITOR_STORAGE_KEY = "resume-md:v3";
+export const EDITOR_STORAGE_KEY = "resume-md:v4";
+export const LEGACY_EDITOR_STORAGE_KEY = "resume-md:v3";
 
 export const COLOR_SCHEMES = ["light", "dark", "system"] as const;
 
@@ -17,11 +18,12 @@ export function resolveColorScheme(
 export const COLOR_SCHEME_BOOT_SCRIPT = `(function(){
   try {
     var pref = "system";
-    var raw = localStorage.getItem("${EDITOR_STORAGE_KEY}");
+    var raw = localStorage.getItem("${EDITOR_STORAGE_KEY}") || localStorage.getItem("${LEGACY_EDITOR_STORAGE_KEY}");
     if (raw) {
       var parsed = JSON.parse(raw);
-      if (parsed && (parsed.colorScheme === "light" || parsed.colorScheme === "dark" || parsed.colorScheme === "system")) {
-        pref = parsed.colorScheme;
+      var scheme = parsed && parsed.chrome ? parsed.chrome.colorScheme : parsed && parsed.colorScheme;
+      if (scheme === "light" || scheme === "dark" || scheme === "system") {
+        pref = scheme;
       }
     }
     var dark = pref === "dark" || (pref !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);

@@ -63,4 +63,3 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     }),
 }));
 
-export { EDITOR_STORAGE_KEY } from "@/lib/color-scheme";

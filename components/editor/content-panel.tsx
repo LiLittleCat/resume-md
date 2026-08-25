@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { FileText } from "lucide-react";
+import Link from "next/link";
+import { ChevronLeft, FileText } from "lucide-react";
 import type { LocaleId } from "@/core/schema";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { useEditorStore } from "@/store/editor-store";
 import { useUi, useUiLocale } from "./use-ui";
 
@@ -36,6 +38,18 @@ export function ContentPanel({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
+      <div className="flex h-9 items-center border-b border-border px-3">
+        <Link
+          href="/resumes"
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "sm" }),
+            "-ml-1 text-muted-foreground hover:text-foreground",
+          )}
+        >
+          <ChevronLeft className="size-3.5" />
+          {ui.back}
+        </Link>
+      </div>
       <header className="flex h-11 items-center justify-between border-b border-border px-4">
         <p className="ui-kicker text-muted-foreground">{ui.content}</p>
         <Tooltip>
