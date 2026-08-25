@@ -89,6 +89,11 @@ export interface UiCopy {
   resumesEmpty: string;
   resumesEmptyHint: string;
   storageFull: string;
+  help: string;
+  helpTitle: string;
+  helpIntro: string;
+  helpSteps: Array<{ title: string; description: string }>;
+  helpStorage: string;
 }
 
 export const uiCopy: Record<LocaleId, UiCopy> = {
@@ -203,6 +208,32 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     resumesEmpty: "还没有简历",
     resumesEmptyHint: "从一份示例开始，再回到这里管理所有版本。",
     storageFull: "浏览器存储已满，这次修改没有写入本地。",
+    help: "帮助",
+    helpTitle: "使用 Resume MD",
+    helpIntro: "从编辑内容到导出 PDF，一份简历的基本流程。",
+    helpSteps: [
+      {
+        title: "管理简历",
+        description: "点击左上角 Resume MD 返回简历列表，可以新建、复制或删除简历。",
+      },
+      {
+        title: "编辑内容",
+        description: "在左侧编辑 Markdown。Front matter 是个人信息，一级标题是简历章节。",
+      },
+      {
+        title: "查看预览",
+        description: "中间会实时显示分页效果。点击预览中的章节，可以单独调整该章节。",
+      },
+      {
+        title: "调整设计",
+        description: "在右侧设置主题、字体、间距、头像、图标和页边距。",
+      },
+      {
+        title: "导出 PDF",
+        description: "完成后点击右上角的“导出 PDF”。",
+      },
+    ],
+    helpStorage: "修改会自动保存在当前浏览器中。清除站点数据或更换浏览器后不会自动恢复。",
   },
   "en-US": {
     content: "Content",
@@ -315,6 +346,32 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     resumesEmpty: "No resumes yet",
     resumesEmptyHint: "Start from an example, then come back here to manage every version.",
     storageFull: "Browser storage is full. This change was not saved locally.",
+    help: "Help",
+    helpTitle: "Using Resume MD",
+    helpIntro: "The basic workflow from editing content to exporting a PDF.",
+    helpSteps: [
+      {
+        title: "Manage resumes",
+        description: "Click Resume MD in the top left to create, duplicate, or delete resumes.",
+      },
+      {
+        title: "Edit content",
+        description: "Write Markdown on the left. Front matter contains profile details; H1 headings define sections.",
+      },
+      {
+        title: "Check the preview",
+        description: "The middle panel updates as you type. Click a section in the preview to style it separately.",
+      },
+      {
+        title: "Adjust the design",
+        description: "Use the right panel to change the theme, fonts, spacing, photo, icons, and page margins.",
+      },
+      {
+        title: "Export a PDF",
+        description: "When you are done, click Export PDF in the top right.",
+      },
+    ],
+    helpStorage: "Changes are saved in this browser. Clearing site data or switching browsers will not restore them automatically.",
   },
 };
 

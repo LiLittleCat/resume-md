@@ -1,10 +1,19 @@
 import Link from "next/link";
 
-export function ProductMark({ href, title }: { href?: string; title?: string }) {
+export function ProductMark({
+  href,
+  title,
+  size = "default",
+}: {
+  href?: string;
+  title?: string;
+  size?: "default" | "large";
+}) {
+  const textSize = size === "large" ? "text-[18px]" : "text-[15px]";
   const mark = (
     <span className="flex items-baseline gap-1.5">
-      <span className="text-[15px] font-medium tracking-[-0.02em] text-foreground">Resume</span>
-      <span className="text-[15px] font-medium tracking-[-0.02em] text-primary">MD</span>
+      <span className={`${textSize} font-medium tracking-[-0.02em] text-foreground`}>Resume</span>
+      <span className={`${textSize} font-medium tracking-[-0.02em] text-primary`}>MD</span>
     </span>
   );
   if (!href) return mark;

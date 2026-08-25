@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { FileDown, Loader2, Monitor, Moon, Sun } from "lucide-react";
+import { FileDown, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { compileResume } from "@/core/compile";
 import type { LocaleId } from "@/core/schema";
-import { ProductMark } from "@/components/chrome/product-mark";
+import { HeaderControls } from "@/components/chrome/header-controls";
+import { ProductHeader } from "@/components/chrome/product-header";
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store/editor-store";
-import { IconToggle, IconToggleGroup } from "./icon-toggle";
 import { useColorScheme } from "./use-color-scheme";
 import { useUi, useUiLocale } from "./use-ui";
 
@@ -56,61 +56,24 @@ export function EditorToolbar() {
   };
 
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4">
-      <div className="flex items-center gap-3">
-        <ProductMark href="/resumes" title={ui.back} />
-        <div className="h-4 w-px bg-border" />
-        <IconToggleGroup>
-          <IconToggle
-            pressed={uiLocale === "zh-CN"}
-            label={ui.localeZh}
-            onPressed={() => switchLocale("zh-CN")}
-          >
-            中
-          </IconToggle>
-          <IconToggle
-            pressed={uiLocale === "en-US"}
-            label={ui.localeEn}
-            onPressed={() => switchLocale("en-US")}
-          >
-            EN
-          </IconToggle>
-        </IconToggleGroup>
-        <IconToggleGroup>
-          <IconToggle
-            pressed={preference === "light"}
-            label={ui.schemeLight}
-            onPressed={() => setColorScheme("light")}
-          >
-            <Sun className="size-3.5" />
-          </IconToggle>
-          <IconToggle
-            pressed={preference === "dark"}
-            label={ui.schemeDark}
-            onPressed={() => setColorScheme("dark")}
-          >
-            <Moon className="size-3.5" />
-          </IconToggle>
-          <IconToggle
-            pressed={preference === "system"}
-            label={ui.schemeSystem}
-            onPressed={() => setColorScheme("system")}
-          >
-            <Monitor className="size-3.5" />
-          </IconToggle>
-        </IconToggleGroup>
-      </div>
-      <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          onClick={exportPdf}
-          disabled={exporting}
-          className="bg-primary text-primary-foreground hover:bg-primary/80 active:scale-[0.96]"
-        >
-          {exporting ? <Loader2 className="size-3.5 animate-spin" /> : <FileDown className="size-3.5" />}
-          {ui.exportPdf}
-        </Button>
-      </div>
-    </header>
+    <ProductHeader href="/resumes" title={ui.back} ui={ui}>
+      <HeaderControls
+        locale={uiLocale}
+        colorScheme={preference}
+        ui={ui}
+        onLocaleChange={switchLocale}
+        onColorSchemeChange={setColorScheme}
+      />
+      <div aria-hidden="true" className="mx-1 h-4 w-px bg-border" />
+      <Button
+        size="sm"
+        onClick={exportPdf}
+        disabled={exporting}
+        className="bg-primary text-primary-foreground hover:bg-primary/80 active:scale-[0.96]"
+      >
+        {exporting ? <Loader2 className="size-3.5 animate-spin" /> : <FileDown className="size-3.5" />}
+        {ui.exportPdf}
+      </Button>
+    </ProductHeader>
   );
 }

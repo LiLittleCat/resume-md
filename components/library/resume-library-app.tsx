@@ -4,7 +4,9 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { Copy, Plus, Trash2 } from "lucide-react";
 import type { LocaleId, ResumeConfig } from "@/core/schema";
-import { ProductMark } from "@/components/chrome/product-mark";
+import { HeaderControls } from "@/components/chrome/header-controls";
+import { ProductHeader } from "@/components/chrome/product-header";
+import { useAppliedColorScheme } from "@/components/chrome/use-applied-color-scheme";
 import { persistLibraryOrToast } from "@/components/library/persist";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +34,8 @@ import {
   resumeDocumentRole,
   resumeDocumentTheme,
   setActiveResume,
+  updateResumeChrome,
+  updateResumeDocument,
   type ResumeLibrary,
 } from "@/lib/resume-storage";
 import { getUiCopy, resolveUiLocale, type UiCopy } from "@/locales/ui";
@@ -47,6 +51,7 @@ export function ResumeLibraryApp({
   const isClient = useSyncExternalStore(emptySubscribe, clientSnapshot, serverSnapshot);
   const [library, setLibrary] = useState<ResumeLibrary | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [emptyLocale, setEmptyLocale] = useState<LocaleId>("zh-CN");
 
   if (isClient && library === null) {
     setLibrary(
@@ -57,7 +62,9 @@ export function ResumeLibraryApp({
     );
   }
 
-  const locale = library ? libraryLocale(library) : "zh-CN";
+  const locale = library ? libraryLocale(library, emptyLocale) : emptyLocale;
+  const colorScheme = library?.chrome.colorScheme ?? "system";
+  useAppliedColorScheme(colorScheme);
 
   useEffect(() => {
     document.documentElement.lang = locale;
@@ -102,18 +109,39 @@ export function ResumeLibraryApp({
     setPendingDeleteId(null);
   };
 
+  const switchLocale = (nextLocale: LocaleId) => {
+    const activeId = library.activeId ?? listResumeDocuments(library)[0]?.id;
+    const active = activeId ? library.documents[activeId] : undefined;
+    if (!activeId || !active) {
+      setEmptyLocale(nextLocale);
+      return;
+    }
+    commit(
+      updateResumeDocument(library, activeId, {
+        config: { ...active.config, locale: nextLocale },
+      }),
+    );
+  };
+
+  const setColorScheme = (nextColorScheme: typeof colorScheme) => {
+    commit(updateResumeChrome(library, { colorScheme: nextColorScheme }));
+  };
+
   return (
     <div
       data-ui-locale={locale}
       lang={locale}
       className="flex min-h-screen flex-col bg-background text-foreground"
     >
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4">
-        <div className="flex items-center gap-3">
-          <ProductMark href="/" />
-          <div className="h-4 w-px bg-border" />
-          <p className="ui-kicker text-muted-foreground">{ui.resumes}</p>
-        </div>
+      <ProductHeader href="/" ui={ui}>
+        <HeaderControls
+          locale={locale}
+          colorScheme={colorScheme}
+          ui={ui}
+          onLocaleChange={switchLocale}
+          onColorSchemeChange={setColorScheme}
+        />
+        <div aria-hidden="true" className="mx-1 h-4 w-px bg-border" />
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button size="sm" />}>
             <Plus className="size-3.5" />
@@ -124,7 +152,7 @@ export function ResumeLibraryApp({
             <DropdownMenuItem onClick={() => createFrom("en-US")}>{ui.newFromEn}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </header>
+      </ProductHeader>
 
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-8">
         {documents.length === 0 ? (
@@ -245,9 +273,9 @@ const emptySubscribe = () => () => undefined;
 const clientSnapshot = () => true;
 const serverSnapshot = () => false;
 
-function libraryLocale(library: ResumeLibrary): LocaleId {
+function libraryLocale(library: ResumeLibrary, fallback: LocaleId): LocaleId {
   const active = library.activeId ? library.documents[library.activeId] : undefined;
   if (active) return resolveUiLocale(active.config.locale);
   const newest = listResumeDocuments(library)[0];
-  return resolveUiLocale(newest?.config.locale);
+  return newest ? resolveUiLocale(newest.config.locale) : fallback;
 }
