@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SlidersHorizontal } from "lucide-react";
+import { useOverlayScrollbars } from "overlayscrollbars-react";
 import type { LocaleId, ResumeConfig } from "@/core/schema";
 import { A4Preview } from "@/components/preview/a4-preview";
 import { DesignPanel } from "@/components/settings/design-panel";
@@ -121,7 +122,19 @@ function EditorShell({ examples }: { examples: Record<LocaleId, string> }) {
   const ui = useUi();
   useColorScheme();
   const workspaceRef = useRef<HTMLDivElement>(null);
+  const previewScrollHostRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  const [initializePreviewScrollbars] = useOverlayScrollbars({
+    defer: true,
+    options: {
+      overflow: { x: "scroll", y: "scroll" },
+      scrollbars: {
+        autoHide: "move",
+        autoHideDelay: 500,
+        theme: "os-theme-resume",
+      },
+    },
+  });
   const [workspaceWidth, setWorkspaceWidth] = useState(1280);
   const hudScale = usePreviewZoom(previewRef);
   const leftPanelRatio = useEditorStore((state) => state.leftPanelRatio);
@@ -136,6 +149,13 @@ function EditorShell({ examples }: { examples: Record<LocaleId, string> }) {
     document.documentElement.lang = locale;
     document.documentElement.dataset.uiLocale = locale;
   }, [locale]);
+
+  useEffect(() => {
+    const target = previewScrollHostRef.current;
+    const viewport = previewRef.current;
+    if (!target || !viewport) return;
+    initializePreviewScrollbars({ target, elements: { viewport } });
+  }, [initializePreviewScrollbars]);
 
   useLayoutEffect(() => {
     const workspace = workspaceRef.current;
@@ -230,8 +250,18 @@ function EditorShell({ examples }: { examples: Record<LocaleId, string> }) {
           />
         </section>
         <section data-slot="preview-panel" className="relative min-h-0 min-w-0 flex-1">
-          <div ref={previewRef} className="desk-canvas h-full overflow-auto">
-            <A4Preview />
+          <div
+            ref={previewScrollHostRef}
+            data-overlayscrollbars-initialize
+            className="desk-canvas h-full"
+          >
+            <div
+              ref={previewRef}
+              data-overlayscrollbars-initialize
+              className="h-full overflow-auto overscroll-contain"
+            >
+              <A4Preview />
+            </div>
           </div>
           {hudScale !== null ? (
             <div

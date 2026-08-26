@@ -6,6 +6,7 @@ import "@fontsource/noto-sans-sc/chinese-simplified-600.css";
 import "@fontsource/noto-sans-sc/chinese-simplified-700.css";
 import "@fontsource/noto-serif-sc/chinese-simplified-400.css";
 import "@fontsource/noto-serif-sc/chinese-simplified-700.css";
+import "overlayscrollbars/overlayscrollbars.css";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RESUME_FONTS_STYLESHEET } from "@/core/renderer";

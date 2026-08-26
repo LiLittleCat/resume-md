@@ -151,6 +151,20 @@
   overscroll-behavior: contain;
 }
 
+.os-theme-resume.os-scrollbar {
+  --os-size: 8px;
+  --os-padding-perpendicular: 2px;
+  --os-padding-axis: 6px;
+  --os-track-bg: transparent;
+  --os-track-bg-hover: transparent;
+  --os-track-bg-active: transparent;
+  --os-handle-bg: color-mix(in oklch, var(--foreground) 24%, transparent);
+  --os-handle-bg-hover: color-mix(in oklch, var(--foreground) 40%, transparent);
+  --os-handle-bg-active: color-mix(in oklch, var(--foreground) 52%, transparent);
+  --os-handle-border-radius: 999px;
+  --os-handle-interactive-area-offset: 4px;
+}
+
 .resume-paper {
   background: var(--resume-color-background, #fff);
   box-shadow: var(--paper-shadow);
