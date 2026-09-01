@@ -91,6 +91,73 @@ describe("parseResumeMarkdown", () => {
     }
   });
 
+  it("preserves Markdown list semantics in skills", () => {
+    const source = `# 专业技能
+
+1. 具备 7 年 Java 后端研发经验，熟练掌握 Java 基础、集合、并发编程。
+
+2. 熟悉 Spring Boot、Spring Cloud、MyBatis/MyBatis-Plus 等主流技术栈。
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const skills = resume.sections.find((section) => section.id === "skills");
+
+    expect(skills?.id).toBe("skills");
+    if (skills?.id === "skills") {
+      expect(skills.groups[0]?.items).toEqual([
+        "具备 7 年 Java 后端研发经验，熟练掌握 Java 基础、集合、并发编程。",
+        "熟悉 Spring Boot、Spring Cloud、MyBatis/MyBatis-Plus 等主流技术栈。",
+      ]);
+      expect(skills.groups[0]?.listType).toBe("ordered");
+      expect(skills.groups[0]?.listStart).toBe(1);
+    }
+  });
+
+  it("preserves arbitrary project subheadings and Markdown block types", () => {
+    const source = `# 项目经历
+
+## 车路协同交通事件中心微服务
+
+**核心开发** | 2022.10 - 2026.07
+
+### 项目描述
+
+智慧交通平台的事件计算中枢。
+
+### 技术栈
+
+\`Java 8\` \`Spring Boot\`
+
+### 核心职责与成果
+
+- 设计五层流水线架构。
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const projects = resume.sections.find((section) => section.id === "projects");
+
+    expect(projects?.id).toBe("projects");
+    if (projects?.id === "projects") {
+      expect(projects.items[0]?.blocks).toEqual([
+        {
+          heading: "项目描述",
+          type: "paragraph",
+          items: ["智慧交通平台的事件计算中枢。"],
+        },
+        {
+          heading: "技术栈",
+          type: "tags",
+          items: ["Java 8", "Spring Boot"],
+        },
+        {
+          heading: "核心职责与成果",
+          type: "unordered-list",
+          items: ["设计五层流水线架构。"],
+        },
+      ]);
+    }
+  });
+
   it("parses the English example with English dates", () => {
     const { resume, warnings, frontMatter } = parseResumeMarkdown(loadExample("resume.en-US.md"));
     expect(warnings).toEqual([]);

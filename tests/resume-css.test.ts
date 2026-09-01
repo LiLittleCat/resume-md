@@ -40,4 +40,49 @@ describe("resume document CSS", () => {
     );
     expect(RESUME_DOCUMENT_CSS).not.toMatch(/\.resume-tech \{[\s\S]*?font-family:\s*var\(--resume-font-mono\)/);
   });
+
+  it("does not render project subheadings smaller than body copy", () => {
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-subhead \{[\s\S]*?font-size:\s*var\(--resume-body-size\)/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-subhead \{[\s\S]*?color:\s*var\(--resume-color-text\)/,
+    );
+  });
+
+  it("separates project blocks while keeping their headings with their content", () => {
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-project-block \{[\s\S]*?margin-top:\s*calc\(var\(--resume-content-gap\) \+ 0\.8mm\)/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-project-block > \.resume-subhead \{[\s\S]*?margin:\s*0 0 1mm/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-project-block > \.resume-tech \{[\s\S]*?flex-wrap:\s*wrap/,
+    );
+  });
+
+  it("places item roles between titles and full-color dates", () => {
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-spread-middle \{[\s\S]*?flex:\s*1 1 auto[\s\S]*?white-space:\s*nowrap/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-spread-meta\[data-tone="text"\],[\s\S]*?color:\s*var\(--resume-color-text\)/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-spread-meta \{[\s\S]*?white-space:\s*nowrap/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-spread-main \.resume-item-title \{[\s\S]*?white-space:\s*nowrap/,
+    );
+  });
+
+  it("renders an explicit marker for resume bullet lists", () => {
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-bullets \{[\s\S]*?list-style:\s*none/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-bullet::before \{[\s\S]*?content:\s*"•"/,
+    );
+  });
 });

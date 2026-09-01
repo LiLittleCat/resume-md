@@ -7,6 +7,7 @@ import type {
   LocaleId,
   ParseWarning,
   Profile,
+  ProjectBlock,
   ProjectItem,
   Resume,
   ResumeDate,
@@ -185,18 +186,28 @@ function parseSkillGroups(nodes: RootContent[]): SkillGroup[] {
   const result: SkillGroup[] = [];
 
   for (const group of groups) {
-    const items = collectSkills(group.nodes);
-    if (items.length === 0 && !group.title) continue;
+    const skills = collectSkills(group.nodes);
+    if (skills.items.length === 0 && !group.title) continue;
     result.push({
       name: group.title,
-      items: items.length > 0 ? items : [],
+      ...skills,
     });
   }
 
   return result.filter((group) => group.items.length > 0 || group.name);
 }
 
-function collectSkills(nodes: RootContent[]): string[] {
+function collectSkills(nodes: RootContent[]): Omit<SkillGroup, "name"> {
+  const contentNodes = nodes.filter((node) => isParagraph(node) || isList(node));
+  const onlyNode = contentNodes.length === 1 ? contentNodes[0] : undefined;
+  if (onlyNode && isList(onlyNode)) {
+    return {
+      items: listItemTexts(onlyNode),
+      listType: onlyNode.ordered ? "ordered" : "unordered",
+      listStart: onlyNode.ordered ? (onlyNode.start ?? 1) : undefined,
+    };
+  }
+
   const items: string[] = [];
   for (const node of nodes) {
     if (isParagraph(node)) {
@@ -211,7 +222,7 @@ function collectSkills(nodes: RootContent[]): string[] {
       }
     }
   }
-  return unique(items);
+  return { items: unique(items) };
 }
 
 function splitSkillLine(value: string): string[] {
@@ -249,6 +260,7 @@ function parseProjectItems(nodes: RootContent[], warnings: ParseWarning[]): Proj
   const groups = groupByH2(nodes).filter((group) => group.title);
   return groups.map((group) => {
     const parsed = parseItemBody(group.nodes);
+    const blocks = parseProjectBlocks(group.nodes);
     if (!group.title) {
       warnings.push({
         code: "project-name",
@@ -261,12 +273,77 @@ function parseProjectItems(nodes: RootContent[], warnings: ParseWarning[]): Proj
       startDate: parsed.startDate,
       endDate: parsed.endDate,
       location: parsed.location,
-      description: parsed.description,
-      techStack: parsed.techStack,
-      responsibilities: parsed.responsibilities,
-      achievements: parsed.achievements,
+      description: blocks
+        .filter((block) => block.type === "paragraph")
+        .flatMap((block) => block.items)
+        .join("\n") || undefined,
+      techStack: unique(
+        blocks.filter((block) => block.type === "tags").flatMap((block) => block.items),
+      ),
+      responsibilities: blocks
+        .filter((block) => block.type === "unordered-list" || block.type === "ordered-list")
+        .flatMap((block) => block.items),
+      blocks,
     };
   });
+}
+
+function parseProjectBlocks(nodes: RootContent[]): ProjectBlock[] {
+  const blocks: ProjectBlock[] = [];
+  const metadata: ItemBody = {};
+  let pendingHeading: string | undefined;
+  let reachedContent = false;
+
+  const addBlock = (block: Omit<ProjectBlock, "heading">) => {
+    blocks.push({ ...block, heading: pendingHeading });
+    pendingHeading = undefined;
+    reachedContent = true;
+  };
+
+  for (const node of nodes) {
+    if (node.type === "heading" && node.depth >= 3) {
+      if (pendingHeading) {
+        blocks.push({ heading: pendingHeading, type: "paragraph", items: [] });
+      }
+      pendingHeading = headingText(node as Heading);
+      reachedContent = true;
+      continue;
+    }
+
+    if (!reachedContent && isParagraph(node)) {
+      const text = paragraphText(node);
+      if (looksLikeDateRange(text) && !text.includes("|")) continue;
+      if (applyMetaParagraph(node, metadata)) continue;
+    }
+
+    if (isParagraph(node)) {
+      if (isInlineCodeParagraph(node)) {
+        const items = extractInlineCode(node);
+        if (items.length > 0) addBlock({ type: "tags", items });
+      } else {
+        const text = paragraphText(node);
+        if (text) addBlock({ type: "paragraph", items: [text] });
+      }
+      continue;
+    }
+
+    if (isList(node)) {
+      const items = listItemTexts(node);
+      if (items.length > 0) {
+        addBlock({
+          type: node.ordered ? "ordered-list" : "unordered-list",
+          items,
+          start: node.ordered ? (node.start ?? 1) : undefined,
+        });
+      }
+    }
+  }
+
+  if (pendingHeading) {
+    blocks.push({ heading: pendingHeading, type: "paragraph", items: [] });
+  }
+
+  return blocks;
 }
 
 function parseEducationItems(nodes: RootContent[]): EducationItem[] {

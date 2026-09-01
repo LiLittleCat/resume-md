@@ -37,7 +37,11 @@ export function GenericBody({
         return (
           <article key={item.title} className="resume-item" data-box data-keep-together="true">
             <div className="resume-item-header">
-              <Spread left={<p className="resume-item-title">{item.title}</p>} right={dates} />
+              <Spread
+                left={<p className="resume-item-title">{item.title}</p>}
+                right={dates}
+                rightTone="text"
+              />
               {item.subtitle ? <p className="resume-item-subtitle">{item.subtitle}</p> : null}
             </div>
             {item.description ? <p className="resume-body">{item.description}</p> : null}

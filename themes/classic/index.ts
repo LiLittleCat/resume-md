@@ -30,7 +30,7 @@ export const classicTheme: ThemeDefinition = {
     name: text(22, 700, 1.1, 0),
     headline: text(11, 500, 1.35),
     sectionTitle: text(12, 700, 1.2, 0.08),
-    itemTitle: text(11, 600, 1.28),
+    itemTitle: text(12, 600, 1.28),
     itemSubtitle: text(10, 500, 1.35),
     body: text(10.5, 400, 1.4),
     meta: text(9, 400, 1.3),

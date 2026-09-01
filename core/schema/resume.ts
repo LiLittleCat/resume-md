@@ -27,6 +27,8 @@ export type Profile = z.infer<typeof ProfileSchema>;
 export const SkillGroupSchema = z.object({
   name: z.string(),
   items: z.array(z.string().min(1)),
+  listType: z.enum(["ordered", "unordered"]).optional(),
+  listStart: z.number().int().optional(),
 });
 
 export type SkillGroup = z.infer<typeof SkillGroupSchema>;
@@ -44,6 +46,15 @@ export const ExperienceItemSchema = z.object({
 
 export type ExperienceItem = z.infer<typeof ExperienceItemSchema>;
 
+export const ProjectBlockSchema = z.object({
+  heading: z.string().min(1).optional(),
+  type: z.enum(["paragraph", "tags", "unordered-list", "ordered-list"]),
+  items: z.array(z.string().min(1)),
+  start: z.number().int().optional(),
+});
+
+export type ProjectBlock = z.infer<typeof ProjectBlockSchema>;
+
 export const ProjectItemSchema = z.object({
   name: z.string().min(1),
   role: z.string().optional(),
@@ -54,6 +65,7 @@ export const ProjectItemSchema = z.object({
   techStack: z.array(z.string().min(1)).optional(),
   responsibilities: z.array(z.string().min(1)).optional(),
   achievements: z.array(z.string().min(1)).optional(),
+  blocks: z.array(ProjectBlockSchema).optional(),
 });
 
 export type ProjectItem = z.infer<typeof ProjectItemSchema>;

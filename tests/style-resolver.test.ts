@@ -68,8 +68,8 @@ describe("resolveStyle", () => {
     });
     expect(style.typography.sectionTitle.fontSize).toBe(16);
     expect(style.sections.projects.typography.sectionTitle.fontSize).toBe(16);
-    expect(style.typography.itemTitle.fontSize).toBe(15);
-    expect(style.sections.projects.typography.itemTitle.fontSize).toBe(15);
+    expect(style.typography.itemTitle.fontSize).toBe(16);
+    expect(style.sections.projects.typography.itemTitle.fontSize).toBe(16);
   });
 
   it("applies spacing presets before custom spacing overrides", () => {

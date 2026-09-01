@@ -23,8 +23,12 @@ export function EducationBody({
             data-keep-together="true"
           >
             <div className="resume-item-header">
-              <Spread left={<p className="resume-item-title">{item.school}</p>} right={dates} />
-              {subtitle ? <p className="resume-item-subtitle">{subtitle}</p> : null}
+              <Spread
+                left={<p className="resume-item-title">{item.school}</p>}
+                middle={subtitle ? <p className="resume-item-subtitle">{subtitle}</p> : null}
+                right={dates}
+                rightTone="text"
+              />
             </div>
             {item.details ? <BulletList items={item.details} /> : null}
           </article>

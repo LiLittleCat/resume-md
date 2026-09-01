@@ -57,7 +57,7 @@ function ExperienceHeader({
       <div className="resume-item-header">
         <p className="resume-item-title">{item.company}</p>
         {item.position ? <p className="resume-item-subtitle">{item.position}</p> : null}
-        <p className="resume-stacked-meta">
+        <p className="resume-stacked-meta resume-date">
           {[dates, item.location].filter(Boolean).join(" · ")}
         </p>
       </div>
@@ -66,11 +66,13 @@ function ExperienceHeader({
 
   return (
     <div className="resume-item-header">
-      <Spread left={<p className="resume-item-title">{item.company}</p>} right={dates} />
       <Spread
-        left={item.position ? <p className="resume-item-subtitle">{item.position}</p> : null}
-        right={item.location}
+        left={<p className="resume-item-title">{item.company}</p>}
+        middle={item.position ? <p className="resume-item-subtitle">{item.position}</p> : null}
+        right={dates}
+        rightTone="text"
       />
+      {item.location ? <Spread left={null} right={item.location} /> : null}
     </div>
   );
 }
