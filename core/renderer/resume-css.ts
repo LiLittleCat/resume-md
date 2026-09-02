@@ -248,6 +248,11 @@ export const RESUME_DOCUMENT_CSS = `
   margin-top: 0;
 }
 
+.resume-project-item {
+  break-inside: auto;
+  page-break-inside: auto;
+}
+
 .resume-spread {
   display: flex;
   justify-content: space-between;
@@ -393,10 +398,10 @@ export const RESUME_DOCUMENT_CSS = `
 
 .resume-subhead {
   margin: var(--resume-content-gap) 0 0.6mm;
-  color: var(--resume-color-muted);
-  font-size: var(--resume-meta-size);
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  color: var(--resume-color-text);
+  font-size: var(--resume-body-size);
+  font-weight: 600;
+  letter-spacing: 0.04em;
   line-height: var(--resume-meta-leading);
   break-after: avoid-page;
 }

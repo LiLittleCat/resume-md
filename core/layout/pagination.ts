@@ -86,16 +86,19 @@ export function collectPageOffsets(input: {
   for (let index = 0; index < boxes.length; index += 1) {
     const box = boxes[index];
     if (!box) continue;
-    const next = boxes[index + 1];
+    let groupEnd = index;
+    while (boxes[groupEnd]?.keepWithNext && boxes[groupEnd + 1]) {
+      groupEnd += 1;
+    }
+    const groupLast = boxes[groupEnd] ?? box;
     const top = box.top;
-    const bottom =
-      box.keepWithNext && next ? next.top + next.height : box.top + box.height;
+    const bottom = groupLast.top + groupLast.height;
     const pageBottom = pageStart + pageHeight;
     if (bottom > pageBottom + 1 && top > pageStart + 1) {
       offsets.push(top);
       pageStart = top;
     }
-    if (box.keepWithNext && next) index += 1;
+    index = groupEnd;
   }
 
   let cursor = offsets[offsets.length - 1] ?? 0;

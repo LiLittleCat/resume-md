@@ -83,6 +83,8 @@ function ResumeSectionView({
       className="resume-section"
       data-section-id={section.id}
       data-section-title={section.title}
+      data-outline-title={section.title}
+      data-outline-depth="1"
       data-selected={selected ? "true" : "false"}
       style={vars as CSSProperties}
       onClick={

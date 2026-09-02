@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ExperienceBody } from "@/components/resume/experience-section";
+import { ProjectsBody } from "@/components/resume/project-section";
 import { resolveLocale } from "@/core/locale";
 
 describe("resume components", () => {
@@ -26,5 +27,29 @@ describe("resume components", () => {
     expect(html).toContain('class="resume-item-subtitle resume-experience-position"');
     expect(html).toContain("2022.10 - 至今 · 杭州");
     expect(html).not.toContain('class="resume-spread"');
+  });
+
+  it("lets project items split between their internal content blocks", () => {
+    const html = renderToStaticMarkup(
+      createElement(ProjectsBody, {
+        items: [
+          {
+            name: "订单中台",
+            role: "核心开发",
+            blocks: [
+              { heading: "项目描述", type: "paragraph", items: ["项目正文"] },
+              { heading: "项目成果", type: "unordered-list", items: ["成果一", "成果二"] },
+            ],
+          },
+        ],
+        locale: resolveLocale("zh-CN"),
+      }),
+    );
+
+    expect(html).toContain('class="resume-item resume-project-item"');
+    expect(html).not.toMatch(/resume-project-item[^>]*data-keep-together/);
+    expect(html).toContain('data-box="project-header"');
+    expect(html).toContain('data-box="project-block"');
+    expect(html).toContain('data-box="project-bullet"');
   });
 });

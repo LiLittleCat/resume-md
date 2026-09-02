@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { isOutlineEntrySelected, type OutlineEntry } from "@/components/editor/outline";
+import {
+  centeredPreviewScrollTop,
+  isOutlineEntrySelected,
+  targetStartsInPage,
+  type OutlineEntry,
+} from "@/components/editor/outline";
 
 const parent: OutlineEntry = {
   title: "工作经历",
@@ -34,5 +39,25 @@ describe("isOutlineEntrySelected", () => {
     };
     expect(isOutlineEntrySelected(parent, selection)).toBe(false);
     expect(isOutlineEntrySelected(child, selection)).toBe(true);
+  });
+});
+
+describe("preview outline scrolling", () => {
+  it("selects only the page slice where the heading starts", () => {
+    expect(targetStartsInPage(120, 100, 300)).toBe(true);
+    expect(targetStartsInPage(320, 100, 300)).toBe(false);
+    expect(targetStartsInPage(99.5, 100, 300)).toBe(true);
+  });
+
+  it("centers a target by scrolling only the preview viewport", () => {
+    expect(
+      centeredPreviewScrollTop({
+        currentScrollTop: 500,
+        viewportTop: 80,
+        viewportHeight: 600,
+        targetTop: 480,
+        targetHeight: 40,
+      }),
+    ).toBe(620);
   });
 });

@@ -72,16 +72,19 @@ describe("resume document CSS", () => {
     );
   });
 
-  it("keeps item subheadings quieter than body copy", () => {
+  it("does not render project subheadings smaller than body copy", () => {
     expect(RESUME_DOCUMENT_CSS).toMatch(
-      /\.resume-subhead \{[\s\S]*?color:\s*var\(--resume-color-muted\)/,
+      /\.resume-subhead \{[\s\S]*?font-size:\s*var\(--resume-body-size\)/,
     );
     expect(RESUME_DOCUMENT_CSS).toMatch(
-      /\.resume-subhead \{[\s\S]*?font-size:\s*var\(--resume-meta-size\)/,
+      /\.resume-subhead \{[\s\S]*?color:\s*var\(--resume-color-text\)/,
     );
   });
 
   it("separates project blocks while keeping their headings with their content", () => {
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-project-item \{[\s\S]*?break-inside:\s*auto/,
+    );
     expect(RESUME_DOCUMENT_CSS).toMatch(
       /\.resume-project-block \{[\s\S]*?margin-top:\s*calc\(var\(--resume-content-gap\) \+ 0\.8mm\)/,
     );

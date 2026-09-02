@@ -7,6 +7,31 @@ export type OutlineEntry = {
   sectionTitle: string;
 };
 
+export function targetStartsInPage(
+  targetTop: number,
+  pageTop: number,
+  pageBottom: number,
+): boolean {
+  const tolerance = 1;
+  return targetTop >= pageTop - tolerance && targetTop < pageBottom - tolerance;
+}
+
+export function centeredPreviewScrollTop(input: {
+  currentScrollTop: number;
+  viewportTop: number;
+  viewportHeight: number;
+  targetTop: number;
+  targetHeight: number;
+}): number {
+  return Math.max(
+    0,
+    input.currentScrollTop +
+      input.targetTop -
+      input.viewportTop -
+      (input.viewportHeight - input.targetHeight) / 2,
+  );
+}
+
 export function isOutlineEntrySelected(
   entry: OutlineEntry,
   selection: {

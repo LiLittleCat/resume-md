@@ -55,6 +55,20 @@ describe("collectPageOffsets", () => {
     expect(offsets).toEqual([0, 90]);
   });
 
+  it("keeps chained project headings with the first content item", () => {
+    const offsets = collectPageOffsets({
+      boxes: [
+        { top: 0, height: 70, keepTogether: true },
+        { top: 75, height: 10, keepWithNext: true },
+        { top: 85, height: 10, keepWithNext: true },
+        { top: 95, height: 30, keepTogether: true },
+      ],
+      contentHeight: 125,
+      pageHeight: 100,
+    });
+    expect(offsets).toEqual([0, 75]);
+  });
+
   it("fills remaining scroll height with whole pages", () => {
     const offsets = collectPageOffsets({
       boxes: [{ top: 0, height: 100, keepTogether: true }],

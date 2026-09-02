@@ -19,6 +19,8 @@ export function EducationBody({
           <article
             key={`${item.school}-${dates}`}
             className="resume-item"
+            data-outline-title={item.school}
+            data-outline-depth="2"
             data-box
             data-keep-together="true"
           >

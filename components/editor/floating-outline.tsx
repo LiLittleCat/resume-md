@@ -6,7 +6,12 @@ import { ListTree } from "lucide-react";
 import { compileResume } from "@/core/compile";
 import { cn } from "@/lib/utils";
 import { useEditorStore } from "@/store/editor-store";
-import { isOutlineEntrySelected, outlineEntries } from "./outline";
+import {
+  centeredPreviewScrollTop,
+  isOutlineEntrySelected,
+  outlineEntries,
+  targetStartsInPage,
+} from "./outline";
 import { useUi } from "./use-ui";
 
 export function FloatingOutline({
@@ -64,10 +69,7 @@ export function FloatingOutline({
                       onClick={() => {
                         selectSection(entry.sectionId, entry.sectionTitle);
                         focusHeading(entry.title, entry.depth);
-                        const target = scrollRootRef.current?.querySelector<HTMLElement>(
-                          `.resume-paper [data-section-title="${cssAttr(entry.sectionTitle)}"]`,
-                        );
-                        target?.scrollIntoView({ block: "center", behavior: "smooth" });
+                        scrollToOutlineEntry(scrollRootRef.current, entry);
                       }}
                       className={cn(
                         "flex w-full rounded-md py-1 text-left leading-5 transition-[background-color,color,transform] duration-150 active:scale-[0.99]",
@@ -90,6 +92,44 @@ export function FloatingOutline({
       </div>
     </aside>
   );
+}
+
+function scrollToOutlineEntry(
+  scrollRoot: HTMLDivElement | null,
+  entry: { title: string; depth: 1 | 2; sectionTitle: string },
+) {
+  if (!scrollRoot) return;
+
+  const sectionSelector = `[data-section-title="${cssAttr(entry.sectionTitle)}"]`;
+  const targetSelector = `[data-outline-title="${cssAttr(entry.title)}"][data-outline-depth="${entry.depth}"]`;
+  const selector =
+    entry.depth === 1
+      ? `.resume-paper ${sectionSelector}${targetSelector}`
+      : `.resume-paper ${sectionSelector} ${targetSelector}`;
+  const candidates = scrollRoot.querySelectorAll<HTMLElement>(selector);
+
+  for (const candidate of candidates) {
+    const page = candidate.closest<HTMLElement>("[data-preview-page]");
+    const pageViewport = page?.querySelector<HTMLElement>("[data-page-viewport]");
+    if (!pageViewport) continue;
+
+    const targetRect = candidate.getBoundingClientRect();
+    const pageRect = pageViewport.getBoundingClientRect();
+    if (!targetStartsInPage(targetRect.top, pageRect.top, pageRect.bottom)) continue;
+
+    const scrollRect = scrollRoot.getBoundingClientRect();
+    scrollRoot.scrollTo({
+      top: centeredPreviewScrollTop({
+        currentScrollTop: scrollRoot.scrollTop,
+        viewportTop: scrollRect.top,
+        viewportHeight: scrollRoot.clientHeight,
+        targetTop: targetRect.top,
+        targetHeight: targetRect.height,
+      }),
+      behavior: "smooth",
+    });
+    return;
+  }
 }
 
 function cssAttr(value: string): string {

@@ -129,6 +129,7 @@ export function A4Preview() {
         return (
         <div
           key={index}
+          data-preview-page={index}
           style={{
             width: `${pageWidth * previewScale}mm`,
             height: `${pageHeight * previewScale}mm`,
@@ -146,6 +147,7 @@ export function A4Preview() {
             }}
           >
             <div
+              data-page-viewport
               className="relative overflow-hidden"
               style={{ width: `${innerWidthMm}mm`, height: `${clipPx}px` }}
             >

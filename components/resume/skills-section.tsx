@@ -13,6 +13,8 @@ export function SkillsBody({
         <div
           key={group.name || group.items.join("-")}
           className="resume-skill-group"
+          data-outline-title={group.name || undefined}
+          data-outline-depth={group.name ? "2" : undefined}
           data-box
           data-keep-together="true"
         >

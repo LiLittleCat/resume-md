@@ -17,6 +17,8 @@ export function ExperienceBody({
         <article
           key={`${item.company}-${item.startDate?.raw ?? ""}`}
           className="resume-item"
+          data-outline-title={item.company}
+          data-outline-depth="2"
           data-box
           data-keep-together="true"
         >

@@ -35,7 +35,14 @@ export function GenericBody({
       {section.items.map((item) => {
         const dates = formatDateRange(item.startDate, item.endDate, locale.id, locale.labels.present);
         return (
-          <article key={item.title} className="resume-item" data-box data-keep-together="true">
+          <article
+            key={item.title}
+            className="resume-item"
+            data-outline-title={item.title}
+            data-outline-depth="2"
+            data-box
+            data-keep-together="true"
+          >
             <div className="resume-item-header">
               <Spread
                 left={<p className="resume-item-title">{item.title}</p>}
