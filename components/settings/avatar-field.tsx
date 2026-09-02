@@ -7,6 +7,7 @@ import type { AvatarPosition, AvatarShape } from "@/core/schema";
 import { useUi } from "@/components/editor/use-ui";
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store/editor-store";
+import { storeAvatarAsset } from "@/lib/avatar-assets";
 import { readAvatarFile } from "@/lib/avatar-file";
 import { Field, Segmented } from "./controls";
 
@@ -31,9 +32,15 @@ export function AvatarField({
     setBusy(true);
     try {
       const dataUrl = await readAvatarFile(file);
-      setSource(setFrontMatterAvatar(source, dataUrl));
-    } catch {
-      toast.error(ui.avatarInvalid);
+      const reference = storeAvatarAsset(window.localStorage, dataUrl);
+      setSource(setFrontMatterAvatar(source, reference));
+    } catch (error) {
+      toast.error(
+        error instanceof DOMException &&
+          (error.name === "QuotaExceededError" || error.name === "NS_ERROR_DOM_QUOTA_REACHED")
+          ? ui.storageFull
+          : ui.avatarInvalid,
+      );
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";

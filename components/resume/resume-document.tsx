@@ -41,6 +41,7 @@ export function ResumeDocument({
     <article
       className={`resume-root${padded ? " resume-page-pad" : ""}`}
       lang={locale.id === "zh-CN" ? "zh-CN" : "en-US"}
+      data-theme={style.themeId}
       style={vars as CSSProperties}
     >
       <style>{RESUME_DOCUMENT_CSS}</style>

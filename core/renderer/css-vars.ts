@@ -15,10 +15,7 @@ export function toDocumentCssVars(style: ResolvedDocumentStyle): CssVarMap {
     "--resume-font-latin": quoteFont(style.fonts.latin),
     "--resume-font-cjk": quoteFont(style.fonts.cjk),
     "--resume-font-mono": quoteFont(style.fonts.monospace),
-    "--resume-font-stack":
-      style.localeId === "zh-CN"
-        ? `${quoteFont(style.fonts.cjk)}, ${quoteFont(style.fonts.latin)}, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif`
-        : `${quoteFont(style.fonts.latin)}, ${quoteFont(style.fonts.cjk)}, "PingFang SC", "Hiragino Sans GB", sans-serif`,
+    "--resume-font-stack": resumeFontStack(style),
     "--resume-color-text": style.colors.text,
     "--resume-color-muted": style.colors.muted,
     "--resume-color-rule": style.colors.rule,
@@ -31,6 +28,18 @@ export function toDocumentCssVars(style: ResolvedDocumentStyle): CssVarMap {
     ...typographyVars(style.typography),
     ...spacingVars(style.spacing),
   };
+}
+
+function resumeFontStack(style: ResolvedDocumentStyle): string {
+  if (style.themeId === "kami") {
+    return style.localeId === "zh-CN"
+      ? `${quoteFont(style.fonts.cjk)}, "Source Han Serif SC", "Noto Serif SC", "Songti SC", STSong, ${quoteFont(style.fonts.latin)}, Georgia, serif`
+      : `${quoteFont(style.fonts.latin)}, "Source Serif 4", Georgia, Palatino, "Times New Roman", ${quoteFont(style.fonts.cjk)}, "Noto Serif SC", serif`;
+  }
+
+  return style.localeId === "zh-CN"
+    ? `${quoteFont(style.fonts.cjk)}, ${quoteFont(style.fonts.latin)}, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif`
+    : `${quoteFont(style.fonts.latin)}, ${quoteFont(style.fonts.cjk)}, "PingFang SC", "Hiragino Sans GB", sans-serif`;
 }
 
 export function toSectionCssVars(section: ResolvedSectionStyle): CssVarMap {

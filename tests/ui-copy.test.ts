@@ -9,5 +9,7 @@ describe("ui copy", () => {
   it("falls back to Chinese copy", () => {
     expect(getUiCopy(undefined).exportPdf).toBe("导出 PDF");
     expect(getUiCopy("en-US").exportPdf).toBe("Export PDF");
+    expect(getUiCopy(undefined).kamiAttribution).toBe("Kami 设计来源");
+    expect(getUiCopy("en-US").kamiAttribution).toBe("Kami design source");
   });
 });

@@ -1,4 +1,20 @@
 export const RESUME_DOCUMENT_CSS = `
+@font-face {
+  font-family: "TsangerJinKai02";
+  src: url("https://cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/TsangerJinKai02-W04.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TsangerJinKai02";
+  src: url("https://cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/TsangerJinKai02-W05.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 .resume-root {
   box-sizing: border-box;
   width: var(--resume-page-width);
@@ -102,7 +118,7 @@ export const RESUME_DOCUMENT_CSS = `
   flex: 0 0 var(--resume-avatar-size);
   object-fit: cover;
   object-position: center top;
-  background: var(--resume-color-muted);
+  background: transparent;
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
@@ -400,7 +416,7 @@ export const RESUME_DOCUMENT_CSS = `
   margin: var(--resume-content-gap) 0 0.6mm;
   color: var(--resume-color-text);
   font-size: var(--resume-body-size);
-  font-weight: 600;
+  font-weight: var(--resume-item-title-weight);
   letter-spacing: 0.04em;
   line-height: var(--resume-meta-leading);
   break-after: avoid-page;
@@ -499,6 +515,29 @@ ul.resume-skill-list {
   margin-top: 0.4mm;
   color: var(--resume-color-muted);
   font-size: var(--resume-meta-size);
+}
+
+.resume-root[data-theme="kami"] {
+  widows: 3;
+  orphans: 3;
+}
+
+.resume-root[data-theme="kami"] .resume-name,
+.resume-root[data-theme="kami"] .resume-section-title {
+  color: var(--resume-color-text);
+}
+
+.resume-root[data-theme="kami"] .resume-headline,
+.resume-root[data-theme="kami"] .resume-item-subtitle,
+.resume-root[data-theme="kami"] .resume-subhead,
+.resume-root[data-theme="kami"] .resume-skill-name,
+.resume-root[data-theme="kami"] strong {
+  color: var(--resume-color-accent);
+  font-weight: 500;
+}
+
+.resume-root[data-theme="kami"] .resume-contact-item[href] {
+  color: var(--resume-color-text);
 }
 
 @media print {

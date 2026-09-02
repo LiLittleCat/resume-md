@@ -10,6 +10,7 @@ import { DesignPanel } from "@/components/settings/design-panel";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { persistLibraryOrToast } from "@/components/library/persist";
+import { externalizeAvatarSource } from "@/lib/avatar-assets";
 import {
   hydrateResumeLibrary,
   updateResumeChrome,
@@ -51,11 +52,32 @@ export function EditorApp({
   const router = useRouter();
 
   useEffect(() => {
-    const library = hydrateResumeLibrary(window.localStorage, {
+    let library = hydrateResumeLibrary(window.localStorage, {
       source: examples["zh-CN"],
       config: defaultConfig,
     });
-    const active = library.activeId ? library.documents[library.activeId] : undefined;
+    let active = library.activeId ? library.documents[library.activeId] : undefined;
+    if (!active) {
+      router.replace("/resumes");
+      return;
+    }
+
+    try {
+      const migrated = externalizeAvatarSource(active.source, window.localStorage);
+      if (migrated.changed) {
+        library = updateResumeDocument(
+          library,
+          active.id,
+          { source: migrated.source },
+          active.updatedAt,
+        );
+        active = library.documents[active.id];
+        persistLibraryOrToast(library, active?.config.locale);
+      }
+    } catch {
+      // Keep the embedded avatar intact when browser storage has no room to migrate it.
+    }
+
     if (!active) {
       router.replace("/resumes");
       return;

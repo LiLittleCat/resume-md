@@ -60,6 +60,7 @@ export interface UiCopy {
   schemeDark: string;
   schemeSystem: string;
   outline: string;
+  kamiAttribution: string;
   themes: Record<ThemeId, string>;
   spacingPresets: Record<SpacingPreset, string>;
   experienceLayouts: Record<ExperienceLayout, string>;
@@ -76,6 +77,7 @@ export interface UiCopy {
   avatarChange: string;
   avatarRemove: string;
   avatarInvalid: string;
+  avatarMissing: string;
   back: string;
   resumes: string;
   newResume: string;
@@ -148,10 +150,12 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     schemeDark: "夜间",
     schemeSystem: "系统",
     outline: "目录",
+    kamiAttribution: "Kami 设计来源",
     themes: {
       minimal: "极简",
       modern: "现代",
       classic: "经典",
+      kami: "Kami",
     },
     spacingPresets: {
       compact: "紧凑",
@@ -197,6 +201,7 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     avatarChange: "更换",
     avatarRemove: "移除",
     avatarInvalid: "请选择一张图片",
+    avatarMissing: "头像本地资源已丢失，请重新上传图片",
     back: "返回",
     resumes: "所有简历",
     newResume: "新建简历",
@@ -288,10 +293,12 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     schemeDark: "Dark",
     schemeSystem: "System",
     outline: "Outline",
+    kamiAttribution: "Kami design source",
     themes: {
       minimal: "Minimal",
       modern: "Modern",
       classic: "Classic",
+      kami: "Kami",
     },
     spacingPresets: {
       compact: "Compact",
@@ -337,6 +344,7 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     avatarChange: "Replace",
     avatarRemove: "Remove",
     avatarInvalid: "Please choose an image",
+    avatarMissing: "The local avatar asset is missing. Please upload it again.",
     back: "Back",
     resumes: "All resumes",
     newResume: "New resume",

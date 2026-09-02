@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -65,9 +65,11 @@ export function Segmented<T extends string>({
 }: {
   value: T;
   onChange: (value: T) => void;
-  options: { value: T; label: string }[];
+  options: { value: T; label: ReactNode; suffix?: ReactNode }[];
   columns?: number;
 }) {
+  const gridColumns = columns && columns > 0 && options.length > columns ? columns : undefined;
+
   return (
     <ToggleGroup
       value={[value]}
@@ -80,16 +82,52 @@ export function Segmented<T extends string>({
       spacing={0}
       className={cn(
         "grid w-full [&_[data-pressed]]:bg-muted [&_[data-pressed]]:text-foreground [&_[aria-pressed=true]]:bg-muted",
+        gridColumns && "overflow-hidden border border-input",
       )}
       style={{ gridTemplateColumns: `repeat(${columns ?? options.length}, minmax(0, 1fr))` }}
     >
-      {options.map((option) => (
-        <ToggleGroupItem key={option.value} value={option.value} className="px-1.5 text-xs">
-          {option.label}
-        </ToggleGroupItem>
-      ))}
+      {options.map((option, index) => {
+        const item = (
+          <ToggleGroupItem
+            key={option.value}
+            value={option.value}
+            className={cn("px-1.5 text-xs", gridColumns && "w-full", option.suffix && "pr-7")}
+            style={gridColumns ? { borderRadius: 0, borderWidth: 0 } : undefined}
+          >
+            {option.label}
+          </ToggleGroupItem>
+        );
+
+        return gridColumns ? (
+          <div
+            key={option.value}
+            className="relative min-w-0"
+            style={segmentedGridCellStyle(index, gridColumns)}
+          >
+            {item}
+            {option.suffix ? (
+              <span className="absolute inset-y-0 right-1 z-10 flex items-center">
+                {option.suffix}
+              </span>
+            ) : null}
+          </div>
+        ) : item;
+      })}
     </ToggleGroup>
   );
+}
+
+export function segmentedGridCellStyle(
+  index: number,
+  columns: number | undefined,
+): CSSProperties | undefined {
+  if (!columns) return undefined;
+  return {
+    borderRadius: 0,
+    borderWidth: 0,
+    borderLeftWidth: index % columns === 0 ? 0 : 1,
+    borderTopWidth: index < columns ? 0 : 1,
+  };
 }
 
 export function PanelBlock({

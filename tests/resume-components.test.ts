@@ -3,9 +3,24 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ExperienceBody } from "@/components/resume/experience-section";
 import { ProjectsBody } from "@/components/resume/project-section";
+import { ResumeDocument } from "@/components/resume/resume-document";
+import { resolveStyle } from "@/core/style";
 import { resolveLocale } from "@/core/locale";
 
 describe("resume components", () => {
+  it("exposes the resolved theme to document CSS", () => {
+    const locale = resolveLocale("zh-CN");
+    const html = renderToStaticMarkup(
+      createElement(ResumeDocument, {
+        resume: { locale: "zh-CN", profile: { name: "纸上", contact: {} }, sections: [] },
+        style: resolveStyle({ themeId: "kami", localeId: "zh-CN" }),
+        locale,
+      }),
+    );
+
+    expect(html).toContain('data-theme="kami"');
+  });
+
   it("places the position between the company and grouped metadata", () => {
     const html = renderToStaticMarkup(
       createElement(ExperienceBody, {

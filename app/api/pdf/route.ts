@@ -54,7 +54,15 @@ async function renderPdf(
     }, title);
     await page.evaluate(async () => {
       const sample = document.querySelector(".resume-root")?.textContent ?? "中文简历";
-      const families = ["Noto Sans SC", "Noto Serif SC", "Inter", "Source Serif 4", "JetBrains Mono"];
+      const families = [
+        "Noto Sans SC",
+        "Noto Serif SC",
+        "TsangerJinKai02",
+        "Inter",
+        "Source Serif 4",
+        "Charter",
+        "JetBrains Mono",
+      ];
       const weights = ["400", "500", "600", "700"];
       await Promise.all(
         families.flatMap((family) =>

@@ -3,8 +3,8 @@
 import type { RefObject } from "react";
 import { useMemo } from "react";
 import { ListTree } from "lucide-react";
-import { compileResume } from "@/core/compile";
 import { cn } from "@/lib/utils";
+import { compileResumeWithAvatarAssets } from "@/lib/avatar-assets";
 import { useEditorStore } from "@/store/editor-store";
 import {
   centeredPreviewScrollTop,
@@ -30,7 +30,9 @@ export function FloatingOutline({
 
   const outline = useMemo(() => {
     try {
-      return outlineEntries(compileResume({ source, config }).resume);
+      return outlineEntries(
+        compileResumeWithAvatarAssets({ source, config }, window.localStorage).resume,
+      );
     } catch {
       return [];
     }

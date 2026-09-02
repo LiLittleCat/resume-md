@@ -29,7 +29,7 @@ export type MvpSectionId = (typeof MVP_SECTION_IDS)[number];
 
 export const SectionIdSchema = z.enum(SECTION_IDS);
 
-export const THEME_IDS = ["minimal", "modern", "classic"] as const;
+export const THEME_IDS = ["minimal", "modern", "classic", "kami"] as const;
 export type ThemeId = (typeof THEME_IDS)[number];
 export const ThemeIdSchema = z.enum(THEME_IDS);
 

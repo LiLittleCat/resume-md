@@ -3,6 +3,7 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { compileResume } from "@/core/compile";
 import type { ResumeConfig } from "@/core/schema";
+import type { ResolvedDocumentStyle } from "@/core/style";
 import { ResumeDocument } from "@/components/resume";
 import { getUiCopy } from "@/locales/ui";
 
@@ -46,34 +47,39 @@ export function PrintResume() {
 
   const compiled = compileResume({ source: payload.source, config: payload.config ?? {} });
   const { resume, style, locale } = compiled;
-  const margin = style.page.margin;
 
   return (
     <>
-      <style>{`
-        @page {
-          size: ${style.page.size};
-          margin: ${margin.top}mm ${margin.right}mm ${margin.bottom}mm ${margin.left}mm;
-        }
-        html, body {
-          margin: 0 !important;
-          padding: 0 !important;
-          background: ${style.colors.background} !important;
-          color-scheme: light !important;
-        }
-        nextjs-portal,
-        [data-nextjs-toast],
-        [data-next-badge-root],
-        .toaster {
-          display: none !important;
-        }
-        .resume-root {
-          width: auto !important;
-          max-width: none !important;
-          background: ${style.colors.background} !important;
-        }
-      `}</style>
+      <style>{printPageCss(style)}</style>
       <ResumeDocument resume={resume} style={style} locale={locale} padded={false} />
     </>
   );
+}
+
+export function printPageCss(style: ResolvedDocumentStyle): string {
+  const margin = style.page.margin;
+  return `
+    @page {
+      size: ${style.page.size};
+      margin: ${margin.top}mm ${margin.right}mm ${margin.bottom}mm ${margin.left}mm;
+      background: ${style.colors.background};
+    }
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: ${style.colors.background} !important;
+      color-scheme: light !important;
+    }
+    nextjs-portal,
+    [data-nextjs-toast],
+    [data-next-badge-root],
+    .toaster {
+      display: none !important;
+    }
+    .resume-root {
+      width: auto !important;
+      max-width: none !important;
+      background: ${style.colors.background} !important;
+    }
+  `;
 }

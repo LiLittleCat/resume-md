@@ -81,7 +81,7 @@ Markdown → Parser → Resume AST → Style Resolver → React → HTML/CSS →
 
 ```text
 core/          解析、schema、locale、主题、样式和分页
-themes/        minimal、modern、classic
+themes/        minimal、modern、classic、kami
 locales/       zh-CN、en-US
 examples/      中英文示例
 components/    编辑器、预览、设计面板和简历组件

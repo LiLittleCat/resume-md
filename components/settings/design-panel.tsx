@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { PanelRightClose, RotateCcw } from "lucide-react";
-import { compileResume } from "@/core/compile";
+import { ExternalLink, PanelRightClose, RotateCcw } from "lucide-react";
 import { configWithTheme, hasDocumentDesignOverrides } from "@/core/style";
 import { hasPath } from "@/core/style/merge";
 import { resolveLocale } from "@/core/locale";
@@ -26,12 +25,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useEditorStore } from "@/store/editor-store";
+import { compileResumeWithAvatarAssets } from "@/lib/avatar-assets";
 import { AvatarField } from "./avatar-field";
 import { Field, NumberSlider, PanelBlock, Segmented } from "./controls";
 import { IconPicker } from "./icon-picker";
 
-const LATIN_FONTS = ["Inter", "Source Serif 4"];
-const CJK_FONTS = ["Noto Sans SC", "Noto Serif SC"];
+const LATIN_FONTS = ["Inter", "Source Serif 4", "Charter"];
+const CJK_FONTS = ["Noto Sans SC", "Noto Serif SC", "TsangerJinKai02"];
+const KAMI_DESIGN_URL = "https://kami.tw93.fun/";
 
 export function DesignPanel({ onCollapse }: { onCollapse: () => void }) {
   const source = useEditorStore((state) => state.source);
@@ -40,7 +41,7 @@ export function DesignPanel({ onCollapse }: { onCollapse: () => void }) {
   const selectedSectionTitle = useEditorStore((state) => state.selectedSectionTitle);
   const compiled = useMemo(() => {
     try {
-      return compileResume({ source, config });
+      return compileResumeWithAvatarAssets({ source, config }, window.localStorage);
     } catch {
       return null;
     }
@@ -130,7 +131,7 @@ function DocumentDesign() {
   const config = useEditorStore((state) => state.config);
   const source = useEditorStore((state) => state.source);
   const patchConfig = useEditorStore((state) => state.patchConfig);
-  const compiled = compileResume({ source, config });
+  const compiled = compileResumeWithAvatarAssets({ source, config }, window.localStorage);
   const { style } = compiled;
   const ui = useUi();
 
@@ -146,7 +147,24 @@ function DocumentDesign() {
             { value: "minimal", label: ui.themes.minimal },
             { value: "modern", label: ui.themes.modern },
             { value: "classic", label: ui.themes.classic },
+            {
+              value: "kami",
+              label: ui.themes.kami,
+              suffix: (
+                <a
+                  href={KAMI_DESIGN_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={ui.kamiAttribution}
+                  title={ui.kamiAttribution}
+                  className="flex size-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-background/70 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
+                >
+                  <ExternalLink className="size-3" />
+                </a>
+              ),
+            },
           ]}
+          columns={2}
         />
       </PanelBlock>
 
@@ -321,7 +339,7 @@ function SectionDesign({ sectionId }: { sectionId: SectionId }) {
   const config = useEditorStore((state) => state.config);
   const source = useEditorStore((state) => state.source);
   const patchConfig = useEditorStore((state) => state.patchConfig);
-  const compiled = compileResume({ source, config });
+  const compiled = compileResumeWithAvatarAssets({ source, config }, window.localStorage);
   const sectionStyle = compiled.style.sections[sectionId];
   const ui = useUi();
 

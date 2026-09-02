@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { compileResume } from "@/core/compile";
 import { collectPageOffsets, sameOffsets } from "@/core/layout";
 import type { SectionId } from "@/core/schema";
 import { ResumeDocument } from "@/components/resume";
 import { useUi } from "@/components/editor/use-ui";
 import { useEditorStore } from "@/store/editor-store";
+import { compileResumeWithAvatarAssets } from "@/lib/avatar-assets";
 
 export function A4Preview() {
   const source = useEditorStore((state) => state.source);
@@ -19,7 +19,7 @@ export function A4Preview() {
 
   const compiled = useMemo(() => {
     try {
-      return compileResume({ source, config });
+      return compileResumeWithAvatarAssets({ source, config }, window.localStorage);
     } catch {
       return null;
     }

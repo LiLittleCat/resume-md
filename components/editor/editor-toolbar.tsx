@@ -9,6 +9,7 @@ import { HeaderControls } from "@/components/chrome/header-controls";
 import { ProductHeader } from "@/components/chrome/product-header";
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store/editor-store";
+import { materializeAvatarSource } from "@/lib/avatar-assets";
 import { useColorScheme } from "./use-color-scheme";
 import { useUi, useUiLocale } from "./use-ui";
 
@@ -30,10 +31,12 @@ export function EditorToolbar() {
     setExporting(true);
     try {
       const compiled = compileResume({ source, config });
+      const exportSource = materializeAvatarSource(source, window.localStorage);
+      if (!exportSource) throw new Error(ui.avatarMissing);
       const response = await fetch("/api/pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ source, config }),
+        body: JSON.stringify({ source: exportSource, config }),
       });
       if (!response.ok) {
         const message = await response.text();

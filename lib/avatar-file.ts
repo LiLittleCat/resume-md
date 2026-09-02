@@ -1,6 +1,10 @@
 const MAX_EDGE = 640;
 const JPEG_QUALITY = 0.86;
 
+export function avatarOutputMimeType(inputType: string): "image/png" | "image/jpeg" {
+  return inputType === "image/png" ? "image/png" : "image/jpeg";
+}
+
 export async function readAvatarFile(file: File): Promise<string> {
   if (!file.type.startsWith("image/")) {
     throw new Error("unsupported-image");
@@ -19,5 +23,8 @@ export async function readAvatarFile(file: File): Promise<string> {
   }
   context.drawImage(bitmap, 0, 0, width, height);
   bitmap.close();
-  return canvas.toDataURL("image/jpeg", JPEG_QUALITY);
+  const outputType = avatarOutputMimeType(file.type);
+  return outputType === "image/png"
+    ? canvas.toDataURL(outputType)
+    : canvas.toDataURL(outputType, JPEG_QUALITY);
 }

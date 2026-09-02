@@ -39,6 +39,9 @@ describe("resume document CSS", () => {
     expect(RESUME_DOCUMENT_CSS).toMatch(
       /\.resume-root \.resume-avatar\[data-shape="circle"\] \{\s*border-radius:\s*50%/,
     );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-root \.resume-avatar \{[\s\S]*?background:\s*transparent/,
+    );
   });
 
   it("sizes inline skill labels to their content without breaking unnamed groups", () => {
@@ -78,6 +81,19 @@ describe("resume document CSS", () => {
     );
     expect(RESUME_DOCUMENT_CSS).toMatch(
       /\.resume-subhead \{[\s\S]*?color:\s*var\(--resume-color-text\)/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-subhead \{[\s\S]*?font-weight:\s*var\(--resume-item-title-weight\)/,
+    );
+  });
+
+  it("keeps Kami hierarchy typographic and reserves ink blue for emphasis", () => {
+    expect(RESUME_DOCUMENT_CSS).toMatch(/font-family:\s*"TsangerJinKai02"/);
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-root\[data-theme="kami"\] \.resume-name,[\s\S]*?color:\s*var\(--resume-color-text\)/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-root\[data-theme="kami"\] \.resume-headline,[\s\S]*?color:\s*var\(--resume-color-accent\)/,
     );
   });
 

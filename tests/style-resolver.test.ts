@@ -43,6 +43,28 @@ describe("resolveStyle", () => {
     );
   });
 
+  it("maps the Kami document system to a warm serif resume theme", () => {
+    const zh = resolveStyle({ themeId: "kami", localeId: "zh-CN" });
+    const en = resolveStyle({ themeId: "kami", localeId: "en-US" });
+
+    expect(zh.themeId).toBe("kami");
+    expect(zh.colors).toEqual({
+      text: "#141413",
+      muted: "#504e49",
+      rule: "#e8e6dc",
+      accent: "#1B365D",
+      background: "#f5f4ed",
+    });
+    expect(zh.fonts.cjk).toBe("TsangerJinKai02");
+    expect(en.fonts.latin).toBe("Charter");
+    expect(zh.typography.name.fontWeight).toBe(500);
+    expect(zh.typography.body.fontWeight).toBe(400);
+    expect(zh.page.margin).toEqual({ top: 11, right: 13, bottom: 11, left: 13 });
+    expect(zh.icons.mode).toBe("none");
+    expect(zh.components.header.rule).toBe(true);
+    expect(zh.components.sectionTitle.rule).toBe(true);
+  });
+
   it("applies document config over locale presets", () => {
     const style = resolveStyle({
       themeId: "minimal",

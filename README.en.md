@@ -41,7 +41,7 @@ Next.js App Router, React, TypeScript (strict), Tailwind CSS, shadcn/ui + Base U
 
 ```
 core/          parser, schema, locale, theme, style, layout, icons, renderer
-themes/        minimal (complete), modern and classic (skeletons with distinct tokens)
+themes/        minimal, modern, classic, and Kami
 locales/       zh-CN, en-US
 examples/      Chinese and English Markdown samples
 components/    editor, preview, settings, resume document, shadcn/ui
