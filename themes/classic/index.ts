@@ -88,7 +88,7 @@ export const classicTheme: ThemeDefinition = {
     "zh-CN": {
       typography: {
         name: { letterSpacing: 0.12 },
-        sectionTitle: { letterSpacing: 0.16 },
+        sectionTitle: { letterSpacing: 0 },
       },
     },
   },

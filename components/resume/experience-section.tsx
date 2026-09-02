@@ -1,7 +1,6 @@
 import { formatDateRange } from "@/core/parser";
 import type { ExperienceItem, ExperienceLayout, LocaleDefinition } from "@/core/schema";
 import { BulletList } from "./bullet-list";
-import { Spread } from "./spread";
 
 export function ExperienceBody({
   items,
@@ -51,28 +50,27 @@ function ExperienceHeader({
   locale: LocaleDefinition;
 }) {
   const dates = formatDateRange(item.startDate, item.endDate, locale.id, locale.labels.present);
+  const meta = [dates, item.location].filter(Boolean).join(" · ");
 
   if (layout === "stacked") {
     return (
       <div className="resume-item-header">
         <p className="resume-item-title">{item.company}</p>
         {item.position ? <p className="resume-item-subtitle">{item.position}</p> : null}
-        <p className="resume-stacked-meta resume-date">
-          {[dates, item.location].filter(Boolean).join(" · ")}
-        </p>
+        {meta ? <p className="resume-stacked-meta resume-date">{meta}</p> : null}
       </div>
     );
   }
 
   return (
     <div className="resume-item-header">
-      <Spread
-        left={<p className="resume-item-title">{item.company}</p>}
-        middle={item.position ? <p className="resume-item-subtitle">{item.position}</p> : null}
-        right={dates}
-        rightTone="text"
-      />
-      {item.location ? <Spread left={null} right={item.location} /> : null}
+      <div className="resume-experience-heading">
+        <p className="resume-item-title resume-experience-company">{item.company}</p>
+        {item.position ? (
+          <p className="resume-item-subtitle resume-experience-position">{item.position}</p>
+        ) : null}
+        {meta ? <div className="resume-spread-meta resume-experience-meta">{meta}</div> : null}
+      </div>
     </div>
   );
 }

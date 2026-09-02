@@ -51,7 +51,7 @@ export const RESUME_DOCUMENT_CSS = `
 .resume-header[data-avatar="left"],
 .resume-header[data-avatar="right"] {
   display: grid;
-  align-items: center;
+  align-items: start;
   column-gap: 4.5mm;
   text-align: left;
 }
@@ -91,10 +91,6 @@ export const RESUME_DOCUMENT_CSS = `
   align-items: center;
   text-align: center;
   gap: 2.2mm;
-}
-
-.resume-header[data-avatar] {
-  overflow: hidden;
 }
 
 .resume-root .resume-avatar {
@@ -211,6 +207,10 @@ export const RESUME_DOCUMENT_CSS = `
   text-transform: uppercase;
 }
 
+.resume-root[lang="zh-CN"] .resume-section-title[data-transform="uppercase"] .resume-section-title-text {
+  text-transform: none;
+}
+
 .resume-section-title[data-rule="true"] {
   padding-bottom: 1.2mm;
   border-bottom: 0.45pt solid var(--resume-color-rule);
@@ -284,6 +284,30 @@ export const RESUME_DOCUMENT_CSS = `
 .resume-spread-meta[data-tone="text"],
 .resume-date {
   color: var(--resume-color-text);
+}
+
+.resume-experience-heading {
+  display: grid;
+  grid-template-columns: fit-content(34%) minmax(0, 1fr) fit-content(42%);
+  align-items: baseline;
+  gap: 4mm;
+}
+
+.resume-experience-company,
+.resume-experience-position {
+  min-width: 0;
+}
+
+.resume-experience-position {
+  grid-column: 2;
+  margin-top: 0;
+}
+
+.resume-experience-meta {
+  grid-column: 3;
+  max-width: none;
+  color: var(--resume-color-text);
+  white-space: normal;
 }
 
 .resume-item-title {
@@ -369,10 +393,10 @@ export const RESUME_DOCUMENT_CSS = `
 
 .resume-subhead {
   margin: var(--resume-content-gap) 0 0.6mm;
-  color: var(--resume-color-text);
-  font-size: var(--resume-body-size);
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  color: var(--resume-color-muted);
+  font-size: var(--resume-meta-size);
+  font-weight: 500;
+  letter-spacing: 0.02em;
   line-height: var(--resume-meta-leading);
   break-after: avoid-page;
 }
@@ -402,8 +426,9 @@ export const RESUME_DOCUMENT_CSS = `
 }
 
 .resume-skills[data-layout="inline"] .resume-skill-group {
-  display: flex;
-  gap: 2mm;
+  display: grid;
+  grid-template-columns: fit-content(35%) minmax(0, 1fr);
+  column-gap: 3mm;
   align-items: baseline;
   margin-top: var(--resume-item-gap);
   break-inside: avoid-page;
@@ -414,7 +439,6 @@ export const RESUME_DOCUMENT_CSS = `
 }
 
 .resume-skills[data-layout="inline"] .resume-skill-name {
-  flex: 0 0 22mm;
   font-size: var(--resume-item-title-size);
   font-weight: var(--resume-item-title-weight);
 }
@@ -423,6 +447,10 @@ export const RESUME_DOCUMENT_CSS = `
   min-width: 0;
   font-size: var(--resume-body-size);
   line-height: var(--resume-body-leading);
+}
+
+.resume-skills[data-layout="inline"] .resume-skill-items:only-child {
+  grid-column: 1 / -1;
 }
 
 .resume-skill-list {

@@ -96,7 +96,7 @@ export const minimalTheme: ThemeDefinition = {
         base: { lineHeight: 1.45 },
         body: { lineHeight: 1.45 },
         name: { letterSpacing: 0.06 },
-        sectionTitle: { letterSpacing: 0.12 },
+        sectionTitle: { letterSpacing: 0 },
       },
     },
     "en-US": {

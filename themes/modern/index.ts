@@ -44,7 +44,7 @@ export const modernTheme: ThemeDefinition = {
   layout: {
     experience: "default",
     projects: "default",
-    skills: "stacked",
+    skills: "inline",
     education: "default",
   },
   icons: {
@@ -93,7 +93,7 @@ export const modernTheme: ThemeDefinition = {
   localePresets: {
     "zh-CN": {
       typography: {
-        sectionTitle: { fontSize: 12, letterSpacing: 0.18 },
+        sectionTitle: { fontSize: 12, letterSpacing: 0 },
         name: { letterSpacing: 0.04 },
       },
     },
