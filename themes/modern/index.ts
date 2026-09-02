@@ -29,7 +29,7 @@ export const modernTheme: ThemeDefinition = {
     base: text(10.5, 400, 1.38),
     name: text(22, 700, 1.08, -0.03),
     headline: text(11, 500, 1.3),
-    sectionTitle: text(10, 700, 1.2, 0.16),
+    sectionTitle: text(12, 700, 1.2, 0.16),
     itemTitle: text(12, 600, 1.25),
     itemSubtitle: text(10, 500, 1.3),
     body: text(10.5, 400, 1.38),
@@ -93,7 +93,7 @@ export const modernTheme: ThemeDefinition = {
   localePresets: {
     "zh-CN": {
       typography: {
-        sectionTitle: { fontSize: 11, letterSpacing: 0.18 },
+        sectionTitle: { fontSize: 12, letterSpacing: 0.18 },
         name: { letterSpacing: 0.04 },
       },
     },

@@ -11,6 +11,7 @@ import type {
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import { unified } from "unified";
+import type { InlineSpan } from "../schema";
 
 const processor = unified().use(remarkParse).use(remarkGfm);
 
@@ -24,6 +25,49 @@ export function headingText(node: Heading): string {
 
 export function paragraphText(node: Paragraph): string {
   return phrasingToText(node.children).trim();
+}
+
+export function paragraphInlineSpans(node: Paragraph): InlineSpan[] {
+  return normalizeInlineSpans(phrasingToInlineSpans(node.children));
+}
+
+function phrasingToInlineSpans(nodes: PhrasingContent[], strong = false): InlineSpan[] {
+  return nodes.flatMap((node): InlineSpan[] => {
+    switch (node.type) {
+      case "text":
+        return [{ text: node.value, strong: strong || undefined }];
+      case "strong":
+        return phrasingToInlineSpans(node.children, true);
+      case "emphasis":
+      case "delete":
+        return phrasingToInlineSpans(node.children, strong);
+      case "inlineCode":
+        return [{ text: node.value, strong: strong || undefined }];
+      case "link":
+        return phrasingToInlineSpans(node.children, strong);
+      case "break":
+        return [{ text: " ", strong: strong || undefined }];
+      default:
+        return [{ text: toString(node), strong: strong || undefined }];
+    }
+  });
+}
+
+function normalizeInlineSpans(spans: InlineSpan[]): InlineSpan[] {
+  const normalized: InlineSpan[] = [];
+  for (const span of spans) {
+    const text = span.text.replace(/\s+/g, " ");
+    if (!text) continue;
+    const previous = normalized[normalized.length - 1];
+    if (previous && previous.strong === span.strong) {
+      previous.text += text;
+    } else {
+      normalized.push({ ...span, text });
+    }
+  }
+  if (normalized[0]) normalized[0].text = normalized[0].text.trimStart();
+  if (normalized.at(-1)) normalized.at(-1)!.text = normalized.at(-1)!.text.trimEnd();
+  return normalized.filter((span) => span.text.length > 0);
 }
 
 export function phrasingToText(nodes: PhrasingContent[]): string {
@@ -84,6 +128,22 @@ export function listItemTexts(node: List): string[] {
   return node.children
     .map((item) => listItemText(item))
     .filter((text) => text.length > 0);
+}
+
+export function listItemInlineSpans(node: List): InlineSpan[][] {
+  return node.children.map((item) => {
+    const spans: InlineSpan[] = [];
+    for (const child of item.children) {
+      if (child.type === "paragraph") {
+        if (spans.length > 0) spans.push({ text: " " });
+        spans.push(...paragraphInlineSpans(child));
+      } else if (child.type === "list") {
+        const nested = listItemTexts(child).join(" ");
+        if (nested) spans.push({ text: `${spans.length > 0 ? " " : ""}${nested}` });
+      }
+    }
+    return normalizeInlineSpans(spans);
+  });
 }
 
 export function listItemText(item: ListItem): string {

@@ -94,7 +94,7 @@ describe("parseResumeMarkdown", () => {
   it("preserves Markdown list semantics in skills", () => {
     const source = `# 专业技能
 
-1. 具备 7 年 Java 后端研发经验，熟练掌握 Java 基础、集合、并发编程。
+1. **Java 与并发**：具备 7 年后端研发经验。
 
 2. 熟悉 Spring Boot、Spring Cloud、MyBatis/MyBatis-Plus 等主流技术栈。
 `;
@@ -105,8 +105,12 @@ describe("parseResumeMarkdown", () => {
     expect(skills?.id).toBe("skills");
     if (skills?.id === "skills") {
       expect(skills.groups[0]?.items).toEqual([
-        "具备 7 年 Java 后端研发经验，熟练掌握 Java 基础、集合、并发编程。",
+        "Java 与并发：具备 7 年后端研发经验。",
         "熟悉 Spring Boot、Spring Cloud、MyBatis/MyBatis-Plus 等主流技术栈。",
+      ]);
+      expect(skills.groups[0]?.richItems?.[0]).toEqual([
+        { text: "Java 与并发", strong: true },
+        { text: "：具备 7 年后端研发经验。" },
       ]);
       expect(skills.groups[0]?.listType).toBe("ordered");
       expect(skills.groups[0]?.listStart).toBe(1);

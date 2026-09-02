@@ -35,6 +35,14 @@ describe("resolveStyle", () => {
     expect(en.typography.name.letterSpacing).toBe(-0.022);
   });
 
+  it("keeps modern section titles larger than body copy", () => {
+    const style = resolveStyle({ themeId: "modern", localeId: "zh-CN" });
+    expect(style.typography.sectionTitle.fontSize).toBe(12);
+    expect(style.typography.sectionTitle.fontSize).toBeGreaterThan(
+      style.typography.body.fontSize,
+    );
+  });
+
   it("applies document config over locale presets", () => {
     const style = resolveStyle({
       themeId: "minimal",

@@ -1,4 +1,4 @@
-import type { SkillsLayout, SkillsSection } from "@/core/schema";
+import type { InlineSpan, SkillsLayout, SkillsSection } from "@/core/schema";
 
 export function SkillsBody({
   section,
@@ -29,7 +29,9 @@ function SkillItems({ group }: { group: SkillsSection["groups"][number] }) {
     return (
       <ol className="resume-skill-items resume-skill-list" start={group.listStart}>
         {group.items.map((item, index) => (
-          <li key={`${index}-${item}`}>{item}</li>
+          <li key={`${index}-${item}`}>
+            <SkillItemText item={item} spans={group.richItems?.[index]} />
+          </li>
         ))}
       </ol>
     );
@@ -39,11 +41,26 @@ function SkillItems({ group }: { group: SkillsSection["groups"][number] }) {
     return (
       <ul className="resume-skill-items resume-skill-list">
         {group.items.map((item, index) => (
-          <li key={`${index}-${item}`}>{item}</li>
+          <li key={`${index}-${item}`}>
+            <SkillItemText item={item} spans={group.richItems?.[index]} />
+          </li>
         ))}
       </ul>
     );
   }
 
   return <div className="resume-skill-items">{group.items.join(" / ")}</div>;
+}
+
+function SkillItemText({
+  item,
+  spans,
+}: {
+  item: string;
+  spans: InlineSpan[] | undefined;
+}) {
+  if (!spans || spans.length === 0) return item;
+  return spans.map((span, index) =>
+    span.strong ? <strong key={`${index}-${span.text}`}>{span.text}</strong> : span.text,
+  );
 }

@@ -24,9 +24,17 @@ export const ProfileSchema = z.object({
 
 export type Profile = z.infer<typeof ProfileSchema>;
 
+export const InlineSpanSchema = z.object({
+  text: z.string().min(1),
+  strong: z.boolean().optional(),
+});
+
+export type InlineSpan = z.infer<typeof InlineSpanSchema>;
+
 export const SkillGroupSchema = z.object({
   name: z.string(),
   items: z.array(z.string().min(1)),
+  richItems: z.array(z.array(InlineSpanSchema)).optional(),
   listType: z.enum(["ordered", "unordered"]).optional(),
   listStart: z.number().int().optional(),
 });

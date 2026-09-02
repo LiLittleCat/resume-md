@@ -26,6 +26,7 @@ import {
   isList,
   isParagraph,
   isStrongHeavyParagraph,
+  listItemInlineSpans,
   listItemTexts,
   paragraphText,
   parseMarkdownTree,
@@ -203,6 +204,7 @@ function collectSkills(nodes: RootContent[]): Omit<SkillGroup, "name"> {
   if (onlyNode && isList(onlyNode)) {
     return {
       items: listItemTexts(onlyNode),
+      richItems: listItemInlineSpans(onlyNode),
       listType: onlyNode.ordered ? "ordered" : "unordered",
       listStart: onlyNode.ordered ? (onlyNode.start ?? 1) : undefined,
     };
