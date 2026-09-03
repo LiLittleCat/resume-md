@@ -136,7 +136,7 @@
   html {
     @apply font-sans;
   }
-  button:not([aria-haspopup]),
+  button:not([aria-haspopup]):not([data-slot="toggle-group-item"]),
   [data-slot="button"]:not([aria-haspopup]) {
     @apply active:scale-[0.96];
     transition-property: transform, background-color, color, box-shadow, border-color, opacity;

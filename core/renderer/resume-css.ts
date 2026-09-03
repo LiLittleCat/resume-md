@@ -539,8 +539,14 @@ ul.resume-skill-list {
   color: var(--resume-color-text);
 }
 
-.resume-root[data-theme="kami"] .resume-headline,
-.resume-root[data-theme="kami"] .resume-item-subtitle,
+.resume-root[data-theme="kami"] .resume-headline {
+  color: var(--resume-color-muted);
+}
+
+.resume-root[data-theme="kami"] .resume-item-subtitle {
+  color: var(--resume-color-muted);
+}
+
 .resume-root[data-theme="kami"] .resume-subhead,
 .resume-root[data-theme="kami"] .resume-skill-name,
 .resume-root[data-theme="kami"] strong {

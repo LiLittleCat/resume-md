@@ -91,7 +91,11 @@ export function Segmented<T extends string>({
           <ToggleGroupItem
             key={option.value}
             value={option.value}
-            className={cn("px-1.5 text-xs", gridColumns && "w-full", option.suffix && "pr-7")}
+            className={cn(
+              "px-1.5 text-xs shadow-none transition-[background-color,color,border-color] duration-150 active:scale-100",
+              gridColumns && "w-full",
+              option.suffix && "pr-7",
+            )}
             style={gridColumns ? { borderRadius: 0, borderWidth: 0 } : undefined}
           >
             {option.label}

@@ -3,7 +3,7 @@ import { scaleSpacing, text, withBullet } from "../shared";
 
 const normalSpacing = {
   sectionGap: 5.8,
-  itemGap: 2.6,
+  itemGap: 3.6,
   contentGap: 1.7,
   bulletGap: 1,
   paragraphGap: 1.6,
@@ -26,14 +26,14 @@ export const kamiTheme: ThemeDefinition = {
     background: "#f5f4ed",
   },
   typography: withBullet({
-    base: text(10, 400, 1.42),
+    base: text(10.5, 400, 1.4),
     name: text(26, 500, 1, -0.008),
-    headline: text(11, 500, 1.3),
+    headline: text(10.5, 500, 1.3),
     sectionTitle: text(13, 500, 1.25),
-    itemTitle: text(11.5, 500, 1.3),
+    itemTitle: text(11, 500, 1.3),
     itemSubtitle: text(9.5, 500, 1.4),
-    body: text(10, 400, 1.42),
-    meta: text(9.5, 400, 1.45),
+    body: text(10.5, 400, 1.4),
+    meta: text(9, 400, 1.45),
   }),
   spacing: normalSpacing,
   spacingPresets: {
@@ -57,7 +57,7 @@ export const kamiTheme: ThemeDefinition = {
   },
   page: {
     size: "A4",
-    margin: { top: 11, right: 13, bottom: 11, left: 13 },
+    margin: { top: 14, right: 13, bottom: 14, left: 13 },
   },
   pagination: {
     keepSectionTitleWithBody: true,
@@ -82,25 +82,31 @@ export const kamiTheme: ThemeDefinition = {
   },
   flexibleSpacing: {
     sectionGap: { min: 4.2, ideal: 5.8, max: 8 },
-    itemGap: { min: 1.8, ideal: 2.6, max: 4.5 },
+    itemGap: { min: 2.4, ideal: 3.6, max: 5.2 },
   },
   localePresets: {
     "zh-CN": {
       typography: {
-        base: { fontSize: 10, lineHeight: 1.42, letterSpacing: 0.033 },
-        body: { fontSize: 10, lineHeight: 1.42, letterSpacing: 0.033 },
-        bullet: { fontSize: 10, lineHeight: 1.4, letterSpacing: 0.033 },
+        base: { letterSpacing: 0.033 },
+        body: { letterSpacing: 0.033 },
+        bullet: { letterSpacing: 0.033 },
         name: { fontSize: 26.5, letterSpacing: 0.019 },
+        headline: { fontSize: 10.5, fontWeight: 400, lineHeight: 1.3 },
         sectionTitle: { fontSize: 12.5, letterSpacing: 0 },
+        itemTitle: { fontSize: 11 },
+        meta: { fontSize: 9 },
       },
     },
     "en-US": {
       typography: {
-        base: { fontSize: 10, lineHeight: 1.42, letterSpacing: 0 },
-        body: { fontSize: 10, lineHeight: 1.42, letterSpacing: 0 },
-        bullet: { fontSize: 10, lineHeight: 1.4, letterSpacing: 0 },
+        base: { letterSpacing: 0 },
+        body: { letterSpacing: 0 },
+        bullet: { letterSpacing: 0 },
         name: { fontSize: 26, letterSpacing: -0.008 },
+        headline: { fontSize: 10.5, fontWeight: 500 },
         sectionTitle: { fontSize: 13, letterSpacing: 0 },
+        itemTitle: { fontSize: 11 },
+        meta: { fontSize: 9 },
       },
     },
   },

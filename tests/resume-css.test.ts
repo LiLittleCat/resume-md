@@ -99,7 +99,13 @@ describe("resume document CSS", () => {
       /\.resume-root\[data-theme="kami"\] \.resume-name,[\s\S]*?color:\s*var\(--resume-color-text\)/,
     );
     expect(RESUME_DOCUMENT_CSS).toMatch(
-      /\.resume-root\[data-theme="kami"\] \.resume-headline,[\s\S]*?color:\s*var\(--resume-color-accent\)/,
+      /\.resume-root\[data-theme="kami"\] \.resume-headline \{[\s\S]*?color:\s*var\(--resume-color-muted\)/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-root\[data-theme="kami"\] \.resume-item-subtitle \{[\s\S]*?color:\s*var\(--resume-color-muted\)/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-root\[data-theme="kami"\] \.resume-skill-name,[\s\S]*?color:\s*var\(--resume-color-accent\)/,
     );
   });
 
