@@ -7,6 +7,7 @@ import { hasPath } from "@/core/style/merge";
 import { resolveLocale } from "@/core/locale";
 import type {
   IconMode,
+  IconProvider,
   SectionId,
   SectionOverride,
   SpacingPreset,
@@ -291,6 +292,16 @@ function DocumentDesign() {
       </PanelBlock>
 
       <PanelBlock title={ui.icons}>
+        <Field label={ui.iconStyle}>
+          <Segmented<IconProvider>
+            value={style.icons.provider}
+            onChange={(provider) => patchConfig({ icons: { provider } })}
+            options={[
+              { value: "phosphor", label: ui.iconProviders.phosphor },
+              { value: "lucide", label: ui.iconProviders.lucide },
+            ]}
+          />
+        </Field>
         <Segmented<IconMode>
           value={style.icons.mode}
           onChange={(mode) => patchConfig({ icons: { mode } })}
@@ -404,6 +415,7 @@ function SectionDesign({ sectionId }: { sectionId: SectionId }) {
         <IconPicker
           sectionId={sectionId}
           value={sectionStyle.icon}
+          provider={compiled.style.icons.provider}
           onChange={(icon) => patchSection({ icon })}
         />
       </PanelBlock>

@@ -73,7 +73,7 @@ export const ICON_MODES = ["none", "section", "full"] as const;
 export type IconMode = (typeof ICON_MODES)[number];
 export const IconModeSchema = z.enum(ICON_MODES);
 
-export const ICON_PROVIDERS = ["lucide"] as const;
+export const ICON_PROVIDERS = ["phosphor", "lucide"] as const;
 export type IconProvider = (typeof ICON_PROVIDERS)[number];
 export const IconProviderSchema = z.enum(ICON_PROVIDERS);
 

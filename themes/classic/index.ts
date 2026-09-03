@@ -48,9 +48,9 @@ export const classicTheme: ThemeDefinition = {
     education: "default",
   },
   icons: {
-    mode: "none",
-    provider: "lucide",
-    size: 10,
+    mode: "full",
+    provider: "phosphor",
+    size: 12,
     strokeWidth: 1.6,
     gap: 1.5,
     sections: {},

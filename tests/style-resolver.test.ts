@@ -14,7 +14,8 @@ describe("resolveStyle", () => {
     expect(style.typography.name.fontSize).toBe(minimalTheme.typography.name.fontSize);
     expect(style.spacing.sectionGap).toBe(minimalTheme.spacingPresets.normal.sectionGap);
     expect(style.layout.experience).toBe("default");
-    expect(style.icons.mode).toBe("section");
+    expect(style.icons.mode).toBe("full");
+    expect(style.icons.provider).toBe("phosphor");
     expect(style.components.avatar).toEqual({ position: "right", shape: "square", sizeMm: 22 });
   });
 
@@ -43,6 +44,13 @@ describe("resolveStyle", () => {
     );
   });
 
+  it("keeps section icons at least as large as each theme's section title", () => {
+    for (const themeId of ["minimal", "modern", "classic", "kami"] as const) {
+      const style = resolveStyle({ themeId, localeId: "zh-CN" });
+      expect(style.icons.size).toBeGreaterThanOrEqual(style.typography.sectionTitle.fontSize);
+    }
+  });
+
   it("maps the Kami document system to a warm serif resume theme", () => {
     const zh = resolveStyle({ themeId: "kami", localeId: "zh-CN" });
     const en = resolveStyle({ themeId: "kami", localeId: "en-US" });
@@ -59,8 +67,14 @@ describe("resolveStyle", () => {
     expect(en.fonts.latin).toBe("Charter");
     expect(zh.typography.name.fontWeight).toBe(500);
     expect(zh.typography.body.fontWeight).toBe(400);
+    expect(zh.typography.body.fontSize).toBe(10);
+    expect(en.typography.body.fontSize).toBe(10);
+    expect(zh.typography.itemSubtitle.fontSize).toBe(9.5);
+    expect(zh.typography.meta.fontSize).toBe(9.5);
     expect(zh.page.margin).toEqual({ top: 11, right: 13, bottom: 11, left: 13 });
-    expect(zh.icons.mode).toBe("none");
+    expect(zh.icons.mode).toBe("full");
+    expect(zh.icons.provider).toBe("phosphor");
+    expect(zh.icons.size).toBe(12.5);
     expect(zh.components.header.rule).toBe(true);
     expect(zh.components.sectionTitle.rule).toBe(true);
   });
@@ -167,6 +181,15 @@ describe("resolveStyle", () => {
     const style = resolveStyle({ config, localeId: "zh-CN" });
     expect(style.icons.mode).toBe("full");
     expect(style.icons.showContactIcons).toBe(true);
+  });
+
+  it("defaults every theme to the Phosphor full icon set", () => {
+    for (const themeId of ["minimal", "modern", "classic", "kami"] as const) {
+      const style = resolveStyle({ themeId });
+      expect(style.icons.provider).toBe("phosphor");
+      expect(style.icons.mode).toBe("full");
+      expect(style.icons.showContactIcons).toBe(true);
+    }
   });
 
   it("keeps modern section icons on while titles can be uppercase", () => {

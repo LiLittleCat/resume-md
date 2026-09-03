@@ -48,9 +48,9 @@ export const minimalTheme: ThemeDefinition = {
     education: "default",
   },
   icons: {
-    mode: "section",
-    provider: "lucide",
-    size: 11,
+    mode: "full",
+    provider: "phosphor",
+    size: 12,
     strokeWidth: 1.75,
     gap: 1.6,
     sections: {

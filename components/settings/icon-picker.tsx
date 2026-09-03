@@ -2,24 +2,31 @@
 
 import { createElement, useState } from "react";
 import { recommendedIconsFor, allResumeIcons } from "@/core/icons";
-import type { ResumeIcon, SectionId } from "@/core/schema";
-import { getLucideIcon } from "@/components/resume";
+import type { IconProvider, ResumeIcon, SectionId } from "@/core/schema";
+import { getLucideIcon, getPhosphorIcon } from "@/components/resume";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useUi } from "@/components/editor/use-ui";
 
-function TriggerIcon(icon: ResumeIcon) {
-  return createElement(getLucideIcon(icon), { className: "size-3.5" });
+function TriggerIcon(icon: ResumeIcon, provider: IconProvider) {
+  return provider === "phosphor"
+    ? createElement(getPhosphorIcon(icon), {
+        className: "size-3.5",
+        weight: "regular",
+      })
+    : createElement(getLucideIcon(icon), { className: "size-3.5" });
 }
 
 export function IconPicker({
   sectionId,
   value,
+  provider,
   onChange,
 }: {
   sectionId: SectionId;
   value?: ResumeIcon;
+  provider: IconProvider;
   onChange: (icon: ResumeIcon) => void;
 }) {
   const [viewAll, setViewAll] = useState(false);
@@ -32,7 +39,7 @@ export function IconPicker({
       <PopoverTrigger
         render={
           <Button variant="outline" size="sm" className="w-full justify-start gap-2">
-            {value ? TriggerIcon(value) : null}
+            {value ? TriggerIcon(value, provider) : null}
             <span className="truncate">{value ?? ui.inherited}</span>
           </Button>
         }
@@ -63,7 +70,7 @@ export function IconPicker({
               aria-label={icon}
               title={icon}
             >
-              {TriggerIcon(icon)}
+              {TriggerIcon(icon, provider)}
             </button>
           ))}
         </div>

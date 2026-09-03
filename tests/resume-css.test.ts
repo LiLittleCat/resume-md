@@ -37,6 +37,9 @@ describe("resume document CSS", () => {
     );
     expect(RESUME_DOCUMENT_CSS).not.toMatch(/\.resume-header\[data-avatar\] \{\s*overflow:\s*hidden/);
     expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-header\[data-align="center"\]:not\(\[data-avatar="left"\]\):not\(\[data-avatar="right"\]\) \.resume-contact \{\s*justify-content:\s*center/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
       /\.resume-root \.resume-avatar\[data-shape="circle"\] \{\s*border-radius:\s*50%/,
     );
     expect(RESUME_DOCUMENT_CSS).toMatch(
@@ -94,6 +97,12 @@ describe("resume document CSS", () => {
     );
     expect(RESUME_DOCUMENT_CSS).toMatch(
       /\.resume-root\[data-theme="kami"\] \.resume-headline,[\s\S]*?color:\s*var\(--resume-color-accent\)/,
+    );
+  });
+
+  it("optically raises section icons beside their titles", () => {
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-section-title > \.resume-icon\s*\{\s*transform:\s*translateY\(-0\.5pt\)/,
     );
   });
 

@@ -4,6 +4,7 @@ import type {
   EducationLayout,
   ExperienceLayout,
   IconMode,
+  IconProvider,
   LocaleId,
   ProjectLayout,
   SkillsLayout,
@@ -37,6 +38,7 @@ export interface UiCopy {
   itemGap: string;
   layout: string;
   icons: string;
+  iconStyle: string;
   iconSize: string;
   page: string;
   marginY: string;
@@ -68,6 +70,7 @@ export interface UiCopy {
   skillsLayouts: Record<SkillsLayout, string>;
   educationLayouts: Record<EducationLayout, string>;
   iconModes: Record<IconMode, string>;
+  iconProviders: Record<IconProvider, string>;
   avatar: string;
   avatarPosition: string;
   avatarShape: string;
@@ -127,6 +130,7 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     itemGap: "条目间距",
     layout: "版式",
     icons: "图标",
+    iconStyle: "图标风格",
     iconSize: "尺寸",
     page: "页面",
     marginY: "上下边距",
@@ -184,6 +188,10 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
       none: "关闭",
       section: "章节",
       full: "全部",
+    },
+    iconProviders: {
+      phosphor: "Phosphor",
+      lucide: "Lucide",
     },
     avatar: "头像",
     avatarPosition: "位置",
@@ -270,6 +278,7 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     itemGap: "Item gap",
     layout: "Layout",
     icons: "Icons",
+    iconStyle: "Icon style",
     iconSize: "Size",
     page: "Page",
     marginY: "Top / bottom",
@@ -327,6 +336,10 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
       none: "None",
       section: "Section",
       full: "Full",
+    },
+    iconProviders: {
+      phosphor: "Phosphor",
+      lucide: "Lucide",
     },
     avatar: "Photo",
     avatarPosition: "Position",

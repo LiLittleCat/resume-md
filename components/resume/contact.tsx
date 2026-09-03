@@ -1,7 +1,13 @@
 "use client";
 
 import { useLayoutEffect, useRef, type RefObject } from "react";
-import { CONTACT_FIELDS, type Contact, type ContactField, type ResumeIcon } from "@/core/schema";
+import {
+  CONTACT_FIELDS,
+  type Contact,
+  type ContactField,
+  type IconProvider,
+  type ResumeIcon,
+} from "@/core/schema";
 import { ResumeGlyph } from "./resume-icon";
 
 const FIELD_HREF: Partial<Record<ContactField, (value: string) => string>> = {
@@ -28,11 +34,13 @@ export function ContactLine({
   separator,
   showIcons,
   icons,
+  provider,
 }: {
   contact: Contact;
   separator: string;
   showIcons: boolean;
   icons: Record<ContactField, ResumeIcon>;
+  provider: IconProvider;
 }) {
   const items = CONTACT_FIELDS.filter((field) => contact[field]);
   const lineRef = useRef<HTMLDivElement>(null);
@@ -50,7 +58,7 @@ export function ContactLine({
         const href = FIELD_HREF[field]?.(value);
         const content = (
           <>
-            {showIcons ? <ResumeGlyph icon={icons[field]} /> : null}
+            {showIcons ? <ResumeGlyph icon={icons[field]} provider={provider} /> : null}
             <span>{displayContactValue(field, value)}</span>
           </>
         );

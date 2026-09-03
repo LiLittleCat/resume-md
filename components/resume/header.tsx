@@ -46,6 +46,7 @@ export function ResumeHeader({
           separator={style.components.header.contactSeparator}
           showIcons={style.icons.showContactIcons}
           icons={style.contactIcons}
+          provider={style.icons.provider}
         />
       </div>
       {photo && avatarStyle.position === "right" ? photo : null}

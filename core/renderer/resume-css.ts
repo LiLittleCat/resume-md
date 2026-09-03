@@ -161,7 +161,7 @@ export const RESUME_DOCUMENT_CSS = `
   line-height: var(--resume-meta-leading);
 }
 
-.resume-header[data-align="center"] .resume-contact {
+.resume-header[data-align="center"]:not([data-avatar="left"]):not([data-avatar="right"]) .resume-contact {
   justify-content: center;
 }
 
@@ -252,6 +252,10 @@ export const RESUME_DOCUMENT_CSS = `
   fill: currentColor;
   stroke: none;
   stroke-width: 0;
+}
+
+.resume-section-title > .resume-icon {
+  transform: translateY(-0.5pt);
 }
 
 .resume-item {

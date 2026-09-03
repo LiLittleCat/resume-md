@@ -26,14 +26,14 @@ export const kamiTheme: ThemeDefinition = {
     background: "#f5f4ed",
   },
   typography: withBullet({
-    base: text(9.4, 400, 1.42),
+    base: text(10, 400, 1.42),
     name: text(26, 500, 1, -0.008),
-    headline: text(10.5, 500, 1.3),
+    headline: text(11, 500, 1.3),
     sectionTitle: text(13, 500, 1.25),
-    itemTitle: text(11, 500, 1.3),
-    itemSubtitle: text(9, 500, 1.4),
-    body: text(9.4, 400, 1.42),
-    meta: text(9, 400, 1.45),
+    itemTitle: text(11.5, 500, 1.3),
+    itemSubtitle: text(9.5, 500, 1.4),
+    body: text(10, 400, 1.42),
+    meta: text(9.5, 400, 1.45),
   }),
   spacing: normalSpacing,
   spacingPresets: {
@@ -48,9 +48,9 @@ export const kamiTheme: ThemeDefinition = {
     education: "default",
   },
   icons: {
-    mode: "none",
-    provider: "lucide",
-    size: 10,
+    mode: "full",
+    provider: "phosphor",
+    size: 12.5,
     strokeWidth: 1.5,
     gap: 1.5,
     sections: {},
@@ -87,18 +87,18 @@ export const kamiTheme: ThemeDefinition = {
   localePresets: {
     "zh-CN": {
       typography: {
-        base: { fontSize: 9.2, lineHeight: 1.42, letterSpacing: 0.033 },
-        body: { fontSize: 9.2, lineHeight: 1.42, letterSpacing: 0.033 },
-        bullet: { fontSize: 9.2, lineHeight: 1.4, letterSpacing: 0.033 },
+        base: { fontSize: 10, lineHeight: 1.42, letterSpacing: 0.033 },
+        body: { fontSize: 10, lineHeight: 1.42, letterSpacing: 0.033 },
+        bullet: { fontSize: 10, lineHeight: 1.4, letterSpacing: 0.033 },
         name: { fontSize: 26.5, letterSpacing: 0.019 },
         sectionTitle: { fontSize: 12.5, letterSpacing: 0 },
       },
     },
     "en-US": {
       typography: {
-        base: { fontSize: 9.4, lineHeight: 1.42, letterSpacing: 0 },
-        body: { fontSize: 9.4, lineHeight: 1.42, letterSpacing: 0 },
-        bullet: { fontSize: 9.4, lineHeight: 1.4, letterSpacing: 0 },
+        base: { fontSize: 10, lineHeight: 1.42, letterSpacing: 0 },
+        body: { fontSize: 10, lineHeight: 1.42, letterSpacing: 0 },
+        bullet: { fontSize: 10, lineHeight: 1.4, letterSpacing: 0 },
         name: { fontSize: 26, letterSpacing: -0.008 },
         sectionTitle: { fontSize: 13, letterSpacing: 0 },
       },

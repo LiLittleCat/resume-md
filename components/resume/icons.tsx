@@ -1,5 +1,30 @@
 import { forwardRef } from "react";
 import type { LucideIcon, LucideProps } from "lucide-react";
+import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
+import {
+  BracketsCurlyIcon,
+  BriefcaseIcon,
+  BuildingsIcon,
+  CertificateIcon,
+  CodeIcon,
+  EnvelopeSimpleIcon,
+  FolderIcon,
+  GithubLogoIcon,
+  GlobeSimpleIcon,
+  GraduationCapIcon,
+  LinkedinLogoIcon,
+  MapPinIcon,
+  MedalIcon,
+  PhoneIcon,
+  RocketIcon,
+  SquaresFourIcon,
+  StudentIcon,
+  TranslateIcon,
+  TrophyIcon,
+  UserIcon,
+  UserCircleIcon,
+  WrenchIcon,
+} from "@phosphor-icons/react/ssr";
 import {
   Award,
   BadgeCheck,
@@ -23,7 +48,7 @@ import {
   UserRound,
   Wrench,
 } from "lucide-react";
-import type { ResumeIcon } from "@/core/schema";
+import type { IconProvider, ResumeIcon } from "@/core/schema";
 
 const FILLED_ICON_IDS = new Set<ResumeIcon>(["github", "linkedin"]);
 
@@ -94,6 +119,41 @@ export const LUCIDE_BY_RESUME_ICON: Record<ResumeIcon, LucideIcon> = {
   linkedin: LinkedinMark,
 };
 
+export const PHOSPHOR_BY_RESUME_ICON: Record<ResumeIcon, PhosphorIcon> = {
+  profile: UserCircleIcon,
+  summary: UserIcon,
+  skills: WrenchIcon,
+  code: CodeIcon,
+  braces: BracketsCurlyIcon,
+  wrench: WrenchIcon,
+  briefcase: BriefcaseIcon,
+  company: BuildingsIcon,
+  project: FolderIcon,
+  rocket: RocketIcon,
+  blocks: SquaresFourIcon,
+  education: GraduationCapIcon,
+  school: StudentIcon,
+  award: TrophyIcon,
+  trophy: TrophyIcon,
+  medal: MedalIcon,
+  certificate: CertificateIcon,
+  language: TranslateIcon,
+  location: MapPinIcon,
+  email: EnvelopeSimpleIcon,
+  phone: PhoneIcon,
+  website: GlobeSimpleIcon,
+  github: GithubLogoIcon,
+  linkedin: LinkedinLogoIcon,
+};
+
 export function getLucideIcon(id: ResumeIcon): LucideIcon {
   return LUCIDE_BY_RESUME_ICON[id];
+}
+
+export function getPhosphorIcon(id: ResumeIcon): PhosphorIcon {
+  return PHOSPHOR_BY_RESUME_ICON[id];
+}
+
+export function getResumeIcon(provider: IconProvider, id: ResumeIcon): LucideIcon | PhosphorIcon {
+  return provider === "phosphor" ? getPhosphorIcon(id) : getLucideIcon(id);
 }

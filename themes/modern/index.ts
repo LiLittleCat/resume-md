@@ -49,8 +49,8 @@ export const modernTheme: ThemeDefinition = {
   },
   icons: {
     mode: "full",
-    provider: "lucide",
-    size: 10.5,
+    provider: "phosphor",
+    size: 12,
     strokeWidth: 1.85,
     gap: 1.8,
     sections: {

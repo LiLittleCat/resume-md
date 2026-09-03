@@ -100,6 +100,7 @@ function ResumeSectionView({
       <SectionHeading
         title={section.title}
         icon={sectionStyle.icon}
+        provider={style.icons.provider}
         showIcon={sectionStyle.showSectionIcon}
         transform={style.components.sectionTitle.transform}
         rule={style.components.sectionTitle.rule}
