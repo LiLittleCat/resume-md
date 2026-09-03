@@ -27,6 +27,7 @@ import {
   isParagraph,
   isStrongHeavyParagraph,
   listItemInlineSpans,
+  listItemParagraphInlineSpans,
   listItemTexts,
   paragraphText,
   parseMarkdownTree,
@@ -205,6 +206,7 @@ function collectSkills(nodes: RootContent[]): Omit<SkillGroup, "name"> {
     return {
       items: listItemTexts(onlyNode),
       richItems: listItemInlineSpans(onlyNode),
+      richItemParagraphs: listItemParagraphInlineSpans(onlyNode),
       listType: onlyNode.ordered ? "ordered" : "unordered",
       listStart: onlyNode.ordered ? (onlyNode.start ?? 1) : undefined,
     };

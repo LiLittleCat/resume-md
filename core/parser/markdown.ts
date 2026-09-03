@@ -146,6 +146,22 @@ export function listItemInlineSpans(node: List): InlineSpan[][] {
   });
 }
 
+export function listItemParagraphInlineSpans(node: List): InlineSpan[][][] {
+  return node.children.map((item) => {
+    const paragraphs: InlineSpan[][] = [];
+    for (const child of item.children) {
+      if (child.type === "paragraph") {
+        const spans = paragraphInlineSpans(child);
+        if (spans.length > 0) paragraphs.push(spans);
+      } else if (child.type === "list") {
+        const nested = listItemTexts(child).join(" ");
+        if (nested) paragraphs.push([{ text: nested }]);
+      }
+    }
+    return paragraphs;
+  });
+}
+
 export function listItemText(item: ListItem): string {
   const parts: string[] = [];
   for (const child of item.children) {

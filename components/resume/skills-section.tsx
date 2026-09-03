@@ -32,7 +32,11 @@ function SkillItems({ group }: { group: SkillsSection["groups"][number] }) {
       <ol className="resume-skill-items resume-skill-list" start={group.listStart}>
         {group.items.map((item, index) => (
           <li key={`${index}-${item}`}>
-            <SkillItemText item={item} spans={group.richItems?.[index]} />
+            <SkillItemText
+              item={item}
+              spans={group.richItems?.[index]}
+              paragraphs={group.richItemParagraphs?.[index]}
+            />
           </li>
         ))}
       </ol>
@@ -44,7 +48,11 @@ function SkillItems({ group }: { group: SkillsSection["groups"][number] }) {
       <ul className="resume-skill-items resume-skill-list">
         {group.items.map((item, index) => (
           <li key={`${index}-${item}`}>
-            <SkillItemText item={item} spans={group.richItems?.[index]} />
+            <SkillItemText
+              item={item}
+              spans={group.richItems?.[index]}
+              paragraphs={group.richItemParagraphs?.[index]}
+            />
           </li>
         ))}
       </ul>
@@ -57,11 +65,24 @@ function SkillItems({ group }: { group: SkillsSection["groups"][number] }) {
 function SkillItemText({
   item,
   spans,
+  paragraphs,
 }: {
   item: string;
   spans: InlineSpan[] | undefined;
+  paragraphs: InlineSpan[][] | undefined;
 }) {
+  if (paragraphs && paragraphs.length > 1) {
+    return paragraphs.map((paragraph, index) => (
+      <span className="resume-skill-paragraph" key={`${index}-${paragraph[0]?.text ?? ""}`}>
+        <InlineSpans spans={paragraph} />
+      </span>
+    ));
+  }
   if (!spans || spans.length === 0) return item;
+  return <InlineSpans spans={spans} />;
+}
+
+function InlineSpans({ spans }: { spans: InlineSpan[] }) {
   return spans.map((span, index) =>
     span.strong ? <strong key={`${index}-${span.text}`}>{span.text}</strong> : span.text,
   );

@@ -117,6 +117,26 @@ describe("parseResumeMarkdown", () => {
     }
   });
 
+  it("preserves paragraph breaks inside skill list items", () => {
+    const source = `# 专业技能
+
+1. **Java 与并发**
+
+   具备扎实的 Java 基础，熟悉集合与并发编程。
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const skills = resume.sections.find((section) => section.id === "skills");
+
+    expect(skills?.id).toBe("skills");
+    if (skills?.id === "skills") {
+      expect(skills.groups[0]?.richItemParagraphs?.[0]).toEqual([
+        [{ text: "Java 与并发", strong: true }],
+        [{ text: "具备扎实的 Java 基础，熟悉集合与并发编程。" }],
+      ]);
+    }
+  });
+
   it("preserves arbitrary project subheadings and Markdown block types", () => {
     const source = `# 项目经历
 

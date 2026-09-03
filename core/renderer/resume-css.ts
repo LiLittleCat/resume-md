@@ -491,6 +491,14 @@ ul.resume-skill-list {
   list-style: disc;
 }
 
+.resume-skill-paragraph {
+  display: block;
+}
+
+.resume-skill-paragraph + .resume-skill-paragraph {
+  margin-top: 0.8mm;
+}
+
 .resume-skills[data-layout="stacked"] .resume-skill-group {
   margin-top: var(--resume-item-gap);
   break-inside: avoid-page;

@@ -35,6 +35,7 @@ export const SkillGroupSchema = z.object({
   name: z.string(),
   items: z.array(z.string().min(1)),
   richItems: z.array(z.array(InlineSpanSchema)).optional(),
+  richItemParagraphs: z.array(z.array(z.array(InlineSpanSchema))).optional(),
   listType: z.enum(["ordered", "unordered"]).optional(),
   listStart: z.number().int().optional(),
 });

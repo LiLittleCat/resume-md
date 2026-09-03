@@ -57,6 +57,9 @@ describe("resume document CSS", () => {
     expect(RESUME_DOCUMENT_CSS).toMatch(
       /\.resume-skills\[data-layout="inline"\] \.resume-skill-items:only-child \{\s*grid-column:\s*1 \/ -1/,
     );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-skill-paragraph \{\s*display:\s*block/,
+    );
   });
 
   it("lets project tech stack follow body type", () => {

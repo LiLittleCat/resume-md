@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { ExperienceBody } from "@/components/resume/experience-section";
 import { ProjectsBody } from "@/components/resume/project-section";
 import { ResumeDocument } from "@/components/resume/resume-document";
+import { SkillsBody } from "@/components/resume/skills-section";
 import { resolveStyle } from "@/core/style";
 import { resolveLocale } from "@/core/locale";
 
@@ -66,5 +67,37 @@ describe("resume components", () => {
     expect(html).toContain('data-box="project-header"');
     expect(html).toContain('data-box="project-block"');
     expect(html).toContain('data-box="project-bullet"');
+  });
+
+  it("renders skill list item paragraphs on separate lines", () => {
+    const html = renderToStaticMarkup(
+      createElement(SkillsBody, {
+        section: {
+          id: "skills",
+          title: "专业技能",
+          groups: [
+            {
+              name: "",
+              items: ["Java 与并发 具备扎实的 Java 基础。"],
+              richItems: [
+                [
+                  { text: "Java 与并发", strong: true },
+                  { text: " 具备扎实的 Java 基础。" },
+                ],
+              ],
+              richItemParagraphs: [
+                [[{ text: "Java 与并发", strong: true }], [{ text: "具备扎实的 Java 基础。" }]],
+              ],
+              listType: "ordered",
+              listStart: 1,
+            },
+          ],
+        },
+        layout: "inline",
+      }),
+    );
+
+    expect(html.match(/resume-skill-paragraph/g)).toHaveLength(2);
+    expect(html).toContain("<strong>Java 与并发</strong>");
   });
 });
