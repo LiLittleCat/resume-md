@@ -21,6 +21,7 @@ export const RESUME_DOCUMENT_CSS = `
   max-width: 100%;
   color: var(--resume-color-text);
   background: var(--resume-color-background);
+  color-scheme: light;
   font-family: var(--resume-font-stack);
   font-size: var(--resume-body-size);
   font-weight: var(--resume-body-weight);
@@ -118,7 +119,8 @@ export const RESUME_DOCUMENT_CSS = `
   flex: 0 0 var(--resume-avatar-size);
   object-fit: cover;
   object-position: center top;
-  background: transparent;
+  background: var(--resume-color-background);
+  color-scheme: light;
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }

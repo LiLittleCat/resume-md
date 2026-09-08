@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
-import { compileResume } from "@/core/compile";
+import { compileResume, type CompiledResume } from "@/core/compile";
 import type { ResumeConfig } from "@/core/schema";
 import type { ResolvedDocumentStyle } from "@/core/style";
 import { ResumeDocument } from "@/components/resume";
+import { bakeResumeAvatars } from "@/lib/avatar-file";
 import { getUiCopy } from "@/locales/ui";
 
 interface PrintPayload {
@@ -47,6 +48,27 @@ export function PrintResume() {
 
   const compiled = compileResume({ source: payload.source, config: payload.config ?? {} });
   const { resume, style, locale } = compiled;
+
+  return <PrintDocument resume={resume} style={style} locale={locale} />;
+}
+
+function PrintDocument({
+  resume,
+  style,
+  locale,
+}: Pick<CompiledResume, "resume" | "style" | "locale">) {
+  useEffect(() => {
+    let cancelled = false;
+    document.documentElement.removeAttribute("data-print-ready");
+    void bakeResumeAvatars(style.colors.background).finally(() => {
+      if (!cancelled) {
+        document.documentElement.setAttribute("data-print-ready", "true");
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [resume.profile.avatar, style.colors.background]);
 
   return (
     <>

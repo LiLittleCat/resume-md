@@ -60,7 +60,10 @@ export function AvatarField({
         <button
           type="button"
           className="size-12 shrink-0 overflow-hidden border border-border bg-muted/60"
-          style={{ borderRadius: shape === "circle" ? "999px" : "6px" }}
+          style={{
+            borderRadius: shape === "circle" ? "999px" : "6px",
+            colorScheme: "light",
+          }}
           aria-label={avatar ? ui.avatarChange : ui.avatarUpload}
           disabled={busy}
           onClick={() => inputRef.current?.click()}

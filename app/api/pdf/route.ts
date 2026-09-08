@@ -49,6 +49,7 @@ async function renderPdf(
     );
     await page.goto(printUrl.toString(), { waitUntil: "networkidle", timeout: 30_000 });
     await page.waitForSelector(".resume-root", { timeout: 15_000 });
+    await page.waitForSelector("html[data-print-ready]", { timeout: 15_000 });
     await page.evaluate((documentTitle) => {
       document.title = documentTitle;
     }, title);

@@ -43,7 +43,13 @@ describe("resume document CSS", () => {
       /\.resume-root \.resume-avatar\[data-shape="circle"\] \{\s*border-radius:\s*50%/,
     );
     expect(RESUME_DOCUMENT_CSS).toMatch(
-      /\.resume-root \.resume-avatar \{[\s\S]*?background:\s*transparent/,
+      /\.resume-root \.resume-avatar \{[\s\S]*?background:\s*var\(--resume-color-background\)/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-root \{[\s\S]*?color-scheme:\s*light/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-root \.resume-avatar \{[\s\S]*?color-scheme:\s*light/,
     );
   });
 
