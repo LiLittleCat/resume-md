@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <title>Resume MD</title>
+  <rect x="1.1" y="1.1" width="29.8" height="29.8" rx="7.2" fill="#F3EEE4" stroke="#2C261E" stroke-width="1.5"/>
+  <path fill="#8F6230" d="M11.35 5.7h2.3v11.5h-2.3zm7 0h2.3v11.5h-2.3zM9.4 8.35h13.2v2.2H9.4zm0 4.55h13.2v2.2H9.4z"/>
+  <g stroke="#2C261E" stroke-linecap="butt" stroke-width="1.05">
+    <path d="M8.8 20.9h14.4"/>
+    <path d="M8.8 23.85h11.2"/>
+    <path d="M8.8 26.8h7.6"/>
+  </g>
+</svg>
