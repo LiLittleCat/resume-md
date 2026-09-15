@@ -11,6 +11,7 @@ import type {
   SpacingPreset,
   ThemeId,
 } from "@/core/schema";
+import { resumeGuideCopy, type ResumeGuideCopy } from "./resume-guide";
 
 export interface UiCopy {
   content: string;
@@ -101,6 +102,7 @@ export interface UiCopy {
   helpIntro: string;
   helpSteps: Array<{ title: string; description: string }>;
   helpStorage: string;
+  guide: ResumeGuideCopy;
 }
 
 export const uiCopy: Record<LocaleId, UiCopy> = {
@@ -227,7 +229,8 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     storageFull: "浏览器存储已满，这次修改没有写入本地。",
     help: "帮助",
     helpTitle: "使用 Resume MD",
-    helpIntro: "从编辑内容到导出 PDF，一份简历的基本流程。",
+    helpIntro: "了解写作格式，从一份模板开始，预览并导出你的简历。",
+    guide: resumeGuideCopy["zh-CN"],
     helpSteps: [
       {
         title: "管理简历",
@@ -375,7 +378,8 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     storageFull: "Browser storage is full. This change was not saved locally.",
     help: "Help",
     helpTitle: "Using Resume MD",
-    helpIntro: "The basic workflow from editing content to exporting a PDF.",
+    helpIntro: "Learn the format, start from a template, and preview and export your resume.",
+    guide: resumeGuideCopy["en-US"],
     helpSteps: [
       {
         title: "Manage resumes",
