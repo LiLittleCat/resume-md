@@ -1,4 +1,5 @@
 import { compileResume } from "@/core/compile";
+import { documentFontFamilies } from "@/core/renderer";
 import { ResumeConfigSchema } from "@/core/schema";
 import serverlessChromium from "@sparticuz/chromium";
 import { chromium } from "playwright-core";
@@ -16,7 +17,13 @@ export async function POST(request: Request) {
     const config = ResumeConfigSchema.parse(body.config ?? {});
     const compiled = compileResume({ source: body.source, config });
     const rawName = compiled.resume.profile.name || "resume";
-    const pdf = await renderPdf(request, body.source, config, rawName);
+    const pdf = await renderPdf(
+      request,
+      body.source,
+      config,
+      rawName,
+      documentFontFamilies(compiled.style.fonts),
+    );
     const asciiName = (rawName.replace(/[^\x20-\x7E]/g, "").trim() || "resume").replace(/\s+/g, "-");
     const encodedName = encodeURIComponent(`${rawName}.pdf`);
     return new Response(new Uint8Array(pdf), {
@@ -36,6 +43,7 @@ async function renderPdf(
   source: string,
   config: unknown,
   title: string,
+  families: string[],
 ): Promise<Buffer> {
   const browser = await launchChromium();
   try {
@@ -53,25 +61,16 @@ async function renderPdf(
     await page.evaluate((documentTitle) => {
       document.title = documentTitle;
     }, title);
-    await page.evaluate(async () => {
+    await page.evaluate(async (fontFamilies) => {
       const sample = document.querySelector(".resume-root")?.textContent ?? "中文简历";
-      const families = [
-        "Noto Sans SC",
-        "Noto Serif SC",
-        "TsangerJinKai02",
-        "Inter",
-        "Source Serif 4",
-        "Charter",
-        "JetBrains Mono",
-      ];
       const weights = ["400", "500", "600", "700"];
       await Promise.all(
-        families.flatMap((family) =>
+        fontFamilies.flatMap((family) =>
           weights.map((weight) => document.fonts.load(`${weight} 16px "${family}"`, sample)),
         ),
       );
       await document.fonts.ready;
-    });
+    }, families);
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,

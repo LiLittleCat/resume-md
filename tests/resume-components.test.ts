@@ -20,6 +20,21 @@ describe("resume components", () => {
     );
 
     expect(html).toContain('data-theme="kami"');
+    for (const href of ["/fonts/tsanger/400.css", "/fonts/tsanger/500.css"]) {
+      expect(html).toContain(`href="${href}"`);
+    }
+  });
+
+  it("does not load TsangerJinKai until that CJK font is selected", () => {
+    const html = renderToStaticMarkup(
+      createElement(ResumeDocument, {
+        resume: { locale: "zh-CN", profile: { name: "纸上", contact: {} }, sections: [] },
+        style: resolveStyle({ themeId: "minimal", localeId: "zh-CN" }),
+        locale: resolveLocale("zh-CN"),
+      }),
+    );
+
+    expect(html).not.toContain("/fonts/tsanger/");
   });
 
   it("places the position between the company and grouped metadata", () => {

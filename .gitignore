@@ -27,6 +27,7 @@
 # misc
 .DS_Store
 *.pem
+.fonts-cache/
 
 # debug
 npm-debug.log*

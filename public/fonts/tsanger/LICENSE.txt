@@ -1,0 +1,7 @@
+TsangerJinKai02 (仓耳今楷) is free for personal use.
+Commercial use requires a license from https://tsanger.cn.
+
+The WOFF2 files here are unicode-range subsets generated from the Kami project copies:
+https://github.com/tw93/Kami
+
+Regenerate with `pnpm fonts:kami`.

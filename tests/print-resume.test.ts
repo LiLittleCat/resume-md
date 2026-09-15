@@ -20,5 +20,7 @@ describe("printPageCss", () => {
 
     expect(printSource).toContain("bakeResumeAvatars");
     expect(routeSource).toContain("data-print-ready");
+    expect(routeSource).toContain("documentFontFamilies");
+    expect(routeSource).not.toMatch(/families = \[[\s\S]*TsangerJinKai02/);
   });
 });

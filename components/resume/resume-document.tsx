@@ -1,5 +1,11 @@
 import type { CSSProperties } from "react";
-import { RESUME_DOCUMENT_CSS, toDocumentCssVars, toSectionCssVars } from "@/core/renderer";
+import {
+  RESUME_DOCUMENT_CSS,
+  TSANGER_JINKAI_STYLESHEETS,
+  toDocumentCssVars,
+  toSectionCssVars,
+  usesTsangerJinKai,
+} from "@/core/renderer";
 import type {
   ExperienceLayout,
   LocaleDefinition,
@@ -44,6 +50,9 @@ export function ResumeDocument({
       data-theme={style.themeId}
       style={vars as CSSProperties}
     >
+      {usesTsangerJinKai(style.fonts)
+        ? TSANGER_JINKAI_STYLESHEETS.map((href) => <link key={href} rel="stylesheet" href={href} />)
+        : null}
       <style>{RESUME_DOCUMENT_CSS}</style>
       <ResumeHeader profile={resume.profile} style={style} locale={locale} />
       {resume.sections.map((section) => (

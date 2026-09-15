@@ -1,20 +1,4 @@
 export const RESUME_DOCUMENT_CSS = `
-@font-face {
-  font-family: "TsangerJinKai02";
-  src: url("https://cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/TsangerJinKai02-W04.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "TsangerJinKai02";
-  src: url("https://cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/TsangerJinKai02-W05.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
 .resume-root {
   box-sizing: border-box;
   width: var(--resume-page-width);

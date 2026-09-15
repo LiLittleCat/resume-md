@@ -99,8 +99,12 @@ describe("resume document CSS", () => {
     );
   });
 
+  it("does not hotlink the full Kami TTF files", () => {
+    expect(RESUME_DOCUMENT_CSS).not.toMatch(/TsangerJinKai02-W0[45]\.ttf/);
+    expect(RESUME_DOCUMENT_CSS).not.toMatch(/cdn\.jsdelivr\.net/);
+  });
+
   it("keeps Kami hierarchy typographic and reserves ink blue for emphasis", () => {
-    expect(RESUME_DOCUMENT_CSS).toMatch(/font-family:\s*"TsangerJinKai02"/);
     expect(RESUME_DOCUMENT_CSS).toMatch(
       /\.resume-root\[data-theme="kami"\] \.resume-name,[\s\S]*?color:\s*var\(--resume-color-text\)/,
     );
