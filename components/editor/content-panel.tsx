@@ -23,6 +23,48 @@ function resizeEditor(
   viewport.scrollTop = scrollTop;
 }
 
+const TAB_INDENT = "  ";
+
+function applyTabIndent(
+  value: string,
+  selectionStart: number,
+  selectionEnd: number,
+  outdent: boolean,
+): { value: string; start: number; end: number } {
+  const hasSelection = selectionStart !== selectionEnd;
+
+  if (!outdent && !hasSelection) {
+    const next = value.slice(0, selectionStart) + TAB_INDENT + value.slice(selectionEnd);
+    const cursor = selectionStart + TAB_INDENT.length;
+    return { value: next, start: cursor, end: cursor };
+  }
+
+  const lineStart = value.lastIndexOf("\n", selectionStart - 1) + 1;
+  const lineEnd = value.indexOf("\n", selectionEnd) === -1 ? value.length : value.indexOf("\n", selectionEnd);
+  const lines = value.slice(lineStart, lineEnd).split("\n");
+
+  let startDelta = 0;
+  let endDelta = 0;
+  const newLines = lines.map((line, index) => {
+    if (outdent) {
+      const removed = line.match(/^ {1,2}/)?.[0] ?? "";
+      if (index === 0) startDelta = -removed.length;
+      endDelta -= removed.length;
+      return line.slice(removed.length);
+    }
+    if (index === 0) startDelta = TAB_INDENT.length;
+    endDelta += TAB_INDENT.length;
+    return TAB_INDENT + line;
+  });
+
+  const next = value.slice(0, lineStart) + newLines.join("\n") + value.slice(lineEnd);
+  return {
+    value: next,
+    start: Math.max(lineStart, selectionStart + startDelta),
+    end: selectionEnd + endDelta,
+  };
+}
+
 export function ContentPanel({
   examples,
 }: {
@@ -81,7 +123,7 @@ export function ContentPanel({
     const line = source.slice(0, index).split("\n").length;
     textarea.focus();
     textarea.setSelectionRange(index, index + needle.length);
-    viewport.scrollTop = Math.max(0, (line - 3) * 22);
+    viewport.scrollTop = Math.max(0, (line - 3) * 23);
   }, [headingFocus, source]);
 
   return (
@@ -139,9 +181,24 @@ export function ContentPanel({
               resizeEditor(event.currentTarget, scrollViewportRef.current);
               setSource(event.target.value);
             }}
+            onKeyDown={(event) => {
+              if (event.key !== "Tab") return;
+              event.preventDefault();
+              const textarea = event.currentTarget;
+              const result = applyTabIndent(
+                textarea.value,
+                textarea.selectionStart,
+                textarea.selectionEnd,
+                event.shiftKey,
+              );
+              textarea.value = result.value;
+              textarea.setSelectionRange(result.start, result.end);
+              setSource(result.value);
+              resizeEditor(textarea, scrollViewportRef.current);
+            }}
             spellCheck={false}
             aria-label={ui.markdownAria}
-            className="markdown-editor block w-full resize-none overflow-hidden border-0 bg-transparent px-4 py-3 text-[13px] leading-[22px] text-foreground/80 outline-none"
+            className="markdown-editor block w-full resize-none overflow-hidden border-0 bg-transparent px-4 py-3 text-[14px] leading-[23px] text-foreground/80 outline-none"
           />
         </div>
       </div>
