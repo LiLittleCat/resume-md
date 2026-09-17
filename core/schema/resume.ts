@@ -28,6 +28,7 @@ export const InlineSpanSchema = z.object({
   text: z.string().min(1),
   strong: z.boolean().optional(),
   href: z.string().min(1).optional(),
+  break: z.boolean().optional(),
 });
 
 export type InlineSpan = z.infer<typeof InlineSpanSchema>;

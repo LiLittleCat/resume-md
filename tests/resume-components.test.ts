@@ -216,6 +216,39 @@ describe("resume components", () => {
     expect(html).not.toMatch(/<p class="resume-paragraph">独立完成核心模块设计<\/p>/);
   });
 
+  it("renders a line break inside a list item", () => {
+    const html = renderToStaticMarkup(
+      createElement(SummaryBody, {
+        section: {
+          id: "summary",
+          title: "个人简介",
+          content: [
+            {
+              type: "unordered-list",
+              items: ["Resume MD Markdown 简历编辑工具。"],
+              spans: [
+                [
+                  {
+                    text: "Resume MD",
+                    strong: true,
+                    href: "https://github.com/LiLittleCat/resume-md",
+                  },
+                  { text: "\n", break: true },
+                  { text: "Markdown 简历编辑工具。" },
+                ],
+              ],
+            },
+          ],
+        },
+      }),
+    );
+
+    expect(html).toContain("<br/>");
+    expect(html).toContain(
+      '<a class="resume-inline-link" href="https://github.com/LiLittleCat/resume-md"><strong>Resume MD</strong></a>',
+    );
+  });
+
   it("renders Markdown links as clickable anchors", () => {
     const html = renderToStaticMarkup(
       createElement(SummaryBody, {

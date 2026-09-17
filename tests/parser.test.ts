@@ -492,4 +492,27 @@ name: Test
       },
     ]);
   });
+
+  it("keeps a line break between a list item title and its continuation", () => {
+    const source = `# 开源项目
+
+- **[Resume MD](https://github.com/LiLittleCat/resume-md)**
+  Markdown 简历编辑工具。
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const section = resume.sections[0];
+    expect(section?.id).toBe("openSource");
+    expect(section && "blocks" in section ? section.blocks?.[0]?.spans : undefined).toEqual([
+      [
+        {
+          text: "Resume MD",
+          strong: true,
+          href: "https://github.com/LiLittleCat/resume-md",
+        },
+        { text: "\n", break: true },
+        { text: "Markdown 简历编辑工具。" },
+      ],
+    ]);
+  });
 });

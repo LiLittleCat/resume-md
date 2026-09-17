@@ -39,22 +39,44 @@ function phrasingToInlineSpans(
   return nodes.flatMap((node): InlineSpan[] => {
     switch (node.type) {
       case "text":
-        return [{ text: node.value, strong: strong || undefined, href }];
+        return textNodeSpans(node.value, strong, href);
       case "strong":
         return phrasingToInlineSpans(node.children, true, href);
       case "emphasis":
       case "delete":
         return phrasingToInlineSpans(node.children, strong, href);
       case "inlineCode":
-        return [{ text: node.value, strong: strong || undefined, href }];
+        return [inlineSpan(node.value, strong, href)];
       case "link":
         return phrasingToInlineSpans(node.children, strong, safeMarkdownHref(node.url));
       case "break":
-        return [{ text: " ", strong: strong || undefined, href }];
+        return [breakSpan()];
       default:
-        return [{ text: toString(node), strong: strong || undefined, href }];
+        return [inlineSpan(toString(node), strong, href)];
     }
   });
+}
+
+function textNodeSpans(value: string, strong: boolean, href?: string): InlineSpan[] {
+  const parts = value.split("\n");
+  return parts.flatMap((part, index) => {
+    const spans: InlineSpan[] = [];
+    if (index > 0) spans.push(breakSpan());
+    if (part) spans.push(inlineSpan(part, strong, href));
+    return spans;
+  });
+}
+
+function inlineSpan(text: string, strong: boolean, href?: string): InlineSpan {
+  return {
+    text,
+    ...(strong ? { strong: true } : {}),
+    ...(href ? { href } : {}),
+  };
+}
+
+function breakSpan(): InlineSpan {
+  return { text: "\n", break: true };
 }
 
 function safeMarkdownHref(value: string): string | undefined {
@@ -68,18 +90,33 @@ function safeMarkdownHref(value: string): string | undefined {
 function normalizeInlineSpans(spans: InlineSpan[]): InlineSpan[] {
   const normalized: InlineSpan[] = [];
   for (const span of spans) {
+    if (span.break) {
+      if (normalized.at(-1)?.break) continue;
+      normalized.push({ text: "\n", break: true });
+      continue;
+    }
     const text = span.text.replace(/\s+/g, " ");
     if (!text) continue;
     const previous = normalized[normalized.length - 1];
-    if (previous && previous.strong === span.strong && previous.href === span.href) {
+    if (
+      previous &&
+      !previous.break &&
+      previous.strong === span.strong &&
+      previous.href === span.href
+    ) {
       previous.text += text;
     } else {
       normalized.push({ ...span, text });
     }
   }
-  if (normalized[0]) normalized[0].text = normalized[0].text.trimStart();
-  if (normalized.at(-1)) normalized.at(-1)!.text = normalized.at(-1)!.text.trimEnd();
-  return normalized.filter((span) => span.text.length > 0);
+  while (normalized[0]?.break) normalized.shift();
+  while (normalized.at(-1)?.break) normalized.pop();
+  if (normalized[0] && !normalized[0].break) {
+    normalized[0].text = normalized[0].text.trimStart();
+  }
+  const last = normalized.at(-1);
+  if (last && !last.break) last.text = last.text.trimEnd();
+  return normalized.filter((span) => span.break || span.text.length > 0);
 }
 
 export function phrasingToText(nodes: PhrasingContent[]): string {
@@ -150,7 +187,7 @@ export function listItemInlineSpans(node: List): InlineSpan[][] {
     const spans: InlineSpan[] = [];
     for (const child of item.children) {
       if (child.type === "paragraph") {
-        if (spans.length > 0) spans.push({ text: " " });
+        if (spans.length > 0) spans.push({ text: "\n", break: true });
         spans.push(...paragraphInlineSpans(child));
       } else if (child.type === "list") {
         const nested = listItemTexts(child).join(" ");
