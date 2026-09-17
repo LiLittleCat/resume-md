@@ -24,6 +24,7 @@ export const RESUME_DOCUMENT_CSS = `
 .resume-root strong {
   font-size: inherit;
   line-height: inherit;
+  font-weight: 600;
 }
 
 .resume-inline-link {
@@ -154,7 +155,7 @@ export const RESUME_DOCUMENT_CSS = `
   gap: 0.8mm 2.4mm;
   align-items: center;
   justify-content: inherit;
-  color: var(--resume-color-muted);
+  color: var(--resume-color-text);
   font-size: var(--resume-meta-size);
   line-height: var(--resume-meta-leading);
 }
@@ -395,6 +396,10 @@ export const RESUME_DOCUMENT_CSS = `
   font-weight: var(--resume-body-weight);
 }
 
+.resume-root[data-theme="classic"] .resume-bullet::before {
+  font-weight: 700;
+}
+
 .resume-bullet:last-child {
   margin-bottom: 0;
 }
@@ -545,10 +550,6 @@ export const RESUME_DOCUMENT_CSS = `
 .resume-root[data-theme="kami"] strong {
   color: var(--resume-color-accent);
   font-weight: 500;
-}
-
-.resume-root[data-theme="kami"] .resume-contact-item[href] {
-  color: var(--resume-color-text);
 }
 
 @media print {
