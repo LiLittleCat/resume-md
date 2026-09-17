@@ -67,8 +67,8 @@ describe("resolveStyle", () => {
     expect(en.fonts.latin).toBe("Charter");
     expect(zh.typography.name.fontWeight).toBe(500);
     expect(zh.typography.body.fontWeight).toBe(400);
-    expect(zh.typography.body.fontSize).toBe(10.5);
-    expect(en.typography.body.fontSize).toBe(10.5);
+    expect(zh.typography.body.fontSize).toBe(9.2);
+    expect(en.typography.body.fontSize).toBe(9.2);
     expect(zh.typography.body.lineHeight).toBe(1.45);
     expect(en.typography.body.lineHeight).toBe(1.35);
     expect(zh.typography.headline.fontSize).toBe(10.5);

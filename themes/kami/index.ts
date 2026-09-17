@@ -26,13 +26,16 @@ export const kamiTheme: ThemeDefinition = {
     background: "#f5f4ed",
   },
   typography: withBullet({
-    base: text(10.5, 400, 1.4),
+    // Body Dense tier from the Kami design system (references/design.md):
+    // resume/one-pager/card copy runs 9-9.2pt / 400 / 1.40-1.45, tighter
+    // than the 9.5-10pt "Body" tier used for long-form documents.
+    base: text(9.2, 400, 1.4),
     name: text(26, 500, 1, -0.008),
     headline: text(10.5, 500, 1.3),
     sectionTitle: text(13, 500, 1.25),
     itemTitle: text(11.75, 500, 1.3),
     itemSubtitle: text(9.5, 500, 1.4),
-    body: text(10.5, 400, 1.4),
+    body: text(9.2, 400, 1.4),
     meta: text(9, 400, 1.45),
   }),
   spacing: normalSpacing,
