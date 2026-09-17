@@ -77,25 +77,37 @@ describe("resume document CSS", () => {
 
   it("keeps experience company, position, and metadata in resilient columns", () => {
     expect(RESUME_DOCUMENT_CSS).toMatch(
-      /\.resume-experience-heading \{[\s\S]*?grid-template-columns:\s*fit-content\(34%\) minmax\(0, 1fr\) fit-content\(42%\)/,
+      /\.resume-experience-heading \{[\s\S]*?display:\s*grid/,
     );
     expect(RESUME_DOCUMENT_CSS).toMatch(
-      /\.resume-experience-position \{[\s\S]*?grid-column:\s*2/,
+      /\.resume-experience-field \{[\s\S]*?min-width:\s*0/,
     );
     expect(RESUME_DOCUMENT_CSS).toMatch(
-      /\.resume-experience-meta \{[\s\S]*?grid-column:\s*3[\s\S]*?white-space:\s*normal/,
+      /\.resume-experience-meta \{[\s\S]*?white-space:\s*nowrap/,
     );
   });
 
   it("does not render project subheadings smaller than body copy", () => {
     expect(RESUME_DOCUMENT_CSS).toMatch(
-      /\.resume-subhead \{[\s\S]*?font-size:\s*var\(--resume-body-size\)/,
+      /\.resume-subhead \{[\s\S]*?font-size:\s*var\(--resume-subhead-size\)/,
     );
     expect(RESUME_DOCUMENT_CSS).toMatch(
       /\.resume-subhead \{[\s\S]*?color:\s*var\(--resume-color-text\)/,
     );
     expect(RESUME_DOCUMENT_CSS).toMatch(
       /\.resume-subhead \{[\s\S]*?font-weight:\s*var\(--resume-item-title-weight\)/,
+    );
+  });
+
+  it("keeps Markdown emphasis from changing marker weight or text size", () => {
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-root strong \{[\s\S]*?font-size:\s*inherit;[\s\S]*?line-height:\s*inherit/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-bullet::before \{[\s\S]*?font-weight:\s*var\(--resume-body-weight\)/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-numbered-list \.resume-bullet::marker,[\s\S]*?\.resume-skill-list > li::marker \{[\s\S]*?font-weight:\s*var\(--resume-body-weight\)/,
     );
   });
 

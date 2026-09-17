@@ -26,13 +26,13 @@ export function EducationBody({
           >
             <div className="resume-item-header">
               <Spread
-                left={<p className="resume-item-title">{item.school}</p>}
+                left={<h3 className="resume-item-title">{item.school}</h3>}
                 middle={subtitle ? <p className="resume-item-subtitle">{subtitle}</p> : null}
                 right={dates}
                 rightTone="text"
               />
             </div>
-            {item.details ? <BulletList items={item.details} /> : null}
+            {item.details ? <BulletList items={item.details} richItems={item.richDetails} /> : null}
           </article>
         );
       })}

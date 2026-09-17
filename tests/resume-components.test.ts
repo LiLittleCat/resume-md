@@ -5,6 +5,8 @@ import { ExperienceBody } from "@/components/resume/experience-section";
 import { ProjectsBody } from "@/components/resume/project-section";
 import { ResumeDocument } from "@/components/resume/resume-document";
 import { SkillsBody } from "@/components/resume/skills-section";
+import { SummaryBody } from "@/components/resume/summary-section";
+import { compileResume } from "@/core/compile";
 import { resolveStyle } from "@/core/style";
 import { resolveLocale } from "@/core/locale";
 
@@ -55,9 +57,31 @@ describe("resume components", () => {
     );
 
     expect(html).toContain('class="resume-experience-heading"');
-    expect(html).toContain('class="resume-item-subtitle resume-experience-position"');
+    expect(html).toContain('class="resume-item-subtitle resume-experience-field"');
+    expect(html).toContain("grid-template-columns:repeat(2, minmax(0, 1fr)) max-content");
     expect(html).toContain("2022.10 - 至今 · 杭州");
     expect(html).not.toContain('class="resume-spread"');
+  });
+
+  it("shares remaining experience header space across company, industry, and role", () => {
+    const html = renderToStaticMarkup(
+      createElement(ExperienceBody, {
+        items: [
+          {
+            company: "天翼交通科技有限公司",
+            position: "高级研发工程师",
+            metaFields: ["智慧交通", "高级研发工程师"],
+            startDate: { raw: "2022.10", year: 2022, month: 10 },
+            endDate: { raw: "2026.07", year: 2026, month: 7 },
+          },
+        ],
+        layout: "default",
+        locale: resolveLocale("zh-CN"),
+      }),
+    );
+
+    expect(html).toContain("grid-template-columns:repeat(3, minmax(0, 1fr)) max-content");
+    expect(html).toMatch(/天翼交通科技有限公司[\s\S]*智慧交通[\s\S]*高级研发工程师[\s\S]*2022\.10 - 2026\.07/);
   });
 
   it("lets project items split between their internal content blocks", () => {
@@ -82,6 +106,50 @@ describe("resume components", () => {
     expect(html).toContain('data-box="project-header"');
     expect(html).toContain('data-box="project-block"');
     expect(html).toContain('data-box="project-bullet"');
+  });
+
+  it("renders bold markup inside project paragraphs and bullets", () => {
+    const html = renderToStaticMarkup(
+      createElement(ProjectsBody, {
+        items: [
+          {
+            name: "事件中心",
+            blocks: [
+              {
+                heading: "项目描述",
+                type: "paragraph",
+                items: ["系统日均处理约 6.5 亿感知目标。"],
+                spans: [
+                  [
+                    { text: "系统日均处理约 " },
+                    { text: "6.5 亿感知目标", strong: true },
+                    { text: "。" },
+                  ],
+                ],
+              },
+              {
+                heading: "核心职责与成果",
+                type: "unordered-list",
+                items: ["支撑每秒 10 万+ 次规则计算。"],
+                spans: [
+                  [
+                    { text: "支撑每秒 " },
+                    { text: "10 万+", strong: true },
+                    { text: " 次规则计算。" },
+                  ],
+                ],
+              },
+            ],
+          },
+        ],
+        locale: resolveLocale("zh-CN"),
+      }),
+    );
+
+    expect(html).toContain("<strong>6.5 亿感知目标</strong>");
+    expect(html).toContain("<strong>10 万+</strong>");
+    expect(html).toContain('<h3 class="resume-item-title">事件中心</h3>');
+    expect(html).toContain('<h4 class="resume-subhead"');
   });
 
   it("renders skill list item paragraphs on separate lines", () => {
@@ -114,5 +182,169 @@ describe("resume components", () => {
 
     expect(html.match(/resume-skill-paragraph/g)).toHaveLength(2);
     expect(html).toContain("<strong>Java 与并发</strong>");
+    expect(html).toMatch(/class="[^"]*resume-bullets[^"]*resume-numbered-list[^"]*resume-skill-list/);
+    expect(html).toContain('class="resume-bullet"');
+  });
+
+  it("renders summary Markdown lists instead of extra paragraphs", () => {
+    const html = renderToStaticMarkup(
+      createElement(SummaryBody, {
+        section: {
+          id: "summary",
+          title: "个人简介",
+          content: [
+            {
+              type: "paragraph",
+              items: ["7 年后端研发经验。"],
+              spans: [[{ text: "7 年后端研发经验。" }]],
+            },
+            {
+              type: "unordered-list",
+              items: ["独立完成核心模块设计", "具备 AI Agent 落地经验"],
+              spans: [
+                [{ text: "独立完成核心模块设计" }],
+                [{ text: "具备 " }, { text: "AI Agent", strong: true }, { text: " 落地经验" }],
+              ],
+            },
+          ],
+        },
+      }),
+    );
+
+    expect(html).toContain('class="resume-bullets"');
+    expect(html).toContain("<strong>AI Agent</strong>");
+    expect(html).not.toMatch(/<p class="resume-paragraph">独立完成核心模块设计<\/p>/);
+  });
+
+  it("renders Markdown links as clickable anchors", () => {
+    const html = renderToStaticMarkup(
+      createElement(SummaryBody, {
+        section: {
+          id: "summary",
+          title: "个人简介",
+          content: [
+            {
+              type: "paragraph",
+              items: ["查看个人网站。"],
+              spans: [
+                [
+                  { text: "查看" },
+                  { text: "个人网站", href: "https://example.com", strong: true },
+                  { text: "。" },
+                ],
+              ],
+            },
+          ],
+        },
+      }),
+    );
+
+    expect(html).toContain(
+      '<a class="resume-inline-link" href="https://example.com"><strong>个人网站</strong></a>',
+    );
+  });
+
+  it("renders experience links in paragraphs and bullets", () => {
+    const html = renderToStaticMarkup(
+      createElement(ExperienceBody, {
+        items: [
+          {
+            company: "示例公司",
+            description: "负责业务平台。",
+            descriptionSpans: [
+              { text: "负责 " },
+              { text: "业务平台", href: "https://example.com/platform" },
+              { text: "。" },
+            ],
+            responsibilities: ["编写技术文档"],
+            richResponsibilities: [
+              [
+                { text: "编写 " },
+                { text: "技术文档", href: "https://docs.example.com" },
+              ],
+            ],
+          },
+        ],
+        layout: "default",
+        locale: resolveLocale("zh-CN"),
+      }),
+    );
+
+    expect(html).toContain('href="https://example.com/platform"');
+    expect(html).toContain('href="https://docs.example.com"');
+  });
+
+  it("keeps authored experience subheadings when the locale changes", () => {
+    const html = renderToStaticMarkup(
+      createElement(ExperienceBody, {
+        items: [
+          {
+            company: "示例公司",
+            blocks: [
+              { heading: "主要职责", type: "unordered-list", items: ["负责核心系统"] },
+              { heading: "主要成果", type: "unordered-list", items: ["完成稳定性改造"] },
+            ],
+          },
+        ],
+        layout: "default",
+        locale: resolveLocale("en-US"),
+      }),
+    );
+
+    expect(html).toContain(">主要职责</h4>");
+    expect(html).toContain(">主要成果</h4>");
+    expect(html).not.toContain("Responsibilities");
+    expect(html).not.toContain("Achievements");
+  });
+
+  it("does not invent translated subheadings when source headings are unavailable", () => {
+    const locale = resolveLocale("en-US");
+    const experienceHtml = renderToStaticMarkup(
+      createElement(ExperienceBody, {
+        items: [{ company: "示例公司", responsibilities: ["负责核心系统"] }],
+        layout: "default",
+        locale,
+      }),
+    );
+    const projectHtml = renderToStaticMarkup(
+      createElement(ProjectsBody, {
+        items: [{ name: "示例项目", responsibilities: ["负责核心模块"] }],
+        locale,
+      }),
+    );
+
+    expect(experienceHtml).not.toContain("Responsibilities");
+    expect(projectHtml).not.toContain("Responsibilities");
+  });
+
+  it("keeps Chinese Markdown subheadings when document locale switches to English", () => {
+    const source = `# 工作经历
+
+## 示例公司
+
+**工程师** | 2024 - 至今
+
+### 主要职责
+
+- 负责核心系统
+
+### 主要成果
+
+- 完成稳定性改造
+`;
+    const compiled = compileResume({ source, config: { locale: "en-US" } });
+    const html = renderToStaticMarkup(
+      createElement(ResumeDocument, {
+        resume: compiled.resume,
+        style: compiled.style,
+        locale: compiled.locale,
+      }),
+    );
+
+    expect(html).toContain('lang="en-US"');
+    expect(html).toContain(">主要职责</h4>");
+    expect(html).toContain(">主要成果</h4>");
+    expect(html).not.toContain(">Responsibilities</h4>");
+    expect(html).not.toContain(">Achievements</h4>");
   });
 });

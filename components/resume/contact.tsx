@@ -13,13 +13,18 @@ import { ResumeGlyph } from "./resume-icon";
 const FIELD_HREF: Partial<Record<ContactField, (value: string) => string>> = {
   email: (value) => `mailto:${value}`,
   phone: (value) => `tel:${value.replace(/[^\d+]/g, "")}`,
-  github: identity,
-  linkedin: identity,
-  website: identity,
+  github: withHttps,
+  linkedin: withHttps,
+  website: withHttps,
 };
 
-function identity(value: string): string {
-  return value;
+function withHttps(value: string): string {
+  if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return value;
+  return `https://${value.replace(/^\/+/, "")}`;
+}
+
+export function contactHref(field: ContactField, value: string): string | undefined {
+  return FIELD_HREF[field]?.(value);
 }
 
 export function displayContactValue(field: ContactField, value: string): string {
@@ -55,7 +60,7 @@ export function ContactLine({
       {items.map((field, index) => {
         const value = contact[field];
         if (!value) return null;
-        const href = FIELD_HREF[field]?.(value);
+        const href = contactHref(field, value);
         const content = (
           <>
             {showIcons ? <ResumeGlyph icon={icons[field]} provider={provider} /> : null}

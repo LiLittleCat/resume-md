@@ -49,8 +49,14 @@ const YEAR_RE = /^(\d{4})$/;
 const EN_DATE_RE =
   /^(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s+(\d{4})$/i;
 
-const DATE_TOKEN_RE =
-  /(?:\d{4}[./-]\d{1,2}(?:[./-]\d{1,2})?|(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s+\d{4}|\d{4}|至今|目前|现在|Present|Now|Current|Ongoing)/i;
+const DATE_TOKEN_SOURCE =
+  "(?:\\d{4}[./-]\\d{1,2}(?:[./-]\\d{1,2})?|(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\.?\\s+\\d{4}|\\d{4}|至今|目前|现在|Present|Now|Current|Ongoing)";
+
+const DATE_TOKEN_RE = new RegExp(DATE_TOKEN_SOURCE, "i");
+const TRAILING_DATE_RANGE_RE = new RegExp(
+  `(${DATE_TOKEN_SOURCE}(?:\\s*(?:-|~|～|–|—|至)\\s*${DATE_TOKEN_SOURCE})?)\\s*$`,
+  "i",
+);
 
 export function looksLikeDateRange(value: string): boolean {
   const trimmed = value.trim();
@@ -67,6 +73,19 @@ export function looksLikeDateRange(value: string): boolean {
 
 export function containsDateToken(value: string): boolean {
   return DATE_TOKEN_RE.test(value);
+}
+
+export function extractTrailingDateRange(
+  value: string,
+): { before: string; range: string } | undefined {
+  const match = TRAILING_DATE_RANGE_RE.exec(value.trim());
+  const range = match?.[1]?.trim();
+  if (!match || !range || !looksLikeDateRange(range)) return undefined;
+
+  return {
+    before: value.slice(0, match.index).trim(),
+    range,
+  };
 }
 
 export function parseDateToken(token: string): ResumeDate {

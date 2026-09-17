@@ -21,6 +21,18 @@ export const RESUME_DOCUMENT_CSS = `
   box-sizing: border-box;
 }
 
+.resume-root strong {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.resume-inline-link {
+  color: var(--resume-color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 0.5pt;
+  text-underline-offset: 1pt;
+}
+
 .resume-page-pad {
   padding: var(--resume-margin-top) var(--resume-margin-right) var(--resume-margin-bottom) var(--resume-margin-left);
 }
@@ -299,26 +311,23 @@ export const RESUME_DOCUMENT_CSS = `
 
 .resume-experience-heading {
   display: grid;
-  grid-template-columns: fit-content(34%) minmax(0, 1fr) fit-content(42%);
   align-items: baseline;
   gap: 4mm;
 }
 
 .resume-experience-company,
-.resume-experience-position {
+.resume-experience-field {
   min-width: 0;
 }
 
-.resume-experience-position {
-  grid-column: 2;
+.resume-experience-field {
   margin-top: 0;
 }
 
 .resume-experience-meta {
-  grid-column: 3;
   max-width: none;
   color: var(--resume-color-text);
-  white-space: normal;
+  white-space: nowrap;
 }
 
 .resume-item-title {
@@ -383,6 +392,7 @@ export const RESUME_DOCUMENT_CSS = `
   left: 0.6mm;
   content: "•";
   color: var(--resume-color-accent);
+  font-weight: var(--resume-body-weight);
 }
 
 .resume-bullet:last-child {
@@ -402,10 +412,15 @@ export const RESUME_DOCUMENT_CSS = `
   content: none;
 }
 
+.resume-numbered-list .resume-bullet::marker,
+.resume-skill-list > li::marker {
+  font-weight: var(--resume-body-weight);
+}
+
 .resume-subhead {
   margin: var(--resume-content-gap) 0 0.6mm;
   color: var(--resume-color-text);
-  font-size: var(--resume-body-size);
+  font-size: var(--resume-subhead-size);
   font-weight: var(--resume-item-title-weight);
   letter-spacing: 0.04em;
   line-height: var(--resume-meta-leading);
@@ -450,6 +465,7 @@ export const RESUME_DOCUMENT_CSS = `
 }
 
 .resume-skills[data-layout="inline"] .resume-skill-name {
+  margin: 0;
   font-size: var(--resume-item-title-size);
   font-weight: var(--resume-item-title-weight);
 }
@@ -466,15 +482,6 @@ export const RESUME_DOCUMENT_CSS = `
 
 .resume-skill-list {
   margin: 0;
-  padding: 0 0 0 5mm;
-}
-
-ol.resume-skill-list {
-  list-style: decimal;
-}
-
-ul.resume-skill-list {
-  list-style: disc;
 }
 
 .resume-skill-paragraph {
@@ -495,9 +502,9 @@ ul.resume-skill-list {
 }
 
 .resume-skills[data-layout="stacked"] .resume-skill-name {
+  margin: 0 0 0.6mm;
   font-size: var(--resume-item-title-size);
   font-weight: var(--resume-item-title-weight);
-  margin-bottom: 0.6mm;
 }
 
 .resume-tech {

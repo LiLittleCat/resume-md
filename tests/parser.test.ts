@@ -46,7 +46,7 @@ describe("parseResumeMarkdown", () => {
     const summary = resume.sections.find((section) => section.id === "summary");
     expect(summary?.id).toBe("summary");
     if (summary?.id === "summary") {
-      expect(summary.content[0]).toContain("5 年后端");
+      expect(summary.content[0]?.items[0]).toContain("5 年后端");
     }
 
     const skills = resume.sections.find((section) => section.id === "skills");
@@ -167,6 +167,7 @@ describe("parseResumeMarkdown", () => {
           heading: "项目描述",
           type: "paragraph",
           items: ["智慧交通平台的事件计算中枢。"],
+          spans: [[{ text: "智慧交通平台的事件计算中枢。" }]],
         },
         {
           heading: "技术栈",
@@ -177,6 +178,80 @@ describe("parseResumeMarkdown", () => {
           heading: "核心职责与成果",
           type: "unordered-list",
           items: ["设计五层流水线架构。"],
+          spans: [[{ text: "设计五层流水线架构。" }]],
+        },
+      ]);
+    }
+  });
+
+  it("treats Chinese separators between inline code as a tech tag list", () => {
+    const source = `# 项目经历
+
+## 事件中心
+
+### 技术栈
+
+\`Java 8\`、\`Spring Boot\`、\`Kafka\`
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const projects = resume.sections.find((section) => section.id === "projects");
+
+    expect(projects?.id).toBe("projects");
+    if (projects?.id === "projects") {
+      expect(projects.items[0]?.blocks).toEqual([
+        {
+          heading: "技术栈",
+          type: "tags",
+          items: ["Java 8", "Spring Boot", "Kafka"],
+        },
+      ]);
+    }
+  });
+
+  it("keeps bold markup inside project paragraphs and lists", () => {
+    const source = `# 项目经历
+
+## 事件中心
+
+### 项目描述
+
+系统日均处理约 **6.5 亿感知目标**。
+
+### 核心职责与成果
+
+- 支撑每秒 **10 万+** 次规则计算。
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const projects = resume.sections.find((section) => section.id === "projects");
+
+    expect(projects?.id).toBe("projects");
+    if (projects?.id === "projects") {
+      expect(projects.items[0]?.blocks).toEqual([
+        {
+          heading: "项目描述",
+          type: "paragraph",
+          items: ["系统日均处理约 6.5 亿感知目标。"],
+          spans: [
+            [
+              { text: "系统日均处理约 " },
+              { text: "6.5 亿感知目标", strong: true },
+              { text: "。" },
+            ],
+          ],
+        },
+        {
+          heading: "核心职责与成果",
+          type: "unordered-list",
+          items: ["支撑每秒 10 万+ 次规则计算。"],
+          spans: [
+            [
+              { text: "支撑每秒 " },
+              { text: "10 万+", strong: true },
+              { text: " 次规则计算。" },
+            ],
+          ],
         },
       ]);
     }
@@ -260,5 +335,161 @@ name: Test
     const { resume } = parseResumeMarkdown(`# Summary\n\nIndependent consultant.\n`);
     expect(resume.profile.name).toBe("");
     expect(resume.sections[0]?.id).toBe("summary");
+  });
+
+  it("preserves Markdown lists in the summary", () => {
+    const source = `# 个人简介
+
+7 年后端研发经验。
+
+- 独立完成核心模块设计
+- 具备 **AI Agent** 落地经验
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const summary = resume.sections.find((section) => section.id === "summary");
+
+    expect(summary?.id).toBe("summary");
+    if (summary?.id === "summary") {
+      expect(summary.content).toEqual([
+        {
+          type: "paragraph",
+          items: ["7 年后端研发经验。"],
+          spans: [[{ text: "7 年后端研发经验。" }]],
+        },
+        {
+          type: "unordered-list",
+          items: ["独立完成核心模块设计", "具备 AI Agent 落地经验"],
+          spans: [
+            [{ text: "独立完成核心模块设计" }],
+            [{ text: "具备 " }, { text: "AI Agent", strong: true }, { text: " 落地经验" }],
+          ],
+        },
+      ]);
+    }
+  });
+
+  it("preserves Markdown link destinations in inline content", () => {
+    const source = `# 个人简介
+
+查看 [个人网站](https://example.com) 与 **[开源项目](https://github.com/example/project)**。
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const summary = resume.sections.find((section) => section.id === "summary");
+
+    expect(summary?.id).toBe("summary");
+    if (summary?.id === "summary") {
+      expect(summary.content[0]?.spans).toEqual([
+        [
+          { text: "查看 " },
+          { text: "个人网站", href: "https://example.com" },
+          { text: " 与 " },
+          {
+            text: "开源项目",
+            strong: true,
+            href: "https://github.com/example/project",
+          },
+          { text: "。" },
+        ],
+      ]);
+    }
+  });
+
+  it("preserves Markdown links in experience paragraphs and bullets", () => {
+    const source = `# 工作经历
+
+## 示例公司
+
+**工程师** | 2024 - 至今
+
+负责维护 [业务平台](https://example.com/platform)。
+
+- 编写 [技术文档](https://docs.example.com)
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const experience = resume.sections.find((section) => section.id === "experience");
+
+    expect(experience?.id).toBe("experience");
+    if (experience?.id === "experience") {
+      expect(experience.items[0]?.descriptionSpans).toEqual([
+        { text: "负责维护 " },
+        { text: "业务平台", href: "https://example.com/platform" },
+        { text: "。" },
+      ]);
+      expect(experience.items[0]?.richResponsibilities).toEqual([
+        [
+          { text: "编写 " },
+          { text: "技术文档", href: "https://docs.example.com" },
+        ],
+      ]);
+    }
+  });
+
+  it("preserves authored experience subheadings instead of localizing them", () => {
+    const source = `# 工作经历
+
+## 示例公司
+
+**工程师** | 2024 - 至今
+
+### 主要职责
+
+- 负责核心系统
+
+### 主要成果
+
+- 完成稳定性改造
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const experience = resume.sections.find((section) => section.id === "experience");
+
+    expect(experience?.id).toBe("experience");
+    if (experience?.id === "experience") {
+      expect(experience.items[0]?.blocks?.map((block) => block.heading)).toEqual([
+        "主要职责",
+        "主要成果",
+      ]);
+    }
+  });
+
+  it("parses pipe-separated experience fields with the date at the end", () => {
+    const source = `# 工作经历
+
+## 天翼交通科技有限公司
+
+智慧交通 | 高级研发工程师 | 2022.10 - 2026.07
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const experience = resume.sections.find((section) => section.id === "experience");
+
+    expect(experience?.id).toBe("experience");
+    if (experience?.id === "experience") {
+      expect(experience.items[0]?.metaFields).toEqual(["智慧交通", "高级研发工程师"]);
+      expect(experience.items[0]?.position).toBe("高级研发工程师");
+      expect(experience.items[0]?.startDate?.raw).toBe("2022.10");
+      expect(experience.items[0]?.endDate?.raw).toBe("2026.07");
+    }
+  });
+
+  it("preserves Markdown lists in custom sections without item headings", () => {
+    const source = `# 志愿经历
+
+- 社区服务
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const section = resume.sections[0];
+    expect(section?.id).toBe("custom");
+    expect(section && "blocks" in section ? section.blocks : undefined).toEqual([
+      {
+        type: "unordered-list",
+        items: ["社区服务"],
+        spans: [[{ text: "社区服务" }]],
+      },
+    ]);
   });
 });

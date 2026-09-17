@@ -1,6 +1,7 @@
 import { formatDateRange } from "@/core/parser";
 import type { ExperienceItem, ExperienceLayout, LocaleDefinition } from "@/core/schema";
-import { BulletList } from "./bullet-list";
+import { BulletList, ResumeInline } from "./bullet-list";
+import { MarkdownBlocks } from "./markdown-blocks";
 
 export function ExperienceBody({
   items,
@@ -23,18 +24,21 @@ export function ExperienceBody({
           data-keep-together="true"
         >
           <ExperienceHeader item={item} layout={layout} locale={locale} />
-          {item.description ? <p className="resume-body">{item.description}</p> : null}
-          {item.responsibilities && item.responsibilities.length > 0 ? (
-            <>
-              <div className="resume-subhead">{locale.labels.responsibilities}</div>
-              <BulletList items={item.responsibilities} />
-            </>
+          {item.blocks ? (
+            <MarkdownBlocks blocks={item.blocks} />
+          ) : item.description ? (
+            <p className="resume-body">
+              <ResumeInline text={item.description} spans={item.descriptionSpans} />
+            </p>
           ) : null}
-          {item.achievements && item.achievements.length > 0 ? (
-            <>
-              <div className="resume-subhead">{locale.labels.achievements}</div>
-              <BulletList items={item.achievements} />
-            </>
+          {!item.blocks && item.responsibilities && item.responsibilities.length > 0 ? (
+            <BulletList
+              items={item.responsibilities}
+              richItems={item.richResponsibilities}
+            />
+          ) : null}
+          {!item.blocks && item.achievements && item.achievements.length > 0 ? (
+            <BulletList items={item.achievements} richItems={item.richAchievements} />
           ) : null}
         </article>
       ))}
@@ -53,12 +57,21 @@ function ExperienceHeader({
 }) {
   const dates = formatDateRange(item.startDate, item.endDate, locale.id, locale.labels.present);
   const meta = [dates, item.location].filter(Boolean).join(" · ");
+  const fields = item.metaFields?.length
+    ? item.metaFields
+    : item.position
+      ? [item.position]
+      : [];
 
   if (layout === "stacked") {
     return (
       <div className="resume-item-header">
-        <p className="resume-item-title">{item.company}</p>
-        {item.position ? <p className="resume-item-subtitle">{item.position}</p> : null}
+        <h3 className="resume-item-title">{item.company}</h3>
+        {fields.map((field, index) => (
+          <p className="resume-item-subtitle" key={`${field}-${index}`}>
+            {field}
+          </p>
+        ))}
         {meta ? <p className="resume-stacked-meta resume-date">{meta}</p> : null}
       </div>
     );
@@ -66,11 +79,19 @@ function ExperienceHeader({
 
   return (
     <div className="resume-item-header">
-      <div className="resume-experience-heading">
-        <p className="resume-item-title resume-experience-company">{item.company}</p>
-        {item.position ? (
-          <p className="resume-item-subtitle resume-experience-position">{item.position}</p>
-        ) : null}
+      <div
+        className="resume-experience-heading"
+        style={{ gridTemplateColumns: `repeat(${fields.length + 1}, minmax(0, 1fr)) max-content` }}
+      >
+        <h3 className="resume-item-title resume-experience-company">{item.company}</h3>
+        {fields.map((field, index) => (
+          <p
+            className="resume-item-subtitle resume-experience-field"
+            key={`${field}-${index}`}
+          >
+            {field}
+          </p>
+        ))}
         {meta ? <div className="resume-spread-meta resume-experience-meta">{meta}</div> : null}
       </div>
     </div>

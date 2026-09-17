@@ -1,5 +1,23 @@
 import { describe, expect, it } from "vitest";
-import { contactLineStarts } from "@/components/resume/contact";
+import { contactHref, contactLineStarts } from "@/components/resume/contact";
+
+describe("contactHref", () => {
+  it("turns protocol-less website values into absolute https URLs", () => {
+    expect(contactHref("website", "yl.do")).toBe("https://yl.do");
+  });
+
+  it("keeps explicit http and https URLs", () => {
+    expect(contactHref("website", "https://yl.do")).toBe("https://yl.do");
+    expect(contactHref("website", "http://yl.do")).toBe("http://yl.do");
+  });
+
+  it("does the same for github and linkedin", () => {
+    expect(contactHref("github", "github.com/zhangsan")).toBe("https://github.com/zhangsan");
+    expect(contactHref("linkedin", "linkedin.com/in/zhangsan")).toBe(
+      "https://linkedin.com/in/zhangsan",
+    );
+  });
+});
 
 describe("contactLineStarts", () => {
   it("marks the first contact on each wrapped row", () => {

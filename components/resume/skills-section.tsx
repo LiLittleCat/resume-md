@@ -1,4 +1,5 @@
 import type { InlineSpan, SkillsLayout, SkillsSection } from "@/core/schema";
+import { ResumeInline } from "./bullet-list";
 
 export function SkillsBody({
   section,
@@ -18,7 +19,7 @@ export function SkillsBody({
           data-box
           data-keep-together="true"
         >
-          {group.name ? <div className="resume-skill-name">{group.name}</div> : null}
+          {group.name ? <h3 className="resume-skill-name">{group.name}</h3> : null}
           <SkillItems group={group} />
         </div>
       ))}
@@ -29,9 +30,12 @@ export function SkillsBody({
 function SkillItems({ group }: { group: SkillsSection["groups"][number] }) {
   if (group.listType === "ordered") {
     return (
-      <ol className="resume-skill-items resume-skill-list" start={group.listStart}>
+      <ol
+        className="resume-bullets resume-numbered-list resume-skill-list resume-skill-items"
+        start={group.listStart}
+      >
         {group.items.map((item, index) => (
-          <li key={`${index}-${item}`}>
+          <li key={`${index}-${item}`} className="resume-bullet">
             <SkillItemText
               item={item}
               spans={group.richItems?.[index]}
@@ -45,9 +49,9 @@ function SkillItems({ group }: { group: SkillsSection["groups"][number] }) {
 
   if (group.listType === "unordered") {
     return (
-      <ul className="resume-skill-items resume-skill-list">
+      <ul className="resume-bullets resume-skill-list resume-skill-items">
         {group.items.map((item, index) => (
-          <li key={`${index}-${item}`}>
+          <li key={`${index}-${item}`} className="resume-bullet">
             <SkillItemText
               item={item}
               spans={group.richItems?.[index]}
@@ -59,7 +63,16 @@ function SkillItems({ group }: { group: SkillsSection["groups"][number] }) {
     );
   }
 
-  return <div className="resume-skill-items">{group.items.join(" / ")}</div>;
+  return (
+    <div className="resume-skill-items">
+      {group.items.map((item, index) => (
+        <span key={`${index}-${item}`}>
+          {index > 0 ? " / " : null}
+          <ResumeInline text={item} spans={group.richItems?.[index]} />
+        </span>
+      ))}
+    </div>
+  );
 }
 
 function SkillItemText({
@@ -74,16 +87,10 @@ function SkillItemText({
   if (paragraphs && paragraphs.length > 1) {
     return paragraphs.map((paragraph, index) => (
       <span className="resume-skill-paragraph" key={`${index}-${paragraph[0]?.text ?? ""}`}>
-        <InlineSpans spans={paragraph} />
+        <ResumeInline text={paragraph.map((span) => span.text).join("")} spans={paragraph} />
       </span>
     ));
   }
   if (!spans || spans.length === 0) return item;
-  return <InlineSpans spans={spans} />;
-}
-
-function InlineSpans({ spans }: { spans: InlineSpan[] }) {
-  return spans.map((span, index) =>
-    span.strong ? <strong key={`${index}-${span.text}`}>{span.text}</strong> : span.text,
-  );
+  return <ResumeInline text={item} spans={spans} />;
 }

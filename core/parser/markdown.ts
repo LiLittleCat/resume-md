@@ -31,26 +31,38 @@ export function paragraphInlineSpans(node: Paragraph): InlineSpan[] {
   return normalizeInlineSpans(phrasingToInlineSpans(node.children));
 }
 
-function phrasingToInlineSpans(nodes: PhrasingContent[], strong = false): InlineSpan[] {
+function phrasingToInlineSpans(
+  nodes: PhrasingContent[],
+  strong = false,
+  href?: string,
+): InlineSpan[] {
   return nodes.flatMap((node): InlineSpan[] => {
     switch (node.type) {
       case "text":
-        return [{ text: node.value, strong: strong || undefined }];
+        return [{ text: node.value, strong: strong || undefined, href }];
       case "strong":
-        return phrasingToInlineSpans(node.children, true);
+        return phrasingToInlineSpans(node.children, true, href);
       case "emphasis":
       case "delete":
-        return phrasingToInlineSpans(node.children, strong);
+        return phrasingToInlineSpans(node.children, strong, href);
       case "inlineCode":
-        return [{ text: node.value, strong: strong || undefined }];
+        return [{ text: node.value, strong: strong || undefined, href }];
       case "link":
-        return phrasingToInlineSpans(node.children, strong);
+        return phrasingToInlineSpans(node.children, strong, safeMarkdownHref(node.url));
       case "break":
-        return [{ text: " ", strong: strong || undefined }];
+        return [{ text: " ", strong: strong || undefined, href }];
       default:
-        return [{ text: toString(node), strong: strong || undefined }];
+        return [{ text: toString(node), strong: strong || undefined, href }];
     }
   });
+}
+
+function safeMarkdownHref(value: string): string | undefined {
+  const href = value.trim();
+  if (!href) return undefined;
+  const scheme = href.match(/^([a-z][a-z0-9+.-]*):/i)?.[1]?.toLowerCase();
+  if (scheme && !["http", "https", "mailto", "tel"].includes(scheme)) return undefined;
+  return href;
 }
 
 function normalizeInlineSpans(spans: InlineSpan[]): InlineSpan[] {
@@ -59,7 +71,7 @@ function normalizeInlineSpans(spans: InlineSpan[]): InlineSpan[] {
     const text = span.text.replace(/\s+/g, " ");
     if (!text) continue;
     const previous = normalized[normalized.length - 1];
-    if (previous && previous.strong === span.strong) {
+    if (previous && previous.strong === span.strong && previous.href === span.href) {
       previous.text += text;
     } else {
       normalized.push({ ...span, text });
@@ -107,13 +119,16 @@ export function extractInlineCode(node: Paragraph): string[] {
 export function isInlineCodeParagraph(node: Paragraph): boolean {
   const codes = extractInlineCode(node);
   if (codes.length === 0) return false;
-  const leftover = node.children.filter((child) => {
-    if (child.type === "inlineCode") return false;
-    if (child.type === "text") return child.value.trim().length > 0;
-    if (child.type === "break") return false;
-    return true;
+  return node.children.every((child) => {
+    if (child.type === "inlineCode") return true;
+    if (child.type === "break") return true;
+    if (child.type === "text") return isInlineCodeSeparator(child.value);
+    return false;
   });
-  return leftover.length === 0;
+}
+
+function isInlineCodeSeparator(value: string): boolean {
+  return /^[\s、,，|/·•]*$/.test(value);
 }
 
 export function isStrongHeavyParagraph(node: Paragraph): boolean {

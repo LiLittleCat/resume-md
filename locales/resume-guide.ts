@@ -104,12 +104,12 @@ Java / Spring Boot / PostgreSQL
       {
         id: "experience",
         title: "工作经历 · 职责与成果",
-        description: "## 写公司名称，紧接的独立段落按“**职位** | 日期范围 | 地点”排列，地点可省略。### 主要职责 / Responsibilities 和 ### 主要成果 / Achievements 将列表归到对应区域；无小标题的列表归入职责。预览中的这两个标签随界面语言显示，省略没有内容的小标题。",
+        description: "## 写公司名称，紧接的独立段落按“行业 | 职位 | 日期范围”排列，每个 | 分隔一个字段。日期固定在最右，日期前的字段与公司均分剩余宽度。旧的“**职位** | 日期范围 | 地点”写法仍然支持，地点可省略。### 主要职责 / Responsibilities 和 ### 主要成果 / Achievements 将列表归到对应区域；无小标题的列表归入职责。预览会保留 Markdown 中写下的小标题原文，切换界面语言不会翻译简历正文。",
         example: `# 工作经历
 
 ## 示例科技有限公司
 
-**后端开发工程师** | 2022.10 - 至今 | 杭州
+智慧交通 | 高级研发工程师 | 2022.10 - 至今
 
 负责订单与库存服务。
 
@@ -177,7 +177,7 @@ Java / Spring Boot / PostgreSQL
       {
         id: "formatting",
         title: "格式边界 · 以预览为准",
-        description: "正文支持段落与列表；技能列表保留加粗，其他正文中的加粗、斜体、删除线与链接按纯文本处理。项目中整段反引号词组显示为标签。表格、代码块、引用块、HTML、分隔线和正文图片不用于简历排版；请用上述结构表达内容。第一个 # 之前的正文不会显示。主题、字体、间距和头像在设计面板设置。中 / EN 切换界面标签与日期格式，不会翻译正文。",
+        description: "正文支持段落与列表；加粗和 Markdown 链接会保留，链接在导出的 PDF 中也可以点击，斜体与删除线按纯文本处理。项目中整段反引号词组显示为标签。表格、代码块、引用块、HTML、分隔线和正文图片不用于简历排版；请用上述结构表达内容。第一个 # 之前的正文不会显示。主题、字体、间距和头像在设计面板设置。中 / EN 切换界面标签与日期格式，不会翻译正文。",
       },
     ],
   },
@@ -257,12 +257,12 @@ Java / Spring Boot / PostgreSQL
       {
         id: "experience",
         title: "Experience · responsibilities and achievements",
-        description: "Use ## for the company, followed by a separate paragraph: **Position** | date range | location. Location is optional. Use ### Responsibilities / 主要职责 and ### Achievements / 主要成果 to group bullets. Unlabeled lists become responsibilities. These two labels follow the interface language in the preview. Omit empty subheadings.",
+        description: "Use ## for the company, followed by a separate paragraph in the form industry | position | date range, with each | separating one field. The date stays at the far right, while the company and fields before the date share the remaining width equally. The existing **Position** | date range | location form remains supported; location is optional. Use ### Responsibilities / 主要职责 and ### Achievements / 主要成果 to group bullets. Unlabeled lists become responsibilities. The preview preserves the authored Markdown subheading; changing the interface language does not translate resume content.",
         example: `# Experience
 
 ## Example Technologies
 
-**Backend Engineer** | Oct 2022 - Present | San Francisco
+Smart Transportation | Senior R&D Engineer | Oct 2022 - Present
 
 Owned order and inventory services.
 
@@ -330,7 +330,7 @@ Sep 2018 - Jun 2022
       {
         id: "formatting",
         title: "Formatting limits · check the preview",
-        description: "Body content supports paragraphs and lists. Bold survives in skills lists; elsewhere, body bold, italics, strikethrough, and links become plain text. Backtick-only paragraphs in projects become tags. Tables, code blocks, blockquotes, HTML, horizontal rules, and body images are not supported for resume layout. Use the structures above. Text before the first # heading is omitted. Set theme, fonts, spacing, and photo in Design. 中 / EN changes interface labels and date formatting; it does not translate your text.",
+        description: "Body content supports paragraphs and lists. Bold and Markdown links are preserved, and links remain clickable in exported PDFs; italics and strikethrough become plain text. Backtick-only paragraphs in projects become tags. Tables, code blocks, blockquotes, HTML, horizontal rules, and body images are not supported for resume layout. Use the structures above. Text before the first # heading is omitted. Set theme, fonts, spacing, and photo in Design. 中 / EN changes interface labels and date formatting; it does not translate your text.",
       },
     ],
   },

@@ -54,11 +54,19 @@ export function quoteFont(name: string): string {
 }
 
 function typographyVars(typography: CompleteTypography): CssVarMap {
-  const vars: CssVarMap = {};
+  const vars: CssVarMap = {
+    "--resume-subhead-size": `${roundQuarter(
+      (typography.itemTitle.fontSize + typography.body.fontSize) / 2,
+    )}pt`,
+  };
   for (const role of TYPOGRAPHY_ROLES) {
     Object.assign(vars, textStyleVars(role, typography[role]));
   }
   return vars;
+}
+
+function roundQuarter(value: number): number {
+  return Math.round(value * 4) / 4;
 }
 
 function textStyleVars(role: TypographyRole, style: CompleteTextStyle): CssVarMap {

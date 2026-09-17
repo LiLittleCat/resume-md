@@ -1,6 +1,7 @@
 import { formatDateRange } from "@/core/parser";
 import type { CustomSection, GenericSection, LocaleDefinition } from "@/core/schema";
-import { BulletList } from "./bullet-list";
+import { BulletList, ResumeInline } from "./bullet-list";
+import { ContentBlocks } from "./content-blocks";
 import { Spread } from "./spread";
 
 export function GenericBody({
@@ -10,28 +11,20 @@ export function GenericBody({
   section: GenericSection | CustomSection;
   locale: LocaleDefinition;
 }) {
-  const blocks = (section.blocks ?? []).filter((block) => block.trim().length > 0);
+  const blocks = section.blocks ?? [];
 
   if (section.items.length === 0) {
     if (blocks.length === 0) return null;
     return (
       <div data-box data-keep-together="true">
-        {blocks.map((block) => (
-          <p key={block} className="resume-paragraph">
-            {block}
-          </p>
-        ))}
+        <ContentBlocks blocks={blocks} />
       </div>
     );
   }
 
   return (
     <div>
-      {blocks.map((block) => (
-        <p key={block} className="resume-paragraph">
-          {block}
-        </p>
-      ))}
+      <ContentBlocks blocks={blocks} />
       {section.items.map((item) => {
         const dates = formatDateRange(item.startDate, item.endDate, locale.id, locale.labels.present);
         return (
@@ -45,14 +38,20 @@ export function GenericBody({
           >
             <div className="resume-item-header">
               <Spread
-                left={<p className="resume-item-title">{item.title}</p>}
+                left={<h3 className="resume-item-title">{item.title}</h3>}
                 right={dates}
                 rightTone="text"
               />
               {item.subtitle ? <p className="resume-item-subtitle">{item.subtitle}</p> : null}
             </div>
-            {item.description ? <p className="resume-body">{item.description}</p> : null}
-            {item.highlights ? <BulletList items={item.highlights} /> : null}
+            {item.description ? (
+              <p className="resume-body">
+                <ResumeInline text={item.description} spans={item.descriptionSpans} />
+              </p>
+            ) : null}
+            {item.highlights ? (
+              <BulletList items={item.highlights} richItems={item.richHighlights} />
+            ) : null}
           </article>
         );
       })}

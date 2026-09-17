@@ -29,8 +29,8 @@ export const minimalTheme: ThemeDefinition = {
     base: text(10.5, 400, 1.35),
     name: text(20, 700, 1.12, -0.02),
     headline: text(11, 500, 1.3),
-    sectionTitle: text(12, 700, 1.2, 0.04),
-    itemTitle: text(12, 600, 1.25),
+    sectionTitle: text(13, 700, 1.2, 0.04),
+    itemTitle: text(11.75, 600, 1.25),
     itemSubtitle: text(10, 500, 1.3),
     body: text(10.5, 400, 1.35),
     meta: text(9, 400, 1.3),
@@ -50,7 +50,7 @@ export const minimalTheme: ThemeDefinition = {
   icons: {
     mode: "full",
     provider: "phosphor",
-    size: 12,
+    size: 13,
     strokeWidth: 1.75,
     gap: 1.6,
     sections: {

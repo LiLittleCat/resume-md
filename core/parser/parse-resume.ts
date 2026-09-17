@@ -1,9 +1,11 @@
 import type {
   Contact,
+  ContentBlock,
   EducationItem,
   ExperienceItem,
   FrontMatter,
   GenericItem,
+  InlineSpan,
   LocaleId,
   ParseWarning,
   Profile,
@@ -16,7 +18,12 @@ import type {
   SkillGroup,
 } from "../schema";
 import { ContactFieldSchema, LocaleIdSchema, ResumeSchema } from "../schema";
-import { containsDateToken, looksLikeDateRange, parseDateRange } from "./dates";
+import {
+  containsDateToken,
+  extractTrailingDateRange,
+  looksLikeDateRange,
+  parseDateRange,
+} from "./dates";
 import { splitFrontMatter } from "./front-matter";
 import {
   extractInlineCode,
@@ -29,6 +36,7 @@ import {
   listItemInlineSpans,
   listItemParagraphInlineSpans,
   listItemTexts,
+  paragraphInlineSpans,
   paragraphText,
   parseMarkdownTree,
 } from "./markdown";
@@ -169,7 +177,7 @@ function buildSection(
 ): ResumeSection {
   switch (id) {
     case "summary":
-      return { id, title, content: collectParagraphs(nodes) };
+      return { id, title, content: collectContentBlocks(nodes) };
     case "skills":
       return { id, title, groups: parseSkillGroups(nodes) };
     case "experience":
@@ -179,7 +187,7 @@ function buildSection(
     case "education":
       return { id, title, items: parseEducationItems(nodes) };
     default:
-      return { id, title, items: parseGenericItems(nodes), blocks: collectParagraphs(nodes) };
+      return { id, title, items: parseGenericItems(nodes), blocks: collectContentBlocks(sectionPrelude(nodes)) };
   }
 }
 
@@ -213,20 +221,55 @@ function collectSkills(nodes: RootContent[]): Omit<SkillGroup, "name"> {
   }
 
   const items: string[] = [];
+  const richItems: InlineSpan[][] = [];
   for (const node of nodes) {
     if (isParagraph(node)) {
       if (isInlineCodeParagraph(node)) {
-        items.push(...extractInlineCode(node));
+        for (const item of extractInlineCode(node)) {
+          items.push(item);
+          richItems.push([{ text: item }]);
+        }
         continue;
       }
-      items.push(...splitSkillLine(paragraphText(node)));
+      const text = paragraphText(node);
+      const parts = splitSkillLine(text);
+      for (const part of parts) {
+        items.push(part);
+        richItems.push(parts.length === 1 ? paragraphInlineSpans(node) : [{ text: part }]);
+      }
     } else if (isList(node)) {
-      for (const item of listItemTexts(node)) {
-        items.push(...splitSkillLine(item));
+      const listItems = listItemTexts(node);
+      const listSpans = listItemInlineSpans(node);
+      for (const [index, item] of listItems.entries()) {
+        const parts = splitSkillLine(item);
+        for (const part of parts) {
+          items.push(part);
+          richItems.push(
+            parts.length === 1 ? (listSpans[index] ?? [{ text: part }]) : [{ text: part }],
+          );
+        }
       }
     }
   }
-  return { items: unique(items) };
+  const deduplicated = uniqueSkillItems(items, richItems);
+  return { items: deduplicated.items, richItems: deduplicated.richItems };
+}
+
+function uniqueSkillItems(
+  items: string[],
+  richItems: InlineSpan[][],
+): { items: string[]; richItems: InlineSpan[][] } {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  const richResult: InlineSpan[][] = [];
+  items.forEach((item, index) => {
+    const key = item.trim();
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    result.push(key);
+    richResult.push(richItems[index] ?? [{ text: key }]);
+  });
+  return { items: result, richItems: richResult };
 }
 
 function splitSkillLine(value: string): string[] {
@@ -241,6 +284,7 @@ function parseExperienceItems(nodes: RootContent[], warnings: ParseWarning[]): E
   const groups = groupByH2(nodes).filter((group) => group.title);
   return groups.map((group) => {
     const parsed = parseItemBody(group.nodes);
+    const blocks = parseMarkdownBlocks(group.nodes);
     if (!parsed.subtitle && !parsed.startDate) {
       warnings.push({
         code: "experience-meta",
@@ -250,12 +294,17 @@ function parseExperienceItems(nodes: RootContent[], warnings: ParseWarning[]): E
     return {
       company: group.title,
       position: parsed.subtitle,
+      metaFields: parsed.metaFields,
       startDate: parsed.startDate,
       endDate: parsed.endDate,
       location: parsed.location,
       description: parsed.description,
+      descriptionSpans: parsed.descriptionSpans,
       responsibilities: parsed.responsibilities,
+      richResponsibilities: parsed.richResponsibilities,
       achievements: parsed.achievements,
+      richAchievements: parsed.richAchievements,
+      blocks,
     };
   });
 }
@@ -264,7 +313,7 @@ function parseProjectItems(nodes: RootContent[], warnings: ParseWarning[]): Proj
   const groups = groupByH2(nodes).filter((group) => group.title);
   return groups.map((group) => {
     const parsed = parseItemBody(group.nodes);
-    const blocks = parseProjectBlocks(group.nodes);
+    const blocks = parseMarkdownBlocks(group.nodes);
     if (!group.title) {
       warnings.push({
         code: "project-name",
@@ -292,7 +341,7 @@ function parseProjectItems(nodes: RootContent[], warnings: ParseWarning[]): Proj
   });
 }
 
-function parseProjectBlocks(nodes: RootContent[]): ProjectBlock[] {
+function parseMarkdownBlocks(nodes: RootContent[]): ProjectBlock[] {
   const blocks: ProjectBlock[] = [];
   const metadata: ItemBody = {};
   let pendingHeading: string | undefined;
@@ -326,7 +375,7 @@ function parseProjectBlocks(nodes: RootContent[]): ProjectBlock[] {
         if (items.length > 0) addBlock({ type: "tags", items });
       } else {
         const text = paragraphText(node);
-        if (text) addBlock({ type: "paragraph", items: [text] });
+        if (text) addBlock({ type: "paragraph", items: [text], spans: [paragraphInlineSpans(node)] });
       }
       continue;
     }
@@ -337,6 +386,7 @@ function parseProjectBlocks(nodes: RootContent[]): ProjectBlock[] {
         addBlock({
           type: node.ordered ? "ordered-list" : "unordered-list",
           items,
+          spans: listItemInlineSpans(node),
           start: node.ordered ? (node.start ?? 1) : undefined,
         });
       }
@@ -363,6 +413,7 @@ function parseEducationItems(nodes: RootContent[]): EducationItem[] {
       endDate: parsed.endDate,
       location: parsed.location,
       details: parsed.responsibilities ?? parsed.achievements,
+      richDetails: parsed.richResponsibilities ?? parsed.richAchievements,
     };
   });
 }
@@ -377,20 +428,26 @@ function parseGenericItems(nodes: RootContent[]): GenericItem[] {
       startDate: parsed.startDate,
       endDate: parsed.endDate,
       description: parsed.description,
+      descriptionSpans: parsed.descriptionSpans,
       highlights: parsed.responsibilities ?? parsed.achievements,
+      richHighlights: parsed.richResponsibilities ?? parsed.richAchievements,
     };
   });
 }
 
 interface ItemBody {
   subtitle?: string;
+  metaFields?: string[];
   startDate?: ResumeDate;
   endDate?: ResumeDate;
   location?: string;
   description?: string;
+  descriptionSpans?: InlineSpan[];
   techStack?: string[];
   responsibilities?: string[];
+  richResponsibilities?: InlineSpan[][];
   achievements?: string[];
+  richAchievements?: InlineSpan[][];
 }
 
 function parseItemBody(nodes: RootContent[]): ItemBody {
@@ -430,12 +487,15 @@ function parseItemBody(nodes: RootContent[]): ItemBody {
 
     if (isList(node)) {
       const items = listItemTexts(node);
+      const richItems = listItemInlineSpans(node);
       if (field === "achievements") {
         body.achievements = [...(body.achievements ?? []), ...items];
+        body.richAchievements = [...(body.richAchievements ?? []), ...richItems];
       } else if (field === "techStack") {
         body.techStack = unique([...(body.techStack ?? []), ...items.flatMap(splitSkillLine)]);
       } else {
         body.responsibilities = [...(body.responsibilities ?? []), ...items];
+        body.richResponsibilities = [...(body.richResponsibilities ?? []), ...richItems];
       }
       continue;
     }
@@ -443,8 +503,10 @@ function parseItemBody(nodes: RootContent[]): ItemBody {
     if (isParagraph(node)) {
       const text = paragraphText(node);
       if (!text) continue;
+      const spans = paragraphInlineSpans(node);
       if (field === "description") {
         description.push(text);
+        body.descriptionSpans = appendInlineSpans(body.descriptionSpans, spans);
       } else if (field === "techStack") {
         body.techStack = unique([
           ...(body.techStack ?? []),
@@ -452,10 +514,13 @@ function parseItemBody(nodes: RootContent[]): ItemBody {
         ]);
       } else if (field === "achievements") {
         body.achievements = [...(body.achievements ?? []), text];
+        body.richAchievements = [...(body.richAchievements ?? []), spans];
       } else if (field === "responsibilities") {
         body.responsibilities = [...(body.responsibilities ?? []), text];
+        body.richResponsibilities = [...(body.richResponsibilities ?? []), spans];
       } else {
         description.push(text);
+        body.descriptionSpans = appendInlineSpans(body.descriptionSpans, spans);
       }
     }
   }
@@ -465,6 +530,13 @@ function parseItemBody(nodes: RootContent[]): ItemBody {
   }
 
   return body;
+}
+
+function appendInlineSpans(
+  current: InlineSpan[] | undefined,
+  next: InlineSpan[],
+): InlineSpan[] {
+  return current && current.length > 0 ? [...current, { text: " " }, ...next] : next;
 }
 
 function applyMetaParagraph(node: Paragraph, body: ItemBody): boolean {
@@ -480,24 +552,38 @@ function applyMetaParagraph(node: Paragraph, body: ItemBody): boolean {
 
   if (text.includes("|") || containsDateToken(text) || isStrongHeavyParagraph(node)) {
     const parts = text
-      .split("|")
+      .split(/\|+/)
       .map((part) => part.trim())
       .filter(Boolean);
+    const fields: string[] = [];
+    const trailingFields: string[] = [];
+    let foundDate = false;
 
     for (const part of parts) {
-      if (looksLikeDateRange(part) && !body.startDate) {
-        const range = parseDateRange(part);
+      const extracted = !body.startDate ? extractTrailingDateRange(part) : undefined;
+      if (extracted) {
+        if (extracted.before) fields.push(extracted.before);
+        const range = parseDateRange(extracted.range);
         body.startDate = range.start;
         body.endDate = range.end;
+        foundDate = true;
         continue;
       }
-      if (!body.subtitle) {
-        body.subtitle = part;
-        continue;
+
+      if (foundDate || body.startDate) trailingFields.push(part);
+      else fields.push(part);
+    }
+
+    if (foundDate || body.startDate) {
+      if (fields.length > 0) {
+        body.metaFields = fields;
+        body.subtitle = fields.at(-1);
       }
-      if (!body.location) {
-        body.location = part;
-      }
+      if (trailingFields.length > 0) body.location = trailingFields.join(" · ");
+    } else if (fields.length > 0) {
+      body.metaFields = [fields[0]!];
+      body.subtitle = fields[0];
+      if (fields.length > 1) body.location = fields.slice(1).join(" · ");
     }
     return true;
   }
@@ -517,17 +603,40 @@ function splitDegree(value: string | undefined): { degree?: string; major?: stri
   return { degree: value };
 }
 
-function collectParagraphs(nodes: RootContent[]): string[] {
-  const blocks: string[] = [];
+function collectContentBlocks(nodes: RootContent[]): ContentBlock[] {
+  const blocks: ContentBlock[] = [];
   for (const node of nodes) {
     if (isParagraph(node)) {
       const text = paragraphText(node);
-      if (text) blocks.push(text);
-    } else if (isList(node)) {
-      blocks.push(...listItemTexts(node));
+      if (!text) continue;
+      blocks.push({
+        type: "paragraph",
+        items: [text],
+        spans: [paragraphInlineSpans(node)],
+      });
+      continue;
+    }
+    if (isList(node)) {
+      const items = listItemTexts(node);
+      if (items.length === 0) continue;
+      blocks.push({
+        type: node.ordered ? "ordered-list" : "unordered-list",
+        items,
+        spans: listItemInlineSpans(node),
+        ...(node.ordered ? { start: node.start ?? 1 } : {}),
+      });
     }
   }
   return blocks;
+}
+
+function sectionPrelude(nodes: RootContent[]): RootContent[] {
+  const prelude: RootContent[] = [];
+  for (const node of nodes) {
+    if (isHeading(node, 2)) break;
+    prelude.push(node);
+  }
+  return prelude;
 }
 
 function unique(values: string[]): string[] {

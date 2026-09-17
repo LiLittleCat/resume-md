@@ -29,8 +29,8 @@ export const modernTheme: ThemeDefinition = {
     base: text(10.5, 400, 1.38),
     name: text(22, 700, 1.08, -0.03),
     headline: text(11, 500, 1.3),
-    sectionTitle: text(12, 700, 1.2, 0.16),
-    itemTitle: text(12, 600, 1.25),
+    sectionTitle: text(13, 700, 1.2, 0.16),
+    itemTitle: text(11.75, 600, 1.25),
     itemSubtitle: text(10, 500, 1.3),
     body: text(10.5, 400, 1.38),
     meta: text(9, 400, 1.3),
@@ -50,7 +50,7 @@ export const modernTheme: ThemeDefinition = {
   icons: {
     mode: "full",
     provider: "phosphor",
-    size: 12,
+    size: 13,
     strokeWidth: 1.85,
     gap: 1.8,
     sections: {
@@ -93,7 +93,7 @@ export const modernTheme: ThemeDefinition = {
   localePresets: {
     "zh-CN": {
       typography: {
-        sectionTitle: { fontSize: 12, letterSpacing: 0 },
+        sectionTitle: { fontSize: 13, letterSpacing: 0 },
         name: { letterSpacing: 0.04 },
       },
     },

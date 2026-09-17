@@ -27,6 +27,7 @@ export type Profile = z.infer<typeof ProfileSchema>;
 export const InlineSpanSchema = z.object({
   text: z.string().min(1),
   strong: z.boolean().optional(),
+  href: z.string().min(1).optional(),
 });
 
 export type InlineSpan = z.infer<typeof InlineSpanSchema>;
@@ -42,27 +43,33 @@ export const SkillGroupSchema = z.object({
 
 export type SkillGroup = z.infer<typeof SkillGroupSchema>;
 
-export const ExperienceItemSchema = z.object({
-  company: z.string().min(1),
-  position: z.string().optional(),
-  startDate: ResumeDateSchema.optional(),
-  endDate: ResumeDateSchema.optional(),
-  location: z.string().optional(),
-  description: z.string().optional(),
-  responsibilities: z.array(z.string().min(1)).optional(),
-  achievements: z.array(z.string().min(1)).optional(),
-});
-
-export type ExperienceItem = z.infer<typeof ExperienceItemSchema>;
-
 export const ProjectBlockSchema = z.object({
   heading: z.string().min(1).optional(),
   type: z.enum(["paragraph", "tags", "unordered-list", "ordered-list"]),
   items: z.array(z.string().min(1)),
+  spans: z.array(z.array(InlineSpanSchema)).optional(),
   start: z.number().int().optional(),
 });
 
 export type ProjectBlock = z.infer<typeof ProjectBlockSchema>;
+
+export const ExperienceItemSchema = z.object({
+  company: z.string().min(1),
+  position: z.string().optional(),
+  metaFields: z.array(z.string().min(1)).optional(),
+  startDate: ResumeDateSchema.optional(),
+  endDate: ResumeDateSchema.optional(),
+  location: z.string().optional(),
+  description: z.string().optional(),
+  descriptionSpans: z.array(InlineSpanSchema).optional(),
+  responsibilities: z.array(z.string().min(1)).optional(),
+  richResponsibilities: z.array(z.array(InlineSpanSchema)).optional(),
+  achievements: z.array(z.string().min(1)).optional(),
+  richAchievements: z.array(z.array(InlineSpanSchema)).optional(),
+  blocks: z.array(ProjectBlockSchema).optional(),
+});
+
+export type ExperienceItem = z.infer<typeof ExperienceItemSchema>;
 
 export const ProjectItemSchema = z.object({
   name: z.string().min(1),
@@ -87,6 +94,7 @@ export const EducationItemSchema = z.object({
   endDate: ResumeDateSchema.optional(),
   location: z.string().optional(),
   details: z.array(z.string().min(1)).optional(),
+  richDetails: z.array(z.array(InlineSpanSchema)).optional(),
 });
 
 export type EducationItem = z.infer<typeof EducationItemSchema>;
@@ -97,15 +105,26 @@ export const GenericItemSchema = z.object({
   startDate: ResumeDateSchema.optional(),
   endDate: ResumeDateSchema.optional(),
   description: z.string().optional(),
+  descriptionSpans: z.array(InlineSpanSchema).optional(),
   highlights: z.array(z.string().min(1)).optional(),
+  richHighlights: z.array(z.array(InlineSpanSchema)).optional(),
 });
 
 export type GenericItem = z.infer<typeof GenericItemSchema>;
 
+export const ContentBlockSchema = z.object({
+  type: z.enum(["paragraph", "unordered-list", "ordered-list"]),
+  items: z.array(z.string().min(1)),
+  spans: z.array(z.array(InlineSpanSchema)).optional(),
+  start: z.number().int().optional(),
+});
+
+export type ContentBlock = z.infer<typeof ContentBlockSchema>;
+
 export const SummarySectionSchema = z.object({
   id: z.literal("summary"),
   title: z.string().min(1),
-  content: z.array(z.string().min(1)),
+  content: z.array(ContentBlockSchema),
 });
 
 export type SummarySection = z.infer<typeof SummarySectionSchema>;
@@ -146,7 +165,7 @@ export const CustomSectionSchema = z.object({
   id: z.literal("custom"),
   title: z.string().min(1),
   items: z.array(GenericItemSchema),
-  blocks: z.array(z.string()).optional(),
+  blocks: z.array(ContentBlockSchema).optional(),
 });
 
 export type CustomSection = z.infer<typeof CustomSectionSchema>;
@@ -162,7 +181,7 @@ export const GenericSectionSchema = z.object({
   ]),
   title: z.string().min(1),
   items: z.array(GenericItemSchema),
-  blocks: z.array(z.string()).optional(),
+  blocks: z.array(ContentBlockSchema).optional(),
 });
 
 export type GenericSection = z.infer<typeof GenericSectionSchema>;

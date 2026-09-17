@@ -38,7 +38,7 @@ describe("resolveStyle", () => {
 
   it("keeps modern section titles larger than body copy", () => {
     const style = resolveStyle({ themeId: "modern", localeId: "zh-CN" });
-    expect(style.typography.sectionTitle.fontSize).toBe(12);
+    expect(style.typography.sectionTitle.fontSize).toBe(13);
     expect(style.typography.sectionTitle.fontSize).toBeGreaterThan(
       style.typography.body.fontSize,
     );
@@ -73,14 +73,14 @@ describe("resolveStyle", () => {
     expect(en.typography.body.lineHeight).toBe(1.35);
     expect(zh.typography.headline.fontSize).toBe(10.5);
     expect(en.typography.headline.fontSize).toBe(10.5);
-    expect(zh.typography.itemTitle.fontSize).toBe(11);
+    expect(zh.typography.itemTitle.fontSize).toBe(11.75);
     expect(zh.typography.itemSubtitle.fontSize).toBe(9.5);
     expect(zh.typography.meta.fontSize).toBe(9);
     expect(zh.spacing.itemGap).toBe(3.6);
     expect(zh.page.margin).toEqual({ top: 14, right: 13, bottom: 14, left: 13 });
     expect(zh.icons.mode).toBe("full");
     expect(zh.icons.provider).toBe("phosphor");
-    expect(zh.icons.size).toBe(12.5);
+    expect(zh.icons.size).toBe(13);
     expect(zh.components.header.rule).toBe(true);
     expect(zh.components.sectionTitle.rule).toBe(true);
   });
@@ -118,8 +118,8 @@ describe("resolveStyle", () => {
     });
     expect(style.typography.sectionTitle.fontSize).toBe(16);
     expect(style.sections.projects.typography.sectionTitle.fontSize).toBe(16);
-    expect(style.typography.itemTitle.fontSize).toBe(16);
-    expect(style.sections.projects.typography.itemTitle.fontSize).toBe(16);
+    expect(style.typography.itemTitle.fontSize).toBe(15);
+    expect(style.sections.projects.typography.itemTitle.fontSize).toBe(15);
   });
 
   it("applies spacing presets before custom spacing overrides", () => {
