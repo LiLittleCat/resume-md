@@ -1,8 +1,9 @@
 import { formatDateRange } from "@/core/parser";
 import type { LocaleDefinition, ProjectItem } from "@/core/schema";
-import { BulletList } from "./bullet-list";
+import { BulletList, ResumeInline } from "./bullet-list";
 import { MarkdownBlocks } from "./markdown-blocks";
 import { Spread } from "./spread";
+import { StrongMeta } from "./strong-meta";
 
 export function ProjectsBody({
   items,
@@ -68,8 +69,14 @@ function ProjectHeader({
     <div className="resume-item-header" data-box="project-header" data-keep-with-next="true">
       <Spread
         left={<h3 className="resume-item-title">{item.name}</h3>}
-        middle={item.role ? <p className="resume-item-subtitle">{item.role}</p> : null}
-        right={dates}
+        middle={
+          item.role ? (
+            <p className="resume-item-subtitle">
+              <ResumeInline text={item.role} spans={item.richRole} />
+            </p>
+          ) : null
+        }
+        right={dates ? <StrongMeta text={dates} strong={item.datesStrong} /> : null}
         rightTone="text"
       />
     </div>

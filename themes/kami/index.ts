@@ -63,7 +63,7 @@ export const kamiTheme: ThemeDefinition = {
     margin: { top: 14, right: 13, bottom: 14, left: 13 },
   },
   pagination: {
-    keepSectionTitleWithBody: true,
+    keepSectionTitleWithBody: false,
     keepItemHeaderWithBody: true,
     avoidBulletSplit: true,
   },

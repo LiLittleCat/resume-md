@@ -86,6 +86,33 @@ describe("resume components", () => {
     expect(html).toMatch(/天翼交通科技有限公司[\s\S]*智慧交通[\s\S]*高级研发工程师[\s\S]*2022\.10 - 2026\.07/);
   });
 
+  it("renders bold pipe-separated experience fields and dates", () => {
+    const html = renderToStaticMarkup(
+      createElement(ExperienceBody, {
+        items: [
+          {
+            company: "中孚信息股份有限公司",
+            position: "Java 开发工程师",
+            metaFields: ["信息安全", "Java 开发工程师"],
+            richMetaFields: [
+              [{ text: "信息安全", strong: true }],
+              [{ text: "Java 开发工程师", strong: true }],
+            ],
+            startDate: { raw: "2019.07", year: 2019, month: 7 },
+            endDate: { raw: "2022.07", year: 2022, month: 7 },
+            datesStrong: true,
+          },
+        ],
+        layout: "default",
+        locale: resolveLocale("zh-CN"),
+      }),
+    );
+
+    expect(html).toContain("<strong>信息安全</strong>");
+    expect(html).toContain("<strong>Java 开发工程师</strong>");
+    expect(html).toContain("<strong>2019.07 - 2022.07</strong>");
+  });
+
   it("lets project items split between their internal content blocks", () => {
     const html = renderToStaticMarkup(
       createElement(ProjectsBody, {
@@ -381,6 +408,64 @@ describe("resume components", () => {
     expect(html).toContain(">主要成果</h4>");
     expect(html).not.toContain(">Responsibilities</h4>");
     expect(html).not.toContain(">Achievements</h4>");
+  });
+
+  it("does not pin section titles to the following body", () => {
+    const html = renderToStaticMarkup(
+      createElement(ResumeDocument, {
+        resume: {
+          locale: "zh-CN",
+          profile: { name: "纸上", contact: {} },
+          sections: [{ id: "summary", title: "个人简介", content: [{ type: "paragraph", items: ["简介"] }] }],
+        },
+        style: resolveStyle({ themeId: "kami", localeId: "zh-CN" }),
+        locale: resolveLocale("zh-CN"),
+      }),
+    );
+
+    expect(html).toContain('class="resume-section-title"');
+    expect(html).not.toMatch(/<h2 class="resume-section-title"[^>]*data-keep-with-next="true"/);
+    expect(resolveStyle({ themeId: "kami", localeId: "zh-CN" }).pagination.keepSectionTitleWithBody).toBe(
+      false,
+    );
+  });
+
+  it("places open-source list dates on the right of the title", () => {
+    const html = renderToStaticMarkup(
+      createElement(GenericBody, {
+        section: {
+          id: "openSource",
+          title: "开源项目",
+          itemLayout: "list",
+          items: [
+            {
+              title: "Resume MD",
+              titleSpans: [
+                {
+                  text: "Resume MD",
+                  strong: true,
+                  href: "https://github.com/LiLittleCat/resume-md",
+                },
+              ],
+              startDate: { raw: "2024.06", year: 2024, month: 6 },
+              endDate: { raw: "至今", present: true },
+              datesStrong: true,
+              description: "Markdown 简历编辑工具。",
+            },
+          ],
+        },
+        locale: resolveLocale("zh-CN"),
+      }),
+    );
+
+    expect(html).toContain('class="resume-bullets"');
+    expect(html).toContain('class="resume-bullet"');
+    expect(html).toContain('class="resume-spread"');
+    expect(html).not.toContain('class="resume-item-title"');
+    expect(html).toMatch(
+      /<span class="resume-list-title">[\s\S]*Resume MD[\s\S]*<\/span>[\s\S]*<div class="resume-spread-meta" data-tone="text"><strong>2024\.06 - 至今<\/strong><\/div>/,
+    );
+    expect(html).toContain('href="https://github.com/LiLittleCat/resume-md"');
   });
 
   it("keeps unique keys when two projects share a name and start date", () => {

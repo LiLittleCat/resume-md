@@ -66,7 +66,7 @@ export const minimalTheme: ThemeDefinition = {
     margin: { top: 14, right: 16, bottom: 14, left: 16 },
   },
   pagination: {
-    keepSectionTitleWithBody: true,
+    keepSectionTitleWithBody: false,
     keepItemHeaderWithBody: true,
     avoidBulletSplit: true,
   },

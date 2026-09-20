@@ -475,6 +475,31 @@ name: Test
     }
   });
 
+  it("keeps bold markers on pipe-separated experience fields and dates", () => {
+    const source = `# 工作经历
+
+## 中孚信息股份有限公司
+
+**信息安全**|**Java 开发工程师** | **2019.07 - 2022.07**
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const experience = resume.sections.find((section) => section.id === "experience");
+
+    expect(experience?.id).toBe("experience");
+    if (experience?.id === "experience") {
+      const item = experience.items[0];
+      expect(item?.metaFields).toEqual(["信息安全", "Java 开发工程师"]);
+      expect(item?.richMetaFields).toEqual([
+        [{ text: "信息安全", strong: true }],
+        [{ text: "Java 开发工程师", strong: true }],
+      ]);
+      expect(item?.datesStrong).toBe(true);
+      expect(item?.startDate?.raw).toBe("2019.07");
+      expect(item?.endDate?.raw).toBe("2022.07");
+    }
+  });
+
   it("preserves Markdown lists in custom sections without item headings", () => {
     const source = `# 志愿经历
 
@@ -503,16 +528,167 @@ name: Test
     const { resume } = parseResumeMarkdown(source);
     const section = resume.sections[0];
     expect(section?.id).toBe("openSource");
-    expect(section && "blocks" in section ? section.blocks?.[0]?.spans : undefined).toEqual([
-      [
+    expect(section && "items" in section ? section.items : undefined).toEqual([
+      {
+        title: "Resume MD",
+        titleSpans: [
+          {
+            text: "Resume MD",
+            strong: true,
+            href: "https://github.com/LiLittleCat/resume-md",
+          },
+        ],
+        description: "Markdown 简历编辑工具。",
+        descriptionSpans: [{ text: "Markdown 简历编辑工具。" }],
+      },
+    ]);
+  });
+
+  it("puts open-source list dates on the item, not in the title", () => {
+    const source = `# 开源项目
+
+- **[Resume MD](https://github.com/LiLittleCat/resume-md)** | 2024.06 - 至今
+  Markdown 简历编辑工具。
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const section = resume.sections[0];
+    expect(section?.id).toBe("openSource");
+    if (section?.id === "openSource") {
+      expect(section.itemLayout).toBe("list");
+      expect(section.items[0]?.title).toBe("Resume MD");
+      expect(section.items[0]?.startDate?.raw).toBe("2024.06");
+      expect(section.items[0]?.endDate?.present).toBe(true);
+      expect(section.items[0]?.titleSpans).toEqual([
         {
           text: "Resume MD",
           strong: true,
           href: "https://github.com/LiLittleCat/resume-md",
         },
-        { text: "\n", break: true },
-        { text: "Markdown 简历编辑工具。" },
-      ],
+      ]);
+    }
+  });
+
+  it("keeps a bold date on an open-source list item", () => {
+    const source = `# 开源项目
+
+- **[Resume MD](https://resume.yl.do)** | **2024.06 - 至今**
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const section = resume.sections[0];
+    expect(section?.id).toBe("openSource");
+    if (section?.id === "openSource") {
+      expect(section.itemLayout).toBe("list");
+      expect(section.items[0]?.title).toBe("Resume MD");
+      expect(section.items[0]?.datesStrong).toBe(true);
+    }
+  });
+
+  it("keeps nested open-source bullets as highlights, not title text", () => {
+    const source = `# 开源项目
+
+- **[Resume MD](https://github.com/LiLittleCat/resume-md)** | 2024.06 - 至今
+  - Markdown 简历编辑工具
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const section = resume.sections[0];
+    expect(section?.id).toBe("openSource");
+    if (section?.id === "openSource") {
+      expect(section.items[0]?.title).toBe("Resume MD");
+      expect(section.items[0]?.startDate?.raw).toBe("2024.06");
+      expect(section.items[0]?.highlights).toEqual(["Markdown 简历编辑工具"]);
+    }
+  });
+
+  it("leaves award lists as bullets instead of dated items", () => {
+    const source = `# 奖项
+
+- 优秀毕业生
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const section = resume.sections[0];
+    expect(section?.id).toBe("awards");
+    expect(section && "items" in section ? section.items : undefined).toEqual([]);
+    expect(section && "blocks" in section ? section.blocks : undefined).toEqual([
+      {
+        type: "unordered-list",
+        items: ["优秀毕业生"],
+        spans: [[{ text: "优秀毕业生" }]],
+      },
     ]);
+  });
+
+  it("extracts a trailing date from a generic heading", () => {
+    const source = `# 开源项目
+
+## Resume MD | 2024.06 - 至今
+
+Markdown 简历编辑工具。
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const section = resume.sections[0];
+    expect(section?.id).toBe("openSource");
+    if (section?.id === "openSource") {
+      expect(section.items[0]?.title).toBe("Resume MD");
+      expect(section.items[0]?.startDate?.raw).toBe("2024.06");
+      expect(section.items[0]?.endDate?.present).toBe(true);
+    }
+  });
+
+  it("accepts a fullwidth pipe before an open-source date", () => {
+    const source = `# 开源项目
+
+- **[Resume MD](https://resume.yl.do)** ｜ 2024.06 - 至今
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    const section = resume.sections[0];
+    expect(section?.id).toBe("openSource");
+    if (section?.id === "openSource") {
+      expect(section.items[0]?.title).toBe("Resume MD");
+      expect(section.items[0]?.startDate?.raw).toBe("2024.06");
+      expect(section.items[0]?.endDate?.present).toBe(true);
+    }
+  });
+
+  it("treats a known H2 section title as a new section and keeps unindented list descriptions", () => {
+    const source = `# 教育背景
+
+## 河海大学
+
+**电子信息工程 · 本科** | 2015.09 - 2019.06
+
+## 开源项目
+
+- **[Resume MD](https://resume.yl.do)** | 2024.06 - 至今
+Markdown 简历编辑工具，支持实时预览、主题与排版定制、多份中英文简历管理及 PDF 导出。
+- **[GeoTools](https://geotools.yl.do)**
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    expect(resume.sections.map((section) => section.id)).toEqual(["education", "openSource"]);
+
+    const education = resume.sections[0];
+    expect(education?.id).toBe("education");
+    if (education?.id === "education") {
+      expect(education.items[0]?.school).toBe("河海大学");
+    }
+
+    const section = resume.sections[1];
+    expect(section?.id).toBe("openSource");
+    if (section?.id === "openSource") {
+      expect(section.itemLayout).toBe("list");
+      expect(section.items.map((item) => item.title)).toEqual(["Resume MD", "GeoTools"]);
+      expect(section.items[0]?.startDate?.raw).toBe("2024.06");
+      expect(section.items[0]?.endDate?.present).toBe(true);
+      expect(section.items[0]?.description).toContain("支持实时预览");
+      expect(section.items[0]?.titleSpans?.[0]?.href).toBe("https://resume.yl.do");
+      expect(section.items[1]?.titleSpans?.[0]?.href).toBe("https://geotools.yl.do");
+      expect(section.items[1]?.startDate).toBeUndefined();
+    }
   });
 });

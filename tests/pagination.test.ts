@@ -55,6 +55,19 @@ describe("collectPageOffsets", () => {
     expect(offsets).toEqual([0, 90]);
   });
 
+  it("lets a section title stay on the current page when it is not keep-with-next", () => {
+    const offsets = collectPageOffsets({
+      boxes: [
+        { top: 0, height: 80, keepTogether: true },
+        { top: 85, height: 10 },
+        { top: 95, height: 40, keepTogether: true },
+      ],
+      contentHeight: 135,
+      pageHeight: 100,
+    });
+    expect(offsets).toEqual([0, 95]);
+  });
+
   it("keeps chained project headings with the first content item", () => {
     const offsets = collectPageOffsets({
       boxes: [

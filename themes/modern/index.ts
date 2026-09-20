@@ -66,7 +66,7 @@ export const modernTheme: ThemeDefinition = {
     margin: { top: 14, right: 15, bottom: 14, left: 15 },
   },
   pagination: {
-    keepSectionTitleWithBody: true,
+    keepSectionTitleWithBody: false,
     keepItemHeaderWithBody: true,
     avoidBulletSplit: true,
   },

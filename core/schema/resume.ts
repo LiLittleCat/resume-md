@@ -58,8 +58,10 @@ export const ExperienceItemSchema = z.object({
   company: z.string().min(1),
   position: z.string().optional(),
   metaFields: z.array(z.string().min(1)).optional(),
+  richMetaFields: z.array(z.array(InlineSpanSchema)).optional(),
   startDate: ResumeDateSchema.optional(),
   endDate: ResumeDateSchema.optional(),
+  datesStrong: z.boolean().optional(),
   location: z.string().optional(),
   description: z.string().optional(),
   descriptionSpans: z.array(InlineSpanSchema).optional(),
@@ -75,8 +77,10 @@ export type ExperienceItem = z.infer<typeof ExperienceItemSchema>;
 export const ProjectItemSchema = z.object({
   name: z.string().min(1),
   role: z.string().optional(),
+  richRole: z.array(InlineSpanSchema).optional(),
   startDate: ResumeDateSchema.optional(),
   endDate: ResumeDateSchema.optional(),
+  datesStrong: z.boolean().optional(),
   location: z.string().optional(),
   description: z.string().optional(),
   techStack: z.array(z.string().min(1)).optional(),
@@ -91,8 +95,10 @@ export const EducationItemSchema = z.object({
   school: z.string().min(1),
   degree: z.string().optional(),
   major: z.string().optional(),
+  richSubtitle: z.array(InlineSpanSchema).optional(),
   startDate: ResumeDateSchema.optional(),
   endDate: ResumeDateSchema.optional(),
+  datesStrong: z.boolean().optional(),
   location: z.string().optional(),
   details: z.array(z.string().min(1)).optional(),
   richDetails: z.array(z.array(InlineSpanSchema)).optional(),
@@ -102,9 +108,12 @@ export type EducationItem = z.infer<typeof EducationItemSchema>;
 
 export const GenericItemSchema = z.object({
   title: z.string().min(1),
+  titleSpans: z.array(InlineSpanSchema).optional(),
   subtitle: z.string().optional(),
+  subtitleSpans: z.array(InlineSpanSchema).optional(),
   startDate: ResumeDateSchema.optional(),
   endDate: ResumeDateSchema.optional(),
+  datesStrong: z.boolean().optional(),
   description: z.string().optional(),
   descriptionSpans: z.array(InlineSpanSchema).optional(),
   highlights: z.array(z.string().min(1)).optional(),
@@ -167,6 +176,7 @@ export const CustomSectionSchema = z.object({
   title: z.string().min(1),
   items: z.array(GenericItemSchema),
   blocks: z.array(ContentBlockSchema).optional(),
+  itemLayout: z.enum(["entries", "list"]).optional(),
 });
 
 export type CustomSection = z.infer<typeof CustomSectionSchema>;
@@ -183,6 +193,7 @@ export const GenericSectionSchema = z.object({
   title: z.string().min(1),
   items: z.array(GenericItemSchema),
   blocks: z.array(ContentBlockSchema).optional(),
+  itemLayout: z.enum(["entries", "list"]).optional(),
 });
 
 export type GenericSection = z.infer<typeof GenericSectionSchema>;

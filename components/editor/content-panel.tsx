@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 import Link from "next/link";
 import { ChevronLeft, FileInput } from "lucide-react";
 import { useOverlayScrollbars } from "overlayscrollbars-react";
@@ -8,7 +8,9 @@ import type { LocaleId } from "@/core/schema";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { useEditorStore } from "@/store/editor-store";
+import { useEditorStore, type EditorState } from "@/store/editor-store";
+import { isTargetFullyVisible, previewAnchorAtOffset, sourceSelectionForAnchor } from "./outline";
+import { scrollToPreviewAnchor } from "./preview-scroll";
 import { useUi, useUiLocale } from "./use-ui";
 
 function resizeEditor(
@@ -24,6 +26,52 @@ function resizeEditor(
 }
 
 const TAB_INDENT = "  ";
+const EDITOR_LINE_HEIGHT = 23;
+
+function applyHeadingFocus(
+  textarea: HTMLTextAreaElement,
+  viewport: HTMLElement,
+  source: string,
+  headingFocus: NonNullable<EditorState["headingFocus"]>,
+) {
+  const selection = sourceSelectionForAnchor(
+    source,
+    headingFocus.kind === "header"
+      ? { kind: "header" }
+      : {
+          kind: "heading",
+          title: headingFocus.title,
+          depth: headingFocus.depth,
+          sectionTitle: headingFocus.sectionTitle,
+        },
+  );
+  const line = source.slice(0, selection.start).split("\n").length;
+  const lineTop = (line - 1) * EDITOR_LINE_HEIGHT;
+  textarea.focus();
+  textarea.setSelectionRange(selection.start, selection.end);
+  if (
+    isTargetFullyVisible({
+      targetTop: lineTop,
+      targetBottom: lineTop + EDITOR_LINE_HEIGHT,
+      viewportTop: viewport.scrollTop,
+      viewportBottom: viewport.scrollTop + viewport.clientHeight,
+    })
+  ) {
+    return;
+  }
+  viewport.scrollTop = Math.max(0, (line - 3) * EDITOR_LINE_HEIGHT);
+}
+
+const PREVIEW_CURSOR_KEYS = new Set([
+  "ArrowUp",
+  "ArrowDown",
+  "ArrowLeft",
+  "ArrowRight",
+  "Home",
+  "End",
+  "PageUp",
+  "PageDown",
+]);
 
 function applyTabIndent(
   value: string,
@@ -67,14 +115,15 @@ function applyTabIndent(
 
 export function ContentPanel({
   examples,
+  previewScrollRef,
 }: {
   examples: Record<LocaleId, string>;
+  previewScrollRef?: RefObject<HTMLDivElement | null>;
 }) {
   const source = useEditorStore((state) => state.source);
   const config = useEditorStore((state) => state.config);
   const setSource = useEditorStore((state) => state.setSource);
   const loadDocument = useEditorStore((state) => state.loadDocument);
-  const headingFocus = useEditorStore((state) => state.headingFocus);
   const scrollHostRef = useRef<HTMLDivElement>(null);
   const scrollViewportRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -114,17 +163,23 @@ export function ContentPanel({
   }, []);
 
   useEffect(() => {
-    const textarea = textareaRef.current;
-    const viewport = scrollViewportRef.current;
-    if (!textarea || !viewport || !headingFocus) return;
-    const needle = `${"#".repeat(headingFocus.depth)} ${headingFocus.title}`;
-    const index = source.indexOf(needle);
-    if (index < 0) return;
-    const line = source.slice(0, index).split("\n").length;
-    textarea.focus();
-    textarea.setSelectionRange(index, index + needle.length);
-    viewport.scrollTop = Math.max(0, (line - 3) * 23);
-  }, [headingFocus, source]);
+    return useEditorStore.subscribe((state, prev) => {
+      const focus = state.headingFocus;
+      if (!focus || focus.nonce === prev.headingFocus?.nonce) return;
+      const textarea = textareaRef.current;
+      const viewport = scrollViewportRef.current;
+      if (!textarea || !viewport) return;
+      applyHeadingFocus(textarea, viewport, state.source, focus);
+    });
+  }, []);
+
+  const syncPreviewToCursor = (textarea: HTMLTextAreaElement) => {
+    scrollToPreviewAnchor(
+      previewScrollRef?.current ?? null,
+      previewAnchorAtOffset(textarea.value, textarea.selectionStart),
+      "skip",
+    );
+  };
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -180,6 +235,11 @@ export function ContentPanel({
             onChange={(event) => {
               resizeEditor(event.currentTarget, scrollViewportRef.current);
               setSource(event.target.value);
+            }}
+            onClick={(event) => syncPreviewToCursor(event.currentTarget)}
+            onKeyUp={(event) => {
+              if (!PREVIEW_CURSOR_KEYS.has(event.key)) return;
+              syncPreviewToCursor(event.currentTarget);
             }}
             onKeyDown={(event) => {
               if (event.key !== "Tab") return;

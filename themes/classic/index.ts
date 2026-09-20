@@ -60,7 +60,7 @@ export const classicTheme: ThemeDefinition = {
     margin: { top: 16, right: 18, bottom: 16, left: 18 },
   },
   pagination: {
-    keepSectionTitleWithBody: true,
+    keepSectionTitleWithBody: false,
     keepItemHeaderWithBody: true,
     avoidBulletSplit: true,
   },

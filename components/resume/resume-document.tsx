@@ -31,7 +31,6 @@ export function ResumeDocument({
   padded = true,
   selectedSectionId,
   selectedSectionTitle,
-  onSelectSection,
 }: {
   resume: Resume;
   style: ResolvedDocumentStyle;
@@ -39,7 +38,6 @@ export function ResumeDocument({
   padded?: boolean;
   selectedSectionId?: SectionId | null;
   selectedSectionTitle?: string | null;
-  onSelectSection?: (id: SectionId | null, title?: string | null) => void;
 }) {
   const vars = toDocumentCssVars(style);
 
@@ -65,7 +63,6 @@ export function ResumeDocument({
             selectedSectionId === section.id &&
             (section.id !== "custom" || selectedSectionTitle === section.title)
           }
-          onSelect={onSelectSection}
         />
       ))}
     </article>
@@ -77,13 +74,11 @@ function ResumeSectionView({
   style,
   locale,
   selected,
-  onSelect,
 }: {
   section: ResumeSection;
   style: ResolvedDocumentStyle;
   locale: LocaleDefinition;
   selected: boolean;
-  onSelect?: (id: SectionId | null, title?: string | null) => void;
 }) {
   const sectionStyle = style.sections[section.id];
   const vars = toSectionCssVars(sectionStyle);
@@ -97,14 +92,6 @@ function ResumeSectionView({
       data-outline-depth="1"
       data-selected={selected ? "true" : "false"}
       style={vars as CSSProperties}
-      onClick={
-        onSelect
-          ? (event) => {
-              event.stopPropagation();
-              onSelect(section.id, section.title);
-            }
-          : undefined
-      }
     >
       <SectionHeading
         title={section.title}
@@ -113,6 +100,7 @@ function ResumeSectionView({
         showIcon={sectionStyle.showSectionIcon}
         transform={style.components.sectionTitle.transform}
         rule={style.components.sectionTitle.rule}
+        keepWithNext={style.pagination.keepSectionTitleWithBody}
       />
       <SectionBody section={section} layout={sectionStyle.layout} locale={locale} />
     </section>

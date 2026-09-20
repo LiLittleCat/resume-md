@@ -23,6 +23,10 @@ export function headingText(node: Heading): string {
   return toString(node).trim();
 }
 
+export function headingInlineSpans(node: Heading): InlineSpan[] {
+  return normalizeInlineSpans(phrasingToInlineSpans(node.children));
+}
+
 export function paragraphText(node: Paragraph): string {
   return phrasingToText(node.children).trim();
 }

@@ -2,6 +2,7 @@ import { formatDateRange } from "@/core/parser";
 import type { ExperienceItem, ExperienceLayout, LocaleDefinition } from "@/core/schema";
 import { BulletList, ResumeInline } from "./bullet-list";
 import { MarkdownBlocks } from "./markdown-blocks";
+import { StrongMeta } from "./strong-meta";
 
 export function ExperienceBody({
   items,
@@ -69,10 +70,14 @@ function ExperienceHeader({
         <h3 className="resume-item-title">{item.company}</h3>
         {fields.map((field, index) => (
           <p className="resume-item-subtitle" key={`${field}-${index}`}>
-            {field}
+            <ResumeInline text={field} spans={item.richMetaFields?.[index]} />
           </p>
         ))}
-        {meta ? <p className="resume-stacked-meta resume-date">{meta}</p> : null}
+        {meta ? (
+          <p className="resume-stacked-meta resume-date">
+            <StrongMeta text={meta} strong={item.datesStrong} />
+          </p>
+        ) : null}
       </div>
     );
   }
@@ -89,10 +94,14 @@ function ExperienceHeader({
             className="resume-item-subtitle resume-experience-field"
             key={`${field}-${index}`}
           >
-            {field}
+            <ResumeInline text={field} spans={item.richMetaFields?.[index]} />
           </p>
         ))}
-        {meta ? <div className="resume-spread-meta resume-experience-meta">{meta}</div> : null}
+        {meta ? (
+          <div className="resume-spread-meta resume-experience-meta">
+            <StrongMeta text={meta} strong={item.datesStrong} />
+          </div>
+        ) : null}
       </div>
     </div>
   );

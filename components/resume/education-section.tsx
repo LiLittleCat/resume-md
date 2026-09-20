@@ -1,7 +1,8 @@
 import { formatDateRange } from "@/core/parser";
 import type { EducationItem, LocaleDefinition } from "@/core/schema";
-import { BulletList } from "./bullet-list";
+import { BulletList, ResumeInline } from "./bullet-list";
 import { Spread } from "./spread";
+import { StrongMeta } from "./strong-meta";
 
 export function EducationBody({
   items,
@@ -27,8 +28,14 @@ export function EducationBody({
             <div className="resume-item-header">
               <Spread
                 left={<h3 className="resume-item-title">{item.school}</h3>}
-                middle={subtitle ? <p className="resume-item-subtitle">{subtitle}</p> : null}
-                right={dates}
+                middle={
+                  subtitle ? (
+                    <p className="resume-item-subtitle">
+                      <ResumeInline text={subtitle} spans={item.richSubtitle} />
+                    </p>
+                  ) : null
+                }
+                right={dates ? <StrongMeta text={dates} strong={item.datesStrong} /> : null}
                 rightTone="text"
               />
             </div>

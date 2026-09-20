@@ -3,6 +3,7 @@ import type { CustomSection, GenericSection, LocaleDefinition } from "@/core/sch
 import { BulletList, ResumeInline } from "./bullet-list";
 import { ContentBlocks } from "./content-blocks";
 import { Spread } from "./spread";
+import { StrongMeta } from "./strong-meta";
 
 export function GenericBody({
   section,
@@ -18,6 +19,47 @@ export function GenericBody({
     return (
       <div data-box data-keep-together="true">
         <ContentBlocks blocks={blocks} />
+      </div>
+    );
+  }
+
+  if (section.itemLayout === "list") {
+    return (
+      <div>
+        <ContentBlocks blocks={blocks} />
+        <ul className="resume-bullets">
+          {section.items.map((item, index) => {
+            const dates = formatDateRange(item.startDate, item.endDate, locale.id, locale.labels.present);
+            return (
+              <li
+                key={`${index}-${item.title}`}
+                className="resume-bullet"
+                data-outline-title={item.title}
+                data-outline-depth="2"
+                data-box
+                data-keep-together="true"
+              >
+                <Spread
+                  left={
+                    <span className="resume-list-title">
+                      <ResumeInline text={item.title} spans={item.titleSpans} />
+                    </span>
+                  }
+                  right={dates ? <StrongMeta text={dates} strong={item.datesStrong} /> : null}
+                  rightTone="text"
+                />
+                {item.description ? (
+                  <p className="resume-body">
+                    <ResumeInline text={item.description} spans={item.descriptionSpans} />
+                  </p>
+                ) : null}
+                {item.highlights ? (
+                  <BulletList items={item.highlights} richItems={item.richHighlights} />
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
       </div>
     );
   }
@@ -38,11 +80,21 @@ export function GenericBody({
           >
             <div className="resume-item-header">
               <Spread
-                left={<h3 className="resume-item-title">{item.title}</h3>}
-                right={dates}
+                left={
+                  <h3 className="resume-item-title">
+                    <ResumeInline text={item.title} spans={item.titleSpans} />
+                  </h3>
+                }
+                middle={
+                  item.subtitle ? (
+                    <p className="resume-item-subtitle">
+                      <ResumeInline text={item.subtitle} spans={item.subtitleSpans} />
+                    </p>
+                  ) : null
+                }
+                right={dates ? <StrongMeta text={dates} strong={item.datesStrong} /> : null}
                 rightTone="text"
               />
-              {item.subtitle ? <p className="resume-item-subtitle">{item.subtitle}</p> : null}
             </div>
             {item.description ? (
               <p className="resume-body">

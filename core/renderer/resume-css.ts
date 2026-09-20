@@ -207,6 +207,9 @@ export const RESUME_DOCUMENT_CSS = `
   gap: var(--resume-icon-gap);
   margin: 0 0 var(--resume-content-gap);
   color: var(--resume-color-accent);
+}
+
+.resume-section-title[data-keep-with-next="true"] {
   break-after: avoid-page;
   page-break-after: avoid;
 }
@@ -283,7 +286,8 @@ export const RESUME_DOCUMENT_CSS = `
   min-width: 0;
 }
 
-.resume-spread-main .resume-item-title {
+.resume-spread-main .resume-item-title,
+.resume-spread-main .resume-list-title {
   white-space: nowrap;
 }
 
@@ -347,6 +351,14 @@ export const RESUME_DOCUMENT_CSS = `
   line-height: var(--resume-item-subtitle-leading);
 }
 
+.resume-item-subtitle strong,
+.resume-experience-meta strong,
+.resume-spread-meta strong,
+.resume-stacked-meta strong,
+.resume-date strong {
+  font-weight: 700;
+}
+
 .resume-spread-middle .resume-item-subtitle {
   margin-top: 0;
 }
@@ -402,6 +414,21 @@ export const RESUME_DOCUMENT_CSS = `
 
 .resume-bullet:last-child {
   margin-bottom: 0;
+}
+
+.resume-bullet .resume-spread {
+  align-items: baseline;
+}
+
+.resume-list-title {
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.resume-bullet > .resume-body,
+.resume-bullet > .resume-bullets {
+  margin-top: 0.8mm;
 }
 
 .resume-numbered-list {
@@ -550,6 +577,14 @@ export const RESUME_DOCUMENT_CSS = `
 .resume-root[data-theme="kami"] strong {
   color: var(--resume-color-accent);
   font-weight: 500;
+}
+
+.resume-root[data-theme="kami"] .resume-item-subtitle strong,
+.resume-root[data-theme="kami"] .resume-experience-meta strong,
+.resume-root[data-theme="kami"] .resume-spread-meta strong,
+.resume-root[data-theme="kami"] .resume-stacked-meta strong,
+.resume-root[data-theme="kami"] .resume-date strong {
+  font-weight: 700;
 }
 
 @media print {

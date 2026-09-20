@@ -165,14 +165,11 @@ Java / Spring Boot / PostgreSQL
       {
         id: "extras",
         title: "更多章节 · 开源、荣誉与自定义内容",
-        description: "支持开源项目 / Open Source、奖项 / Awards、证书 / Certifications、论文 / Publications、语言 / Languages、兴趣 / Interests，也可自定义一级标题。用 ## 添加条目，再写可选的加粗副标题或日期、段落与列表。",
-        example: `# 证书
+        description: "支持开源项目 / Open Source、奖项 / Awards、证书 / Certifications、论文 / Publications、语言 / Languages、兴趣 / Interests，也可自定义一级标题。开源章节用 # 或 ## 皆可。列表标题可用 | 或 ｜ 接日期，预览会把时间放到右侧，与项目、工作经历一致。也可用 ## 添加条目，再写可选的加粗副标题或日期、段落与列表。",
+        example: `# 开源项目
 
-## 示例专业认证
-
-**颁发机构** | 2024
-
-- 认证范围与相关说明`,
+- **[Resume MD](https://github.com/example/resume-md)** | 2024.06 - 至今
+  Markdown 简历编辑工具。`,
       },
       {
         id: "formatting",
@@ -318,14 +315,11 @@ Sep 2018 - Jun 2022
       {
         id: "extras",
         title: "More sections · open source, awards, and custom content",
-        description: "Other recognized sections: Open Source / 开源项目, Awards / 奖项, Certifications / 证书, Publications / 论文, Languages / 语言, Interests / 兴趣. You can also use a custom # heading. Add entries with ##, then an optional bold subtitle or date, paragraphs, and bullets.",
-        example: `# Certifications
+        description: "Other recognized sections: Open Source / 开源项目, Awards / 奖项, Certifications / 证书, Publications / 论文, Languages / 语言, Interests / 兴趣. You can also use a custom # heading. Open Source works with # or ##. In those lists, append | or ｜ dates on the title line so the preview puts the range on the right, matching Projects and Experience. You can also add entries with ##, then an optional bold subtitle or date, paragraphs, and bullets.",
+        example: `# Open Source
 
-## Example Professional Certification
-
-**Issuing organization** | 2024
-
-- Certification scope and relevant details`,
+- **[Resume MD](https://github.com/example/resume-md)** | Jun 2024 - Present
+  A Markdown resume editor.`,
       },
       {
         id: "formatting",

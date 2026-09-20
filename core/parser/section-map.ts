@@ -5,7 +5,7 @@ export function normalizeLabel(value: string): string {
     .trim()
     .toLowerCase()
     .replace(/[\s\u3000]+/g, "")
-    .replace(/[：:：|#]/g, "")
+    .replace(/[：:：|#｜]/g, "")
     .replace(/[（(].*?[）)]/g, "");
 }
 

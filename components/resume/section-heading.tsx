@@ -8,6 +8,7 @@ export function SectionHeading({
   showIcon,
   transform,
   rule,
+  keepWithNext = false,
 }: {
   title: string;
   icon?: ResumeIcon;
@@ -15,12 +16,13 @@ export function SectionHeading({
   showIcon: boolean;
   transform: "none" | "uppercase";
   rule: boolean;
+  keepWithNext?: boolean;
 }) {
   return (
     <h2
       className="resume-section-title"
       data-box
-      data-keep-with-next="true"
+      data-keep-with-next={keepWithNext ? "true" : undefined}
       data-transform={transform}
       data-rule={rule ? "true" : "false"}
     >

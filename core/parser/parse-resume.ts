@@ -27,6 +27,7 @@ import {
 import { splitFrontMatter } from "./front-matter";
 import {
   extractInlineCode,
+  headingInlineSpans,
   headingText,
   isHeading,
   isInlineCodeParagraph,
@@ -41,7 +42,7 @@ import {
   parseMarkdownTree,
 } from "./markdown";
 import { resolveSectionId, resolveSubheadingField } from "./section-map";
-import type { Heading, Paragraph, RootContent } from "mdast";
+import type { Heading, List, Paragraph, RootContent } from "mdast";
 
 export interface ParseResumeResult {
   resume: Resume;
@@ -117,6 +118,7 @@ function buildProfile(frontMatter: FrontMatter): Profile {
 
 interface HeadingGroup {
   title: string;
+  titleSpans?: InlineSpan[];
   nodes: RootContent[];
 }
 
@@ -125,7 +127,7 @@ function groupByH1(nodes: RootContent[]): HeadingGroup[] {
   let current: HeadingGroup | undefined;
 
   for (const node of nodes) {
-    if (isHeading(node, 1)) {
+    if (isSectionStart(node)) {
       current = { title: headingText(node), nodes: [] };
       groups.push(current);
       continue;
@@ -140,6 +142,12 @@ function groupByH1(nodes: RootContent[]): HeadingGroup[] {
   return groups;
 }
 
+function isSectionStart(node: RootContent): node is Heading {
+  if (isHeading(node, 1)) return true;
+  if (!isHeading(node, 2)) return false;
+  return resolveSectionId(headingText(node)) !== undefined;
+}
+
 function groupByH2(nodes: RootContent[]): HeadingGroup[] {
   const groups: HeadingGroup[] = [];
   let current: HeadingGroup | undefined;
@@ -147,7 +155,11 @@ function groupByH2(nodes: RootContent[]): HeadingGroup[] {
 
   for (const node of nodes) {
     if (isHeading(node, 2)) {
-      current = { title: headingText(node), nodes: [] };
+      current = {
+        title: headingText(node),
+        titleSpans: headingInlineSpans(node),
+        nodes: [],
+      };
       groups.push(current);
       continue;
     }
@@ -186,8 +198,22 @@ function buildSection(
       return { id, title, items: parseProjectItems(nodes, warnings) };
     case "education":
       return { id, title, items: parseEducationItems(nodes) };
-    default:
-      return { id, title, items: parseGenericItems(nodes), blocks: collectContentBlocks(sectionPrelude(nodes)) };
+    default: {
+      const items = parseGenericItems(nodes);
+      if (id === "openSource" && items.length === 0) {
+        const listed = parseGenericListSection(nodes);
+        if (listed.items.length > 0) {
+          return {
+            id,
+            title,
+            items: listed.items,
+            blocks: listed.blocks,
+            itemLayout: "list",
+          };
+        }
+      }
+      return { id, title, items, blocks: collectContentBlocks(sectionPrelude(nodes)) };
+    }
   }
 }
 
@@ -295,8 +321,10 @@ function parseExperienceItems(nodes: RootContent[], warnings: ParseWarning[]): E
       company: group.title,
       position: parsed.subtitle,
       metaFields: parsed.metaFields,
+      richMetaFields: parsed.richMetaFields,
       startDate: parsed.startDate,
       endDate: parsed.endDate,
+      datesStrong: parsed.datesStrong,
       location: parsed.location,
       description: parsed.description,
       descriptionSpans: parsed.descriptionSpans,
@@ -323,8 +351,10 @@ function parseProjectItems(nodes: RootContent[], warnings: ParseWarning[]): Proj
     return {
       name: group.title,
       role: parsed.subtitle,
+      richRole: parsed.richSubtitle,
       startDate: parsed.startDate,
       endDate: parsed.endDate,
+      datesStrong: parsed.datesStrong,
       location: parsed.location,
       description: blocks
         .filter((block) => block.type === "paragraph")
@@ -365,7 +395,7 @@ function parseMarkdownBlocks(nodes: RootContent[]): ProjectBlock[] {
 
     if (!reachedContent && isParagraph(node)) {
       const text = paragraphText(node);
-      if (looksLikeDateRange(text) && !text.includes("|")) continue;
+      if (looksLikeDateRange(text) && !hasPipe(text)) continue;
       if (applyMetaParagraph(node, metadata)) continue;
     }
 
@@ -409,8 +439,10 @@ function parseEducationItems(nodes: RootContent[]): EducationItem[] {
       school: group.title,
       degree,
       major,
+      richSubtitle: parsed.richSubtitle,
       startDate: parsed.startDate,
       endDate: parsed.endDate,
+      datesStrong: parsed.datesStrong,
       location: parsed.location,
       details: parsed.responsibilities ?? parsed.achievements,
       richDetails: parsed.richResponsibilities ?? parsed.richAchievements,
@@ -421,12 +453,17 @@ function parseEducationItems(nodes: RootContent[]): EducationItem[] {
 function parseGenericItems(nodes: RootContent[]): GenericItem[] {
   const groups = groupByH2(nodes).filter((group) => group.title);
   return groups.map((group) => {
+    const heading = splitTitleAndDate(group.title);
     const parsed = parseItemBody(group.nodes);
+    const titleSpans = sliceSpansPrefix(group.titleSpans ?? [], heading.title.length);
     return {
-      title: group.title,
-      subtitle: parsed.subtitle,
-      startDate: parsed.startDate,
-      endDate: parsed.endDate,
+      title: heading.title,
+      ...(titleSpans ? { titleSpans } : {}),
+      subtitle: parsed.subtitle ?? heading.subtitle,
+      subtitleSpans: parsed.richSubtitle,
+      startDate: parsed.startDate ?? heading.startDate,
+      endDate: parsed.endDate ?? heading.endDate,
+      datesStrong: parsed.datesStrong,
       description: parsed.description,
       descriptionSpans: parsed.descriptionSpans,
       highlights: parsed.responsibilities ?? parsed.achievements,
@@ -435,11 +472,178 @@ function parseGenericItems(nodes: RootContent[]): GenericItem[] {
   });
 }
 
-interface ItemBody {
+function parseGenericListSection(nodes: RootContent[]): {
+  items: GenericItem[];
+  blocks: ContentBlock[];
+} {
+  const items: GenericItem[] = [];
+  const leftover: RootContent[] = [];
+
+  for (const node of nodes) {
+    if (isList(node) && !node.ordered) {
+      items.push(...genericItemsFromList(node));
+      continue;
+    }
+    if (isParagraph(node) && items.length > 0) {
+      const last = items.at(-1);
+      const text = paragraphText(node);
+      const spans = paragraphInlineSpans(node);
+      if (last && text) {
+        last.description = last.description ? `${last.description}\n${text}` : text;
+        last.descriptionSpans = last.descriptionSpans?.length
+          ? [...last.descriptionSpans, { text: "\n", break: true }, ...spans]
+          : spans;
+        continue;
+      }
+    }
+    leftover.push(node);
+  }
+
+  return { items, blocks: collectContentBlocks(leftover) };
+}
+
+function genericItemsFromList(node: List): GenericItem[] {
+  const items: GenericItem[] = [];
+  for (const listItem of node.children) {
+    const paragraphs: InlineSpan[][] = [];
+    const highlights: string[] = [];
+    const richHighlights: InlineSpan[][] = [];
+    for (const child of listItem.children) {
+      if (isParagraph(child)) {
+        const spans = paragraphInlineSpans(child);
+        if (spans.length > 0) paragraphs.push(spans);
+      } else if (isList(child)) {
+        highlights.push(...listItemTexts(child));
+        richHighlights.push(...listItemInlineSpans(child));
+      }
+    }
+
+    const first = paragraphs[0] ?? [];
+    const { before, after } = splitSpansAtBreak(first);
+    const firstText = before.map((span) => span.text).join("");
+    const heading = splitTitleAndDate(firstText);
+    const title = heading.title || firstText.trim();
+    if (!title) continue;
+
+    const restParagraphs = [...(after.length > 0 ? [after] : []), ...paragraphs.slice(1)];
+    const description = restParagraphs
+      .map((spans) =>
+        spans
+          .filter((span) => !span.break)
+          .map((span) => span.text)
+          .join(""),
+      )
+      .filter(Boolean)
+      .join("\n")
+      .trim();
+    const descriptionSpans =
+      restParagraphs.length > 0
+        ? restParagraphs.flatMap((spans, index) =>
+            index === 0 ? spans : [{ text: "\n", break: true as const }, ...spans],
+          )
+        : undefined;
+    const titleSpans = sliceSpansPrefix(before, heading.title.length || title.length);
+    const dateField = splitPipeSpanGroups(before).at(-1);
+
+    items.push({
+      title,
+      ...(titleSpans ? { titleSpans } : {}),
+      ...(heading.subtitle ? { subtitle: heading.subtitle } : {}),
+      ...(heading.startDate ? { startDate: heading.startDate } : {}),
+      ...(heading.endDate ? { endDate: heading.endDate } : {}),
+      ...(heading.startDate && dateField ? { datesStrong: spanGroupStrong(dateField) } : {}),
+      ...(description ? { description, descriptionSpans } : {}),
+      ...(highlights.length > 0 ? { highlights, richHighlights } : {}),
+    });
+  }
+  return items;
+}
+
+function splitSpansAtBreak(spans: InlineSpan[]): { before: InlineSpan[]; after: InlineSpan[] } {
+  const index = spans.findIndex((span) => span.break);
+  if (index === -1) return { before: spans, after: [] };
+  return { before: spans.slice(0, index), after: spans.slice(index + 1) };
+}
+
+export function splitTitleAndDate(text: string): {
+  title: string;
   subtitle?: string;
-  metaFields?: string[];
   startDate?: ResumeDate;
   endDate?: ResumeDate;
+} {
+  const trimmed = text.trim();
+  if (!trimmed) return { title: "" };
+
+  const parts = splitPipeFields(trimmed);
+
+  if (parts.length >= 2) {
+    const fields = [...parts];
+    const last = fields.at(-1) ?? "";
+    const extracted = looksLikeDateRange(last) ? { before: "", range: last } : extractTrailingDateRange(last);
+    if (extracted && looksLikeDateRange(extracted.range)) {
+      if (extracted.before) fields[fields.length - 1] = extracted.before;
+      else fields.pop();
+      const range = parseDateRange(extracted.range);
+      return {
+        title: fields[0] ?? trimmed,
+        subtitle: fields.length > 1 ? fields.slice(1).join(" · ") : undefined,
+        startDate: range.start,
+        endDate: range.end,
+      };
+    }
+  }
+
+  const trailing = extractTrailingDateRange(trimmed);
+  if (trailing) {
+    const title = trailing.before.replace(/[|｜]\s*$/, "").trim();
+    const range = parseDateRange(trailing.range);
+    return { title: title || trimmed, startDate: range.start, endDate: range.end };
+  }
+
+  return { title: trimmed };
+}
+
+function splitPipeFields(text: string): string[] {
+  return text
+    .split(/[\|｜]+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+function hasPipe(text: string): boolean {
+  return /[\|｜]/.test(text);
+}
+
+function sliceSpansPrefix(spans: InlineSpan[], length: number): InlineSpan[] | undefined {
+  if (length <= 0) return undefined;
+  const sliced: InlineSpan[] = [];
+  let counted = 0;
+  for (const span of spans) {
+    if (span.break) {
+      if (counted >= length) break;
+      sliced.push(span);
+      continue;
+    }
+    if (counted >= length) break;
+    const take = Math.min(span.text.length, length - counted);
+    if (take <= 0) break;
+    sliced.push(take === span.text.length ? span : { ...span, text: span.text.slice(0, take) });
+    counted += take;
+  }
+  const normalized = sliced
+    .map((span) => (span.break ? span : { ...span, text: span.text.replace(/\s+$/, "") }))
+    .filter((span) => span.break || span.text.length > 0);
+  return normalized.length > 0 ? normalized : undefined;
+}
+
+interface ItemBody {
+  subtitle?: string;
+  richSubtitle?: InlineSpan[];
+  metaFields?: string[];
+  richMetaFields?: InlineSpan[][];
+  startDate?: ResumeDate;
+  endDate?: ResumeDate;
+  datesStrong?: boolean;
   location?: string;
   description?: string;
   descriptionSpans?: InlineSpan[];
@@ -464,10 +668,11 @@ function parseItemBody(nodes: RootContent[]): ItemBody {
 
     if (!field && isParagraph(node)) {
       const text = paragraphText(node);
-      if (looksLikeDateRange(text) && !text.includes("|") && !body.startDate) {
+      if (looksLikeDateRange(text) && !hasPipe(text) && !body.startDate) {
         const range = parseDateRange(text);
         body.startDate = range.start;
         body.endDate = range.end;
+        body.datesStrong = spanGroupStrong(paragraphInlineSpans(node));
         continue;
       }
       if (!consumedMeta) {
@@ -543,52 +748,115 @@ function applyMetaParagraph(node: Paragraph, body: ItemBody): boolean {
   const text = paragraphText(node);
   if (!text) return false;
 
-  if (looksLikeDateRange(text) && !text.includes("|")) {
+  if (looksLikeDateRange(text) && !hasPipe(text)) {
     const range = parseDateRange(text);
     body.startDate = range.start;
     body.endDate = range.end;
+    body.datesStrong = spanGroupStrong(paragraphInlineSpans(node));
     return true;
   }
 
-  if (text.includes("|") || containsDateToken(text) || isStrongHeavyParagraph(node)) {
-    const parts = text
-      .split(/\|+/)
-      .map((part) => part.trim())
-      .filter(Boolean);
+  if (hasPipe(text) || containsDateToken(text) || isStrongHeavyParagraph(node)) {
+    const groups = splitPipeSpanGroups(paragraphInlineSpans(node));
     const fields: string[] = [];
+    const fieldSpans: InlineSpan[][] = [];
     const trailingFields: string[] = [];
     let foundDate = false;
 
-    for (const part of parts) {
+    for (const group of groups) {
+      const part = spanGroupText(group);
       const extracted = !body.startDate ? extractTrailingDateRange(part) : undefined;
-      if (extracted) {
-        if (extracted.before) fields.push(extracted.before);
+      if (extracted && looksLikeDateRange(extracted.range)) {
+        if (extracted.before) {
+          fields.push(extracted.before);
+          fieldSpans.push(sliceSpansPrefix(group, extracted.before.length) ?? [{ text: extracted.before }]);
+        }
         const range = parseDateRange(extracted.range);
         body.startDate = range.start;
         body.endDate = range.end;
+        body.datesStrong = spanGroupStrong(group);
         foundDate = true;
         continue;
       }
 
       if (foundDate || body.startDate) trailingFields.push(part);
-      else fields.push(part);
+      else {
+        fields.push(part);
+        fieldSpans.push(group);
+      }
     }
 
     if (foundDate || body.startDate) {
       if (fields.length > 0) {
         body.metaFields = fields;
+        body.richMetaFields = fieldSpans;
         body.subtitle = fields.at(-1);
+        body.richSubtitle = fieldSpans.at(-1);
       }
       if (trailingFields.length > 0) body.location = trailingFields.join(" · ");
     } else if (fields.length > 0) {
       body.metaFields = [fields[0]!];
+      body.richMetaFields = fieldSpans.slice(0, 1);
       body.subtitle = fields[0];
+      body.richSubtitle = fieldSpans[0];
       if (fields.length > 1) body.location = fields.slice(1).join(" · ");
     }
     return true;
   }
 
   return false;
+}
+
+function splitPipeSpanGroups(spans: InlineSpan[]): InlineSpan[][] {
+  const groups: InlineSpan[][] = [];
+  let current: InlineSpan[] = [];
+
+  const pushCurrent = () => {
+    const trimmed = trimSpanGroup(current);
+    if (trimmed.length > 0) groups.push(trimmed);
+    current = [];
+  };
+
+  for (const span of spans) {
+    if (span.break) {
+      current.push(span);
+      continue;
+    }
+    const chunks = span.text.split(/([|｜]+)/);
+    for (const chunk of chunks) {
+      if (/^[|｜]+$/.test(chunk)) {
+        pushCurrent();
+        continue;
+      }
+      if (!chunk) continue;
+      current.push({ ...span, text: chunk });
+    }
+  }
+  pushCurrent();
+  return groups;
+}
+
+function trimSpanGroup(spans: InlineSpan[]): InlineSpan[] {
+  const next = spans
+    .map((span) => (span.break ? span : { ...span, text: span.text.replace(/\s+/g, " ") }))
+    .filter((span) => span.break || span.text.length > 0);
+  if (next[0] && !next[0].break) next[0] = { ...next[0], text: next[0].text.trimStart() };
+  const last = next.at(-1);
+  if (last && !last.break) next[next.length - 1] = { ...last, text: last.text.trimEnd() };
+  return next.filter((span) => span.break || span.text.length > 0);
+}
+
+function spanGroupText(spans: InlineSpan[]): string {
+  return spans
+    .filter((span) => !span.break)
+    .map((span) => span.text)
+    .join("")
+    .trim();
+}
+
+function spanGroupStrong(spans: InlineSpan[]): boolean {
+  const textSpans = spans.filter((span) => !span.break && span.text.trim());
+  return textSpans.length > 0 && textSpans.every((span) => span.strong);
 }
 
 function splitDegree(value: string | undefined): { degree?: string; major?: string } {

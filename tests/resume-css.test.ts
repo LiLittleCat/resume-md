@@ -137,6 +137,15 @@ describe("resume document CSS", () => {
     );
   });
 
+  it("does not force section titles onto the next page", () => {
+    expect(RESUME_DOCUMENT_CSS).not.toMatch(
+      /\.resume-section-title \{[^}]*break-after:\s*avoid-page/,
+    );
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-section-title\[data-keep-with-next="true"\] \{\s*break-after:\s*avoid-page/,
+    );
+  });
+
   it("separates project blocks while keeping their headings with their content", () => {
     expect(RESUME_DOCUMENT_CSS).toMatch(
       /\.resume-project-item \{[\s\S]*?break-inside:\s*auto/,
@@ -163,7 +172,7 @@ describe("resume document CSS", () => {
       /\.resume-spread-meta \{[\s\S]*?white-space:\s*nowrap/,
     );
     expect(RESUME_DOCUMENT_CSS).toMatch(
-      /\.resume-spread-main \.resume-item-title \{[\s\S]*?white-space:\s*nowrap/,
+      /\.resume-spread-main \.resume-item-title,[\s\S]*?white-space:\s*nowrap/,
     );
   });
 
@@ -173,6 +182,12 @@ describe("resume document CSS", () => {
     );
     expect(RESUME_DOCUMENT_CSS).toMatch(
       /\.resume-bullet::before \{[\s\S]*?content:\s*"•"/,
+    );
+  });
+
+  it("lets strong inside meta lines sit heavier than the surrounding subtitle", () => {
+    expect(RESUME_DOCUMENT_CSS).toMatch(
+      /\.resume-item-subtitle strong,[\s\S]*?font-weight:\s*700/,
     );
   });
 });

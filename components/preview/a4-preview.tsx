@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { collectPageOffsets, sameOffsets } from "@/core/layout";
-import type { SectionId } from "@/core/schema";
 import { ResumeDocument } from "@/components/resume";
+import { previewClickTargetFromElement } from "@/components/editor/preview-scroll";
 import { useUi } from "@/components/editor/use-ui";
 import { useEditorStore } from "@/store/editor-store";
 import { compileResumeWithAvatarAssets } from "@/lib/avatar-assets";
@@ -15,6 +15,7 @@ export function A4Preview() {
   const selectedSectionTitle = useEditorStore((state) => state.selectedSectionTitle);
   const previewScale = useEditorStore((state) => state.previewScale);
   const selectSection = useEditorStore((state) => state.selectSection);
+  const focusPreviewAnchor = useEditorStore((state) => state.focusPreviewAnchor);
   const ui = useUi();
 
   const compiled = useMemo(() => {
@@ -104,13 +105,30 @@ export function A4Preview() {
     padded: false as const,
     selectedSectionId,
     selectedSectionTitle,
-    onSelectSection: (id: SectionId | null, title?: string | null) => selectSection(id, title),
   };
 
   return (
     <div
       className="relative flex min-h-full flex-col items-center gap-8 py-8"
-      onClick={() => selectSection(null)}
+      onClick={(event) => {
+        if (
+          event.target instanceof Element &&
+          event.target.closest("a[href]") &&
+          !event.metaKey &&
+          !event.ctrlKey &&
+          !event.shiftKey &&
+          !event.altKey
+        ) {
+          event.preventDefault();
+        }
+        const target = previewClickTargetFromElement(event.target);
+        if (!target) {
+          selectSection(null);
+          return;
+        }
+        selectSection(target.sectionId, target.anchor.kind === "heading" ? target.anchor.sectionTitle : null);
+        focusPreviewAnchor(target.anchor);
+      }}
     >
       <div
         ref={measureRef}
@@ -130,6 +148,7 @@ export function A4Preview() {
         <div
           key={index}
           data-preview-page={index}
+          data-page-offset={start}
           style={{
             width: `${pageWidth * previewScale}mm`,
             height: `${pageHeight * previewScale}mm`,

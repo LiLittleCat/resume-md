@@ -26,8 +26,15 @@ export interface EditorState {
   setRightPanelWidth: (width: number) => void;
   setDesignPanelCollapsed: (collapsed: boolean) => void;
   setColorScheme: (colorScheme: ColorSchemePreference) => void;
-  headingFocus: { title: string; depth: 1 | 2; nonce: number } | null;
-  focusHeading: (title: string, depth: 1 | 2) => void;
+  headingFocus:
+    | { kind: "header"; nonce: number }
+    | { kind: "heading"; title: string; depth: 1 | 2; sectionTitle: string; nonce: number }
+    | null;
+  focusPreviewAnchor: (
+    anchor:
+      | { kind: "header" }
+      | { kind: "heading"; title: string; depth: 1 | 2; sectionTitle: string },
+  ) => void;
   loadDocument: (source: string, config?: ResumeConfig) => void;
 }
 
@@ -56,8 +63,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setDesignPanelCollapsed: (designPanelCollapsed) => set({ designPanelCollapsed }),
   setColorScheme: (colorScheme) => set({ colorScheme }),
   headingFocus: null,
-  focusHeading: (title, depth) =>
-    set({ headingFocus: { title, depth, nonce: Date.now() } }),
+  focusPreviewAnchor: (anchor) =>
+    set({ headingFocus: { ...anchor, nonce: Date.now() } }),
   loadDocument: (source, config) =>
     set({
       source,

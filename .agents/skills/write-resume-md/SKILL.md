@@ -194,6 +194,15 @@ A paragraph of **only** inline code becomes tech chips. Known H3 aliases (`项�
 
 Same shape as experience: `##` title, optional meta line, paragraph, bullets. Keep the heading in the resume language (`开源项目`, not `Open Source`, on a Chinese resume).
 
+Open source lists can put the date on the title line with `|` or `｜`; the preview places it on the right, like Projects. `# 开源项目` and `## 开源项目` both count as that section.
+
+```md
+# 开源项目
+
+- **[Resume MD](https://github.com/example/resume-md)** | 2024.06 - 至今
+  Markdown 简历编辑工具。
+```
+
 ## Fit the page
 
 The middle pane is the truth: A4 (or Letter) with real page breaks.
