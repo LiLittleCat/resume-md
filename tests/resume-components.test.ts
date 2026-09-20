@@ -1,7 +1,9 @@
-import { createElement } from "react";
+import { createElement, isValidElement, type ReactElement, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { EducationBody } from "@/components/resume/education-section";
 import { ExperienceBody } from "@/components/resume/experience-section";
+import { GenericBody } from "@/components/resume/generic-section";
 import { ProjectsBody } from "@/components/resume/project-section";
 import { ResumeDocument } from "@/components/resume/resume-document";
 import { SkillsBody } from "@/components/resume/skills-section";
@@ -380,4 +382,89 @@ describe("resume components", () => {
     expect(html).not.toContain(">Responsibilities</h4>");
     expect(html).not.toContain(">Achievements</h4>");
   });
+
+  it("keeps unique keys when two projects share a name and start date", () => {
+    const tree = ProjectsBody({
+      items: [
+        {
+          name: "基于多模态大模型的道路抛洒物溯源 Agent",
+          startDate: { raw: "2026.06", year: 2026, month: 6 },
+        },
+        {
+          name: "基于多模态大模型的道路抛洒物溯源 Agent",
+          startDate: { raw: "2026.06", year: 2026, month: 6 },
+        },
+      ],
+      locale: resolveLocale("zh-CN"),
+    });
+
+    const keys = siblingKeys(tree);
+    expect(keys).toHaveLength(2);
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it("keeps unique keys when experience, education, skills, and generic items collide on labels", () => {
+    const locale = resolveLocale("zh-CN");
+    const experienceKeys = siblingKeys(
+      ExperienceBody({
+        items: [
+          { company: "临江数据", startDate: { raw: "2022.10", year: 2022, month: 10 } },
+          { company: "临江数据", startDate: { raw: "2022.10", year: 2022, month: 10 } },
+        ],
+        layout: "default",
+        locale,
+      }),
+    );
+    const educationKeys = siblingKeys(
+      EducationBody({
+        items: [
+          { school: "临江大学", startDate: { raw: "2018.09", year: 2018, month: 9 } },
+          { school: "临江大学", startDate: { raw: "2018.09", year: 2018, month: 9 } },
+        ],
+        locale,
+      }),
+    );
+    const skillKeys = siblingKeys(
+      SkillsBody({
+        section: {
+          id: "skills",
+          title: "技能",
+          groups: [
+            { name: "后端", items: ["Java"] },
+            { name: "后端", items: ["Go"] },
+          ],
+        },
+        layout: "inline",
+      }),
+    );
+    const genericTree = GenericBody({
+      section: {
+        id: "awards",
+        title: "奖项",
+        items: [{ title: "优秀员工" }, { title: "优秀员工" }],
+      },
+      locale,
+    });
+    if (!isValidElement(genericTree)) {
+      throw new Error("expected GenericBody to render items");
+    }
+    const genericKeys = siblingKeys(genericTree);
+
+    for (const keys of [experienceKeys, educationKeys, skillKeys, genericKeys]) {
+      expect(keys).toHaveLength(2);
+      expect(new Set(keys).size).toBe(keys.length);
+    }
+  });
 });
+
+function siblingKeys(node: ReactElement): Array<string | null> {
+  return flattenElements((node.props as { children?: ReactNode }).children)
+    .filter((child) => child.type === "article" || child.type === "div")
+    .map((child) => child.key);
+}
+
+function flattenElements(children: ReactNode): ReactElement[] {
+  if (children == null || typeof children === "boolean") return [];
+  if (Array.isArray(children)) return children.flatMap(flattenElements);
+  return isValidElement(children) ? [children] : [];
+}

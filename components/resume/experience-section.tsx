@@ -14,9 +14,9 @@ export function ExperienceBody({
 }) {
   return (
     <div>
-      {items.map((item) => (
+      {items.map((item, index) => (
         <article
-          key={`${item.company}-${item.startDate?.raw ?? ""}`}
+          key={`${index}-${item.company}-${item.startDate?.raw ?? ""}`}
           className="resume-item"
           data-outline-title={item.company}
           data-outline-depth="2"

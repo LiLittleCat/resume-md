@@ -55,9 +55,9 @@ export function ResumeDocument({
         : null}
       <style>{RESUME_DOCUMENT_CSS}</style>
       <ResumeHeader profile={resume.profile} style={style} locale={locale} />
-      {resume.sections.map((section) => (
+      {resume.sections.map((section, index) => (
         <ResumeSectionView
-          key={`${section.id}-${section.title}`}
+          key={`${index}-${section.id}-${section.title}`}
           section={section}
           style={style}
           locale={locale}

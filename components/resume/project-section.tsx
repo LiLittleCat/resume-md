@@ -13,9 +13,9 @@ export function ProjectsBody({
 }) {
   return (
     <div>
-      {items.map((item) => (
+      {items.map((item, index) => (
         <article
-          key={`${item.name}-${item.startDate?.raw ?? ""}`}
+          key={`${index}-${item.name}-${item.startDate?.raw ?? ""}`}
           className="resume-item resume-project-item"
           data-outline-title={item.name}
           data-outline-depth="2"

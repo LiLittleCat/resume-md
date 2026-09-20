@@ -25,11 +25,11 @@ export function GenericBody({
   return (
     <div>
       <ContentBlocks blocks={blocks} />
-      {section.items.map((item) => {
+      {section.items.map((item, index) => {
         const dates = formatDateRange(item.startDate, item.endDate, locale.id, locale.labels.present);
         return (
           <article
-            key={item.title}
+            key={`${index}-${item.title}`}
             className="resume-item"
             data-outline-title={item.title}
             data-outline-depth="2"

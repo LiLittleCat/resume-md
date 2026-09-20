@@ -10,9 +10,9 @@ export function SkillsBody({
 }) {
   return (
     <div className="resume-skills" data-layout={layout}>
-      {section.groups.map((group) => (
+      {section.groups.map((group, index) => (
         <div
-          key={group.name || group.items.join("-")}
+          key={`${index}-${group.name || group.items.join("-")}`}
           className="resume-skill-group"
           data-outline-title={group.name || undefined}
           data-outline-depth={group.name ? "2" : undefined}

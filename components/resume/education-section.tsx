@@ -12,12 +12,12 @@ export function EducationBody({
 }) {
   return (
     <div>
-      {items.map((item) => {
+      {items.map((item, index) => {
         const dates = formatDateRange(item.startDate, item.endDate, locale.id, locale.labels.present);
         const subtitle = [item.major, item.degree].filter(Boolean).join(" · ");
         return (
           <article
-            key={`${item.school}-${dates}`}
+            key={`${index}-${item.school}-${dates}`}
             className="resume-item"
             data-outline-title={item.school}
             data-outline-depth="2"
