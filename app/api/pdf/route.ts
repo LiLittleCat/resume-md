@@ -1,6 +1,7 @@
 import { compileResume } from "@/core/compile";
 import { documentFontFamilies } from "@/core/renderer";
 import { ResumeConfigSchema } from "@/core/schema";
+import { pdfContentDisposition, resolveExportBasename } from "@/lib/export-filename";
 import serverlessChromium from "@sparticuz/chromium";
 import { chromium } from "playwright-core";
 
@@ -9,7 +10,7 @@ export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { source?: unknown; config?: unknown };
+    const body = (await request.json()) as { source?: unknown; config?: unknown; filename?: unknown };
     if (typeof body.source !== "string" || body.source.trim().length === 0) {
       return new Response("Missing markdown source", { status: 400 });
     }
@@ -17,6 +18,10 @@ export async function POST(request: Request) {
     const config = ResumeConfigSchema.parse(body.config ?? {});
     const compiled = compileResume({ source: body.source, config });
     const rawName = compiled.resume.profile.name || "resume";
+    const downloadName = resolveExportBasename(
+      typeof body.filename === "string" ? body.filename : undefined,
+      compiled.resume.profile.name,
+    );
     const pdf = await renderPdf(
       request,
       body.source,
@@ -24,12 +29,10 @@ export async function POST(request: Request) {
       rawName,
       documentFontFamilies(compiled.style.fonts),
     );
-    const asciiName = (rawName.replace(/[^\x20-\x7E]/g, "").trim() || "resume").replace(/\s+/g, "-");
-    const encodedName = encodeURIComponent(`${rawName}.pdf`);
     return new Response(new Uint8Array(pdf), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${asciiName}.pdf"; filename*=UTF-8''${encodedName}`,
+        "Content-Disposition": pdfContentDisposition(downloadName),
       },
     });
   } catch (error) {

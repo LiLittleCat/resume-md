@@ -23,6 +23,8 @@ export interface UiCopy {
   compileError: string;
   scale: string;
   exportPdf: string;
+  exportFilename: string;
+  exportFilenameHint: string;
   pdfExported: string;
   pdfFailed: string;
   printEmpty: string;
@@ -116,6 +118,8 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     compileError: "Markdown 无法编译。",
     scale: "缩放",
     exportPdf: "导出 PDF",
+    exportFilename: "文件名",
+    exportFilenameHint: "下载前可以改文件名。",
     pdfExported: "已导出 PDF",
     pdfFailed: "无法导出 PDF",
     printEmpty: "没有可打印的简历。",
@@ -250,7 +254,7 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
       },
       {
         title: "导出 PDF",
-        description: "完成后点击右上角的“导出 PDF”。",
+        description: "完成后点击右上角的“导出 PDF”，可以先设置文件名。",
       },
     ],
     helpStorage: "修改会自动保存在当前浏览器中。清除站点数据或更换浏览器后不会自动恢复。",
@@ -265,6 +269,8 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     compileError: "Markdown could not be compiled.",
     scale: "Scale",
     exportPdf: "Export PDF",
+    exportFilename: "File name",
+    exportFilenameHint: "You can change the file name before downloading.",
     pdfExported: "PDF exported",
     pdfFailed: "Could not export PDF",
     printEmpty: "No resume loaded for print.",
@@ -399,7 +405,7 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
       },
       {
         title: "Export a PDF",
-        description: "When you are done, click Export PDF in the top right.",
+        description: "When you are done, click Export PDF in the top right and choose a file name.",
       },
     ],
     helpStorage: "Changes are saved in this browser. Clearing site data or switching browsers will not restore them automatically.",
