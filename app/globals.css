@@ -175,6 +175,43 @@
   outline-offset: 2.2mm;
 }
 
+/* Flash the preview element matching a click in the Markdown editor. */
+.desk-canvas [data-preview-flash="true"] {
+  border-radius: 1mm;
+  animation: preview-flash 1.4s ease-out;
+}
+
+@keyframes preview-flash {
+  0%,
+  45% {
+    background-color: oklch(0.9 0.12 90 / 0.55);
+    box-shadow: 0 0 0 1.2mm oklch(0.9 0.12 90 / 0.55);
+  }
+  22% {
+    background-color: oklch(0.9 0.12 90 / 0.25);
+    box-shadow: 0 0 0 1.2mm oklch(0.9 0.12 90 / 0.25);
+  }
+  100% {
+    background-color: oklch(0.9 0.12 90 / 0);
+    box-shadow: 0 0 0 1.2mm oklch(0.9 0.12 90 / 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desk-canvas [data-preview-flash="true"] {
+    animation-name: preview-flash-fade;
+  }
+}
+
+@keyframes preview-flash-fade {
+  0% {
+    background-color: oklch(0.9 0.12 90 / 0.45);
+  }
+  100% {
+    background-color: oklch(0.9 0.12 90 / 0);
+  }
+}
+
 .ui-kicker {
   font-size: 12px;
   font-weight: 500;

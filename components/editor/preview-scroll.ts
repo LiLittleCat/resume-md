@@ -27,12 +27,14 @@ export function scrollToPreviewAnchor(
   scrollRoot: HTMLElement | null,
   entry: PreviewAnchor,
   ifVisible: "center" | "skip" = "center",
+  options: { flash?: boolean } = {},
 ) {
   if (!scrollRoot) return;
 
   for (const candidate of previewCandidates(scrollRoot, entry)) {
     const located = locatePreviewTarget(candidate);
     if (!located) continue;
+    if (options.flash) flashPreviewTarget(candidate, entry);
 
     const scrollRect = scrollRoot.getBoundingClientRect();
     if (
@@ -70,8 +72,30 @@ export function scrollToPreviewAnchor(
         sectionTitle: entry.sectionTitle,
       },
       ifVisible,
+      options,
     );
   }
+}
+
+const FLASH_ATTRIBUTE = "data-preview-flash";
+
+/** Briefly highlights the located element so the eye can find it on the page. */
+function flashPreviewTarget(candidate: HTMLElement, entry: PreviewAnchor) {
+  // A whole section is too tall to read as a highlight; flash its title instead.
+  const target =
+    entry.kind === "heading" && entry.depth === 1
+      ? (candidate.querySelector<HTMLElement>(".resume-section-title") ?? candidate)
+      : candidate;
+  const root = target.closest(".desk-canvas") ?? target.ownerDocument;
+  for (const previous of root.querySelectorAll(`[${FLASH_ATTRIBUTE}]`)) {
+    previous.removeAttribute(FLASH_ATTRIBUTE);
+  }
+  // Force a reflow so clicking the same spot again restarts the animation.
+  void target.offsetWidth;
+  target.setAttribute(FLASH_ATTRIBUTE, "true");
+  target.addEventListener("animationend", () => target.removeAttribute(FLASH_ATTRIBUTE), {
+    once: true,
+  });
 }
 
 function locatePreviewTarget(candidate: HTMLElement): { targetTop: number; targetHeight: number } | null {

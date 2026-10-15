@@ -187,11 +187,12 @@ export function ContentPanel({
     });
   }, []);
 
-  const syncPreviewToCursor = (textarea: HTMLTextAreaElement) => {
+  const syncPreviewToCursor = (textarea: HTMLTextAreaElement, flash = false) => {
     scrollToPreviewAnchor(
       previewScrollRef?.current ?? null,
       previewAnchorAtOffset(textarea.value, textarea.selectionStart),
       "skip",
+      { flash },
     );
   };
 
@@ -262,7 +263,7 @@ export function ContentPanel({
               resizeEditor(event.currentTarget, scrollViewportRef.current);
               setSource(event.target.value);
             }}
-            onClick={(event) => syncPreviewToCursor(event.currentTarget)}
+            onClick={(event) => syncPreviewToCursor(event.currentTarget, true)}
             onKeyUp={(event) => {
               if (!PREVIEW_CURSOR_KEYS.has(event.key)) return;
               syncPreviewToCursor(event.currentTarget);
