@@ -142,7 +142,7 @@ function DocumentDesign() {
         <Segmented<ThemeId>
           value={style.themeId}
           onChange={(theme) =>
-            useEditorStore.setState({ config: configWithTheme(config, theme) })
+            useEditorStore.getState().setConfig(configWithTheme(config, theme))
           }
           options={[
             { value: "minimal", label: ui.themes.minimal },

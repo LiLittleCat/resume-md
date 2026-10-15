@@ -69,3 +69,8 @@ export const ResumeConfigSchema = z.object({
 export type ResumeConfig = z.infer<typeof ResumeConfigSchema>;
 
 export const emptyResumeConfig = (): ResumeConfig => ({});
+
+/** Design overrides stored in the front matter `design` block. Locale stays app-level. */
+export const DesignConfigSchema = ResumeConfigSchema.omit({ locale: true });
+
+export type DesignConfig = z.infer<typeof DesignConfigSchema>;

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { persistLibraryOrToast } from "@/components/library/persist";
 import { externalizeAvatarSource } from "@/lib/avatar-assets";
+import { syncDocumentDesign } from "@/lib/document-design";
 import {
   hydrateResumeLibrary,
   updateResumeChrome,
@@ -82,6 +83,13 @@ export function EditorApp({
       router.replace("/resumes");
       return;
     }
+
+    const synced = syncDocumentDesign(active.source, active.config);
+    if (synced.source !== active.source) {
+      library = updateResumeDocument(library, active.id, synced, active.updatedAt);
+      persistLibraryOrToast(library, synced.config.locale);
+    }
+    active = { ...active, ...synced };
 
     useEditorStore.setState({
       source: active.source,

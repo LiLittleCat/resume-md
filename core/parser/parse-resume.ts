@@ -1,6 +1,7 @@
 import type {
   Contact,
   ContentBlock,
+  DesignConfig,
   EducationItem,
   ExperienceItem,
   FrontMatter,
@@ -24,6 +25,7 @@ import {
   looksLikeDateRange,
   parseDateRange,
 } from "./dates";
+import { readDesignBlock, stripDesignBlock } from "./design-block";
 import { splitFrontMatter } from "./front-matter";
 import {
   extractInlineCode,
@@ -48,11 +50,15 @@ export interface ParseResumeResult {
   resume: Resume;
   warnings: ParseWarning[];
   frontMatter: FrontMatter;
+  design: DesignConfig;
 }
 
 export function parseResumeMarkdown(source: string): ParseResumeResult {
   const warnings: ParseWarning[] = [];
-  const { data: frontMatter, content, warnings: fmWarnings } = splitFrontMatter(source);
+  const design = readDesignBlock(source, warnings) ?? {};
+  const { data: frontMatter, content, warnings: fmWarnings } = splitFrontMatter(
+    stripDesignBlock(source),
+  );
   warnings.push(...fmWarnings);
 
   const tree = parseMarkdownTree(content);
@@ -86,10 +92,11 @@ export function parseResumeMarkdown(source: string): ParseResumeResult {
       resume: { locale, profile, sections },
       warnings,
       frontMatter,
+      design,
     };
   }
 
-  return { resume: parsed.data, warnings, frontMatter };
+  return { resume: parsed.data, warnings, frontMatter, design };
 }
 
 function resolveLocale(value: string | undefined): LocaleId {

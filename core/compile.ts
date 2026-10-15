@@ -1,11 +1,12 @@
 import { resolveLocale } from "./locale";
 import { parseResumeMarkdown, type ParseResumeResult } from "./parser";
 import { ResumeConfigSchema, type LocaleDefinition, type ResumeConfig, type ThemeDefinition } from "./schema";
-import { getTheme, resolveStyle } from "./style";
+import { deepMerge, getTheme, resolveStyle } from "./style";
 import type { ResolvedDocumentStyle } from "./style";
 
 export interface CompileResumeInput {
   source: string;
+  /** Layered over the source's trailing design block. */
   config?: ResumeConfig;
   runtime?: ResumeConfig;
 }
@@ -22,7 +23,7 @@ export interface CompiledResume {
 
 export function compileResume(input: CompileResumeInput): CompiledResume {
   const parsed = parseResumeMarkdown(input.source);
-  const config = ResumeConfigSchema.parse(input.config ?? {});
+  const config = ResumeConfigSchema.parse(deepMerge<ResumeConfig>(parsed.design, input.config ?? {}));
   const runtime = ResumeConfigSchema.parse(input.runtime ?? {});
   const localeId = runtime.locale ?? config.locale ?? parsed.resume.locale;
   const themeId = runtime.theme ?? config.theme ?? parsed.frontMatter.theme;

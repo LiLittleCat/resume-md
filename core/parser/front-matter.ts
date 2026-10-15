@@ -1,4 +1,4 @@
-import { parse as parseYaml, parseDocument } from "yaml";
+import { parse as parseYaml, parseDocument, type Document } from "yaml";
 import { FrontMatterSchema, type FrontMatter, type ParseWarning } from "../schema";
 
 const FRONT_MATTER_RE = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
@@ -58,7 +58,11 @@ export function setFrontMatterAvatar(source: string, avatar: string | null): str
   if (avatar) document.set("avatar", avatar);
   else document.delete("avatar");
 
+  return joinFrontMatter(document, body);
+}
+
+function joinFrontMatter(document: Document, body: string): string {
   const dumped = document.toString({ lineWidth: 0 }).replace(/\n+$/, "");
-  if (!dumped) return body.replace(/^\n+/, "");
-  return `---\n${dumped}\n---\n${body.replace(/^\n/, "")}`;
+  if (!dumped || dumped === "{}") return body.replace(/^\n+/, "");
+  return `---\n${dumped}\n---\n${body}`;
 }
