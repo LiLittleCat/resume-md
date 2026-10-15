@@ -12,6 +12,8 @@ Markdown → Parser → Resume AST → Style Resolver → Semantic components �
 
 Resumes sit in this browser's `localStorage`. Clear site data or switch browsers and they are gone.
 
+Export PDF posts the current Markdown and design to `/api/pdf`, which renders it once in memory with headless Chromium: nothing is written to disk or a database or logged, each export uses a throwaway browser context, and the render page can only reach this app, Google Fonts, and public HTTPS avatar images. Self-hosted behind a proxy that does not validate the Host header? Pin the render origin with `PDF_PRINT_ORIGIN`.
+
 ## Develop
 
 ```bash

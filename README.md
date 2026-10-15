@@ -69,7 +69,7 @@ contact:
 
 上传的头像会转成 data URL 一起保存，会占用浏览器存储空间。
 
-导出 PDF 时，当前 Markdown 和配置会发到本项目的 `/api/pdf`，由 Playwright 启动 Chromium 打印。
+导出 PDF 时，当前 Markdown 和配置会发到本项目的 `/api/pdf`，由 Playwright 启动 Chromium 打印。服务端只在内存里渲染这一次：不写磁盘、不进数据库、不记录日志，每次导出用一个用完即销毁的浏览器环境；渲染页只能访问本站、Google Fonts 和公网 HTTPS 头像图片。自托管且反向代理不校验 Host 时，用环境变量 `PDF_PRINT_ORIGIN` 固定渲染地址。
 
 ## 代码
 
