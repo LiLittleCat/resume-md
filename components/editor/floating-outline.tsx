@@ -3,6 +3,7 @@
 import type { RefObject } from "react";
 import { useMemo } from "react";
 import { ListTree } from "lucide-react";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { cn } from "@/lib/utils";
 import { compileResumeWithAvatarAssets } from "@/lib/avatar-assets";
 import { useEditorStore } from "@/store/editor-store";
@@ -51,7 +52,15 @@ export function FloatingOutline({
             <ListTree className="size-4 shrink-0" />
             <span className="ui-kicker truncate">{ui.outline}</span>
           </div>
-          <nav className="max-h-[min(60vh,28rem)] overflow-y-auto px-1.5 pb-2">
+          <OverlayScrollbarsComponent
+            element="nav"
+            defer
+            options={{
+              overflow: { x: "hidden", y: "scroll" },
+              scrollbars: { autoHide: "move", autoHideDelay: 500, theme: "os-theme-resume" },
+            }}
+            className="max-h-[min(60vh,28rem)] px-1.5 pb-2"
+          >
             <ol className="flex flex-col">
               {outline.map((entry, index) => {
                 const selected = isOutlineEntrySelected(entry, {
@@ -95,7 +104,7 @@ export function FloatingOutline({
                 );
               })}
             </ol>
-          </nav>
+          </OverlayScrollbarsComponent>
         </div>
       </div>
     </aside>
