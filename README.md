@@ -12,6 +12,7 @@
 
 ```bash
 pnpm install
+pnpm exec playwright install chromium
 pnpm dev
 ```
 
@@ -68,7 +69,7 @@ contact:
 
 上传的头像会转成 data URL 一起保存，会占用浏览器存储空间。
 
-导出 PDF 用浏览器自带的打印功能：在打印窗口里选择「另存为 PDF」。整个过程在本机完成，简历不会上传到服务器，所以可以部署到 Cloudflare Pages 等任何静态或边缘环境。
+导出 PDF 时，当前 Markdown 和配置会发到本项目的 `/api/pdf`，由 Playwright 启动 Chromium 打印。
 
 ## 代码
 
@@ -85,7 +86,7 @@ locales/       zh-CN、en-US
 examples/      中英文示例
 components/    编辑器、预览、设计面板和简历组件
 app/resumes/   简历列表
-app/print/     打印页（导出 PDF）
+app/api/pdf/   PDF 导出
 tests/         单元测试
 ```
 

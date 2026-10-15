@@ -27,6 +27,7 @@ export interface UiCopy {
   exportPdf: string;
   exportFilename: string;
   exportFilenameHint: string;
+  pdfExported: string;
   pdfFailed: string;
   printEmpty: string;
   theme: string;
@@ -123,7 +124,8 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     scale: "缩放",
     exportPdf: "导出 PDF",
     exportFilename: "文件名",
-    exportFilenameHint: "将打开浏览器的打印窗口，目标选择「另存为 PDF」即可保存，文件名会预填为下面的名字。全程在本机完成，不会上传简历。",
+    exportFilenameHint: "下载前可以改文件名。",
+    pdfExported: "已导出 PDF",
     pdfFailed: "无法导出 PDF",
     printEmpty: "没有可打印的简历。",
     theme: "主题",
@@ -276,7 +278,8 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     scale: "Scale",
     exportPdf: "Export PDF",
     exportFilename: "File name",
-    exportFilenameHint: "Opens your browser's print dialog. Choose \"Save as PDF\" as the destination; the file name below is filled in for you. Everything stays on this device.",
+    exportFilenameHint: "You can change the file name before downloading.",
+    pdfExported: "PDF exported",
     pdfFailed: "Could not export PDF",
     printEmpty: "No resume loaded for print.",
     theme: "Theme",

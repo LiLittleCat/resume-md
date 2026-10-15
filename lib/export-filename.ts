@@ -19,3 +19,24 @@ export function sanitizeExportBasename(value: string): string {
 
   return cleaned || "resume";
 }
+
+export function resolveExportBasename(
+  requested: string | undefined,
+  profileName: string | undefined | null,
+): string {
+  if (typeof requested === "string" && requested.trim()) {
+    return sanitizeExportBasename(requested);
+  }
+  return defaultExportBasename(profileName);
+}
+
+export function exportPdfFilename(basename: string): string {
+  return `${sanitizeExportBasename(basename)}.pdf`;
+}
+
+export function pdfContentDisposition(basename: string): string {
+  const safe = sanitizeExportBasename(basename);
+  const asciiName = (safe.replace(/[^\x20-\x7E]/g, "").trim() || "resume").replace(/\s+/g, "-");
+  const encodedName = encodeURIComponent(`${safe}.pdf`);
+  return `attachment; filename="${asciiName}.pdf"; filename*=UTF-8''${encodedName}`;
+}

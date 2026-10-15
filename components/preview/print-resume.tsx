@@ -6,7 +6,6 @@ import type { ResumeConfig } from "@/core/schema";
 import type { ResolvedDocumentStyle } from "@/core/style";
 import { ResumeDocument } from "@/components/resume";
 import { bakeResumeAvatars } from "@/lib/avatar-file";
-import { PRINT_PAYLOAD_KEY } from "@/lib/print-export";
 import { getUiCopy } from "@/locales/ui";
 
 interface PrintPayload {
@@ -20,7 +19,7 @@ let cachedRaw: string | null | undefined;
 let cachedPayload: PrintPayload | null = null;
 
 function readPayload(): PrintPayload | null {
-  const raw = sessionStorage.getItem(PRINT_PAYLOAD_KEY);
+  const raw = sessionStorage.getItem("resume-md:print");
   if (raw === cachedRaw) return cachedPayload;
   cachedRaw = raw;
   if (!raw) {
@@ -86,10 +85,6 @@ export function printPageCss(style: ResolvedDocumentStyle): string {
       size: ${style.page.size};
       margin: ${margin.top}mm ${margin.right}mm ${margin.bottom}mm ${margin.left}mm;
       background: ${style.colors.background};
-    }
-    html {
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
     }
     html, body {
       margin: 0 !important;
