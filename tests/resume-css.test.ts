@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { RESUME_DOCUMENT_CSS } from "@/core/renderer";
+import { compileResume } from "@/core/compile";
+import { RESUME_DOCUMENT_CSS, toDocumentCssVars } from "@/core/renderer";
 
 describe("resume document CSS", () => {
   it("does not apply uppercase to the heading that wraps section icons", () => {
@@ -189,5 +190,39 @@ describe("resume document CSS", () => {
     expect(RESUME_DOCUMENT_CSS).toMatch(
       /\.resume-item-subtitle strong,[\s\S]*?font-weight:\s*700/,
     );
+  });
+});
+
+describe("resume font stack", () => {
+  it("leads with the chosen Latin font in every locale and theme", () => {
+    for (const theme of ["minimal", "modern", "classic", "kami"] as const) {
+      const stacks = (["zh-CN", "en-US"] as const).map((locale) => {
+        const { style } = compileResume({
+          source: "---\nname: A\n---\n",
+          config: { theme, locale, fonts: { latin: "Inter", cjk: "Noto Sans SC" } },
+        });
+        return toDocumentCssVars(style)["--resume-font-stack"] ?? "";
+      });
+      expect(stacks[0]).toBe(stacks[1]);
+      expect(stacks[0]?.startsWith("Inter, ")).toBe(true);
+      expect(stacks[0]?.indexOf("Inter")).toBeLessThan(stacks[0]?.indexOf('"Noto Sans SC"') ?? -1);
+    }
+  });
+});
+
+describe("Latin font defaults", () => {
+  const fontsFor = (locale: "zh-CN" | "en-US", fonts?: { latin?: string; cjk?: string }) =>
+    compileResume({ source: "---\nname: A\n---\n", config: { theme: "kami", locale, fonts } }).style
+      .fonts;
+
+  it("sets Latin text in the CJK font for Chinese documents by default", () => {
+    expect(fontsFor("zh-CN").latin).toBe("TsangerJinKai02");
+    expect(fontsFor("zh-CN", { cjk: "Noto Serif SC" }).latin).toBe("Noto Serif SC");
+    expect(fontsFor("en-US").latin).toBe("Charter");
+  });
+
+  it("uses an explicitly chosen Latin font in both locales", () => {
+    expect(fontsFor("zh-CN", { latin: "Charter" }).latin).toBe("Charter");
+    expect(fontsFor("zh-CN", { latin: "Noto Sans SC" }).latin).toBe("Noto Sans SC");
   });
 });

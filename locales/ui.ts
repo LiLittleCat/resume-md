@@ -33,6 +33,7 @@ export interface UiCopy {
   typography: string;
   latin: string;
   cjk: string;
+  latinUsesCjk: string;
   name: string;
   sectionTitle: string;
   body: string;
@@ -129,6 +130,7 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     typography: "字体",
     latin: "西文",
     cjk: "中文",
+    latinUsesCjk: "中文字体（内置西文）",
     name: "姓名",
     sectionTitle: "章节标题",
     body: "正文",
@@ -281,6 +283,7 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     typography: "Typography",
     latin: "Latin",
     cjk: "CJK",
+    latinUsesCjk: "CJK fonts (built-in Latin)",
     name: "Name",
     sectionTitle: "Section title",
     body: "Body",

@@ -19,7 +19,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -192,6 +195,15 @@ function DocumentDesign() {
                   {font}
                 </SelectItem>
               ))}
+              <SelectSeparator />
+              <SelectGroup>
+                <SelectLabel>{ui.latinUsesCjk}</SelectLabel>
+                {CJK_FONTS.map((font) => (
+                  <SelectItem key={font} value={font}>
+                    {font}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
             </SelectContent>
           </Select>
         </Field>

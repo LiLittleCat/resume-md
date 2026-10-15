@@ -30,16 +30,17 @@ export function toDocumentCssVars(style: ResolvedDocumentStyle): CssVarMap {
   };
 }
 
+// The Latin font always leads: CJK fonts ship their own Latin glyphs, so a CJK-first
+// stack would render English text in the CJK font and ignore the chosen Latin font.
+// Latin fonts carry no CJK glyphs, so Chinese still falls through to the CJK font.
 function resumeFontStack(style: ResolvedDocumentStyle): string {
-  if (style.themeId === "kami") {
-    return style.localeId === "zh-CN"
-      ? `${quoteFont(style.fonts.cjk)}, "Source Han Serif SC", "Noto Serif SC", "Songti SC", STSong, ${quoteFont(style.fonts.latin)}, Georgia, serif`
-      : `${quoteFont(style.fonts.latin)}, "Source Serif 4", Georgia, Palatino, "Times New Roman", ${quoteFont(style.fonts.cjk)}, "Noto Serif SC", serif`;
-  }
-
-  return style.localeId === "zh-CN"
-    ? `${quoteFont(style.fonts.cjk)}, ${quoteFont(style.fonts.latin)}, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif`
-    : `${quoteFont(style.fonts.latin)}, ${quoteFont(style.fonts.cjk)}, "PingFang SC", "Hiragino Sans GB", sans-serif`;
+  const latin = quoteFont(style.fonts.latin);
+  const cjk = quoteFont(style.fonts.cjk);
+  const families =
+    style.themeId === "kami"
+      ? [latin, '"Source Serif 4"', "Georgia", cjk, '"Source Han Serif SC"', '"Noto Serif SC"', '"Songti SC"', "STSong", "serif"]
+      : [latin, cjk, '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', "sans-serif"];
+  return [...new Set(families)].join(", ");
 }
 
 export function toSectionCssVars(section: ResolvedSectionStyle): CssVarMap {

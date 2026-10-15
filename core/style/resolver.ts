@@ -122,6 +122,12 @@ function mergeDocumentLayers(
   fonts = deepMerge(fonts, localePreset.fonts);
   fonts = deepMerge(fonts, config.fonts);
   fonts = deepMerge(fonts, runtime.fonts);
+  // Chinese documents set Latin text in the CJK font's own Latin glyphs unless a Latin
+  // font is chosen explicitly; the font stack always leads with `fonts.latin`.
+  const latinChosen = localePreset.fonts?.latin ?? config.fonts?.latin ?? runtime.fonts?.latin;
+  if (localeId === "zh-CN" && !latinChosen) {
+    fonts = { ...fonts, latin: fonts.cjk };
+  }
 
   let page = theme.page;
   page = deepMerge(page, config.page);

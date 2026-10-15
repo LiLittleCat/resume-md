@@ -1,10 +1,9 @@
 import type { CSSProperties } from "react";
 import {
   RESUME_DOCUMENT_CSS,
-  TSANGER_JINKAI_STYLESHEETS,
+  documentFontStylesheets,
   toDocumentCssVars,
   toSectionCssVars,
-  usesTsangerJinKai,
 } from "@/core/renderer";
 import type {
   ExperienceLayout,
@@ -42,15 +41,18 @@ export function ResumeDocument({
   const vars = toDocumentCssVars(style);
 
   return (
+    // translate="no" keeps browser translation extensions from injecting translated copies
+    // of the resume text into the preview and the exported PDF.
     <article
-      className={`resume-root${padded ? " resume-page-pad" : ""}`}
+      className={`resume-root notranslate${padded ? " resume-page-pad" : ""}`}
       lang={locale.id === "zh-CN" ? "zh-CN" : "en-US"}
+      translate="no"
       data-theme={style.themeId}
       style={vars as CSSProperties}
     >
-      {usesTsangerJinKai(style.fonts)
-        ? TSANGER_JINKAI_STYLESHEETS.map((href) => <link key={href} rel="stylesheet" href={href} />)
-        : null}
+      {documentFontStylesheets(style.fonts).map((href) => (
+        <link key={href} rel="stylesheet" href={href} />
+      ))}
       <style>{RESUME_DOCUMENT_CSS}</style>
       <ResumeHeader profile={resume.profile} style={style} locale={locale} />
       {resume.sections.map((section, index) => (

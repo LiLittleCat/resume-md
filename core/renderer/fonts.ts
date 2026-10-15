@@ -8,6 +8,10 @@ export const TSANGER_JINKAI_STYLESHEETS = [
   "/fonts/tsanger/500.css",
 ] as const;
 
+export const CHARTER_FAMILY = "Charter";
+
+export const CHARTER_STYLESHEET = "/fonts/charter/charter.css";
+
 export function documentFontFamilies(fonts: {
   latin: string;
   cjk: string;
@@ -22,4 +26,17 @@ export function usesTsangerJinKai(fonts: {
   monospace: string;
 }): boolean {
   return documentFontFamilies(fonts).includes(TSANGER_JINKAI_FAMILY);
+}
+
+/** Same-origin stylesheets for the self-hosted families the document uses. */
+export function documentFontStylesheets(fonts: {
+  latin: string;
+  cjk: string;
+  monospace: string;
+}): string[] {
+  const families = documentFontFamilies(fonts);
+  return [
+    ...(families.includes(CHARTER_FAMILY) ? [CHARTER_STYLESHEET] : []),
+    ...(families.includes(TSANGER_JINKAI_FAMILY) ? TSANGER_JINKAI_STYLESHEETS : []),
+  ];
 }
