@@ -1,4 +1,4 @@
-import { resolveSectionId, splitFrontMatter, splitTitleAndDate } from "@/core/parser";
+import { splitFrontMatter, splitTitleAndDate, startsSection } from "@/core/parser";
 import type { Resume, ResumeSection, SectionId } from "@/core/schema";
 
 export type OutlineEntry = {
@@ -89,6 +89,7 @@ export function previewAnchorAtOffset(source: string, offset: number): PreviewAn
 
   let sectionTitle = "";
   let hasItemHeading = false;
+  let h1Title: string | undefined;
   let anchor: PreviewAnchor = { kind: "header" };
   let index = contentStart;
 
@@ -101,7 +102,8 @@ export function previewAnchorAtOffset(source: string, offset: number): PreviewAn
       const depth = heading[1]?.length === 1 ? 1 : 2;
       const rawTitle = heading[2]?.trim() ?? "";
       const visible = stripInlineMarkdown(rawTitle) || rawTitle;
-      if (depth === 1 || resolveSectionId(rawTitle) || resolveSectionId(visible)) {
+      if (startsSection(depth, rawTitle, h1Title) || startsSection(depth, visible, h1Title)) {
+        if (depth === 1) h1Title = visible;
         sectionTitle = visible;
         hasItemHeading = false;
         anchor = { kind: "heading", title: visible, depth: 1, sectionTitle };
@@ -134,6 +136,7 @@ export function sourceOffsetForAnchor(source: string, anchor: PreviewAnchor): nu
   const contentStart = source.length - content.length;
   let sectionTitle = "";
   let hasItemHeading = false;
+  let h1Title: string | undefined;
   let index = contentStart;
   let fallback = contentStart;
 
@@ -145,7 +148,8 @@ export function sourceOffsetForAnchor(source: string, anchor: PreviewAnchor): nu
       const depth = heading[1]?.length === 1 ? 1 : 2;
       const rawTitle = heading[2]?.trim() ?? "";
       const visible = stripInlineMarkdown(rawTitle) || rawTitle;
-      if (depth === 1 || resolveSectionId(rawTitle) || resolveSectionId(visible)) {
+      if (startsSection(depth, rawTitle, h1Title) || startsSection(depth, visible, h1Title)) {
+        if (depth === 1) h1Title = visible;
         sectionTitle = visible;
         hasItemHeading = false;
         if (anchorsEqual(anchor, { kind: "heading", title: visible, depth: 1, sectionTitle })) {

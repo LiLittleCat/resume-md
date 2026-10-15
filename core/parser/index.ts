@@ -2,4 +2,4 @@ export { parseResumeMarkdown, splitTitleAndDate, type ParseResumeResult } from "
 export { splitFrontMatter, setFrontMatterAvatar } from "./front-matter";
 export { hasDesignBlock, readDesignBlock, setDesignBlock, stripDesignBlock } from "./design-block";
 export { formatDate, formatDateRange, parseDateRange, parseDateToken } from "./dates";
-export { resolveSectionId, normalizeLabel } from "./section-map";
+export { resolveSectionId, normalizeLabel, startsSection } from "./section-map";

@@ -279,3 +279,20 @@ describe("previewClickTarget", () => {
     expect(previewClickTarget({ inHeader: false })).toBeNull();
   });
 });
+
+describe("skill groups named like sections", () => {
+  const source = `# Skills
+
+## Languages
+
+Java / Python
+
+# Experience
+`;
+
+  it("maps a Languages group inside Skills to the Skills section, both ways", () => {
+    const anchor = previewAnchorAtOffset(source, source.indexOf("Java / Python"));
+    expect(anchor).toEqual({ kind: "heading", title: "Languages", depth: 2, sectionTitle: "Skills" });
+    expect(sourceOffsetForAnchor(source, anchor)).toBe(source.indexOf("## Languages"));
+  });
+});

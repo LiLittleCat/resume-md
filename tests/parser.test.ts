@@ -91,6 +91,53 @@ describe("parseResumeMarkdown", () => {
     }
   });
 
+  it("keeps a skill group named like a section inside Skills", () => {
+    const source = `# Skills
+
+## Languages
+
+Java / Python / TypeScript
+
+## Backend
+
+Spring Boot / Kafka
+
+# 技术能力
+
+## 语言
+
+中文 / English
+
+# Languages
+
+English (fluent)
+`;
+
+    const { resume } = parseResumeMarkdown(source);
+    expect(resume.sections.map((section) => [section.id, section.title])).toEqual([
+      ["skills", "Skills"],
+      ["custom", "技术能力"],
+      ["languages", "Languages"],
+    ]);
+    const skills = resume.sections[0];
+    if (skills?.id === "skills") {
+      expect(skills.groups.map((group) => [group.name, group.items])).toEqual([
+        ["Languages", ["Java", "Python", "TypeScript"]],
+        ["Backend", ["Spring Boot", "Kafka"]],
+      ]);
+    }
+  });
+
+  it("splits the bundled English example's Skills into three groups", () => {
+    const source = readFileSync(path.join(process.cwd(), "examples/resume.en-US.md"), "utf8");
+    const { resume } = parseResumeMarkdown(source);
+    expect(resume.sections.map((section) => section.id)).not.toContain("languages");
+    const skills = resume.sections.find((section) => section.id === "skills");
+    if (skills?.id === "skills") {
+      expect(skills.groups.map((group) => group.name)).toEqual(["Languages", "Backend", "Data & AI"]);
+    }
+  });
+
   it("preserves Markdown list semantics in skills", () => {
     const source = `# 专业技能
 

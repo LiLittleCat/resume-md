@@ -75,6 +75,21 @@ export function resolveSectionId(title: string): SectionId | undefined {
   return sectionLookup.get(normalizeLabel(title));
 }
 
+/**
+ * Whether a heading starts a section. `#` always does. `##` does when its title names a
+ * known section (so `## 开源项目` after work entries opens a new section), except inside
+ * `# Skills`, where every `##` names a skill group (e.g. `## Languages`, `## 语言`).
+ */
+export function startsSection(
+  depth: number,
+  title: string,
+  enclosingH1Title: string | undefined,
+): boolean {
+  if (depth === 1) return true;
+  if (depth !== 2 || resolveSectionId(title) === undefined) return false;
+  return enclosingH1Title === undefined || resolveSectionId(enclosingH1Title) !== "skills";
+}
+
 export function resolveSubheadingField(title: string): SubheadingField | undefined {
   return subheadingLookup.get(normalizeLabel(title));
 }

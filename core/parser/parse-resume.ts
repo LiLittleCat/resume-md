@@ -43,7 +43,7 @@ import {
   paragraphText,
   parseMarkdownTree,
 } from "./markdown";
-import { resolveSectionId, resolveSubheadingField } from "./section-map";
+import { resolveSectionId, resolveSubheadingField, startsSection } from "./section-map";
 import type { Heading, List, Paragraph, RootContent } from "mdast";
 
 export interface ParseResumeResult {
@@ -132,10 +132,13 @@ interface HeadingGroup {
 function groupByH1(nodes: RootContent[]): HeadingGroup[] {
   const groups: HeadingGroup[] = [];
   let current: HeadingGroup | undefined;
+  let enclosingH1: string | undefined;
 
   for (const node of nodes) {
-    if (isSectionStart(node)) {
-      current = { title: headingText(node), nodes: [] };
+    if (isSectionStart(node, enclosingH1)) {
+      const title = headingText(node);
+      if (node.depth === 1) enclosingH1 = title;
+      current = { title, nodes: [] };
       groups.push(current);
       continue;
     }
@@ -149,10 +152,9 @@ function groupByH1(nodes: RootContent[]): HeadingGroup[] {
   return groups;
 }
 
-function isSectionStart(node: RootContent): node is Heading {
-  if (isHeading(node, 1)) return true;
-  if (!isHeading(node, 2)) return false;
-  return resolveSectionId(headingText(node)) !== undefined;
+function isSectionStart(node: RootContent, enclosingH1: string | undefined): node is Heading {
+  if (!isHeading(node, 1) && !isHeading(node, 2)) return false;
+  return startsSection(node.depth, headingText(node), enclosingH1);
 }
 
 function groupByH2(nodes: RootContent[]): HeadingGroup[] {
