@@ -184,6 +184,70 @@ describe("parseResumeMarkdown", () => {
     }
   });
 
+  it("treats a bold known label on its own line as a subheading, not the role", () => {
+    const source = `# 项目经历
+
+## 道路抛洒事件检测 2021.01 - 2022.01
+
+**项目描述**
+
+面向道路抛洒事件的检测系统。
+
+**主要职责：**
+
+- 负责模型训练。
+`;
+
+    const projects = parseResumeMarkdown(source).resume.sections[0];
+    expect(projects?.id).toBe("projects");
+    if (projects?.id === "projects") {
+      const item = projects.items[0];
+      expect(item?.role).toBeUndefined();
+      expect(item?.blocks?.map((block) => [block.heading, block.type, block.items])).toEqual([
+        ["项目描述", "paragraph", ["面向道路抛洒事件的检测系统。"]],
+        ["主要职责", "unordered-list", ["负责模型训练。"]],
+      ]);
+    }
+  });
+
+  it("renders a bold label line the same with or without a blank line after it", () => {
+    const blocksOf = (body: string) => {
+      const section = parseResumeMarkdown(`# 项目经历\n\n## 道路抛洒事件检测\n\n概述。\n\n${body}\n`)
+        .resume.sections[0];
+      return section?.id === "projects"
+        ? section.items[0]?.blocks?.slice(1).map((block) => [block.heading, block.type, block.items])
+        : undefined;
+    };
+    const paragraph = [["项目描述", "paragraph", ["面向道路抛洒事件。"]]];
+    expect(blocksOf("**项目描述**\n\n面向道路抛洒事件。")).toEqual(paragraph);
+    expect(blocksOf("**项目描述**\n面向道路抛洒事件。")).toEqual(paragraph);
+    expect(blocksOf("### 项目描述\n\n面向道路抛洒事件。")).toEqual(paragraph);
+
+    const list = [["核心功能", "unordered-list", ["模型训练", "部署"]]];
+    expect(blocksOf("**核心功能**\n- 模型训练\n- 部署")).toEqual(list);
+    expect(blocksOf("**核心功能：**\n\n- 模型训练\n- 部署")).toEqual(list);
+
+    expect(blocksOf("**项目描述** 面向道路抛洒事件。")).toEqual([
+      [undefined, "paragraph", ["项目描述 面向道路抛洒事件。"]],
+    ]);
+  });
+
+  it("still reads a bold line that is not a known label as the role", () => {
+    const source = `# 项目经历
+
+## 道路抛洒事件检测
+
+**后端负责人** | 2021.01 - 2022.01
+
+面向道路抛洒事件的检测系统。
+`;
+
+    const projects = parseResumeMarkdown(source).resume.sections[0];
+    if (projects?.id === "projects") {
+      expect(projects.items[0]?.role).toBe("后端负责人");
+    }
+  });
+
   it("treats Chinese separators between inline code as a tech tag list", () => {
     const source = `# 项目经历
 

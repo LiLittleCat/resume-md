@@ -62,7 +62,7 @@ const SECTION_ALIASES: Record<SectionId, readonly string[]> = {
 const SUBHEADING_ALIASES = {
   responsibilities: ["主要职责", "职责", "工作职责", "responsibilities", "duties", "what i did", "主要工作", "工作内容"],
   achievements: ["主要成果", "成果", "业绩", "亮点", "achievements", "highlights", "impact", "项目成果"],
-  description: ["项目简介", "简介", "描述", "description", "overview", "about"],
+  description: ["项目简介", "项目描述", "项目介绍", "项目背景", "简介", "描述", "description", "overview", "about"],
   techStack: ["技术栈", "技术", "tech stack", "techstack", "stack", "technologies"],
 } as const;
 

@@ -378,6 +378,39 @@ function parseProjectItems(nodes: RootContent[], warnings: ParseWarning[]): Proj
   });
 }
 
+/**
+ * A `###` heading, or a paragraph that is only a bold known label such as `**项目描述**`.
+ * Without this, a bold label on its own line right under `##` reads as the item's role.
+ */
+function subheadingTitle(node: RootContent): string | undefined {
+  if (node.type === "heading" && node.depth >= 3) return headingText(node as Heading);
+  if (!isParagraph(node)) return undefined;
+  const label = boldLabel(paragraphInlineSpans(node));
+  return label && resolveSubheadingField(label) ? label : undefined;
+}
+
+/** The text of spans that are all bold, without a trailing colon; undefined otherwise. */
+function boldLabel(spans: InlineSpan[]): string | undefined {
+  if (!spans.every((span) => span.strong || !span.text.trim())) return undefined;
+  const text = spanGroupText(spans).replace(/[：:]$/, "").trim();
+  return text || undefined;
+}
+
+/**
+ * Splits `**标签**` followed by a line break off the rest of its paragraph, so a label
+ * renders the same whether or not a blank line separates it from the content.
+ */
+function splitLeadingLabel(
+  spans: InlineSpan[],
+): { heading: string; rest: InlineSpan[] } | undefined {
+  const breakIndex = spans.findIndex((span) => span.break);
+  if (breakIndex <= 0) return undefined;
+  const heading = boldLabel(spans.slice(0, breakIndex));
+  const rest = trimSpanGroup(spans.slice(breakIndex + 1));
+  if (!heading || rest.length === 0) return undefined;
+  return { heading, rest };
+}
+
 function parseMarkdownBlocks(nodes: RootContent[]): ProjectBlock[] {
   const blocks: ProjectBlock[] = [];
   const metadata: ItemBody = {};
@@ -391,11 +424,12 @@ function parseMarkdownBlocks(nodes: RootContent[]): ProjectBlock[] {
   };
 
   for (const node of nodes) {
-    if (node.type === "heading" && node.depth >= 3) {
+    const label = subheadingTitle(node);
+    if (label) {
       if (pendingHeading) {
         blocks.push({ heading: pendingHeading, type: "paragraph", items: [] });
       }
-      pendingHeading = headingText(node as Heading);
+      pendingHeading = label;
       reachedContent = true;
       continue;
     }
@@ -411,8 +445,26 @@ function parseMarkdownBlocks(nodes: RootContent[]): ProjectBlock[] {
         const items = extractInlineCode(node);
         if (items.length > 0) addBlock({ type: "tags", items });
       } else {
-        const text = paragraphText(node);
-        if (text) addBlock({ type: "paragraph", items: [text], spans: [paragraphInlineSpans(node)] });
+        const spans = paragraphInlineSpans(node);
+        const label = boldLabel(spans);
+        const leading = label ? undefined : splitLeadingLabel(spans);
+        if (label) {
+          // A bold line on its own reads as a subheading, like `###`.
+          if (pendingHeading) blocks.push({ heading: pendingHeading, type: "paragraph", items: [] });
+          pendingHeading = label;
+          reachedContent = true;
+        } else if (leading) {
+          if (pendingHeading) blocks.push({ heading: pendingHeading, type: "paragraph", items: [] });
+          pendingHeading = leading.heading;
+          addBlock({
+            type: "paragraph",
+            items: [leading.rest.map((span) => (span.break ? " " : span.text)).join("").trim()],
+            spans: [leading.rest],
+          });
+        } else {
+          const text = paragraphText(node);
+          if (text) addBlock({ type: "paragraph", items: [text], spans: [spans] });
+        }
       }
       continue;
     }
@@ -668,8 +720,9 @@ function parseItemBody(nodes: RootContent[]): ItemBody {
   let consumedMeta = false;
 
   for (const node of nodes) {
-    if (node.type === "heading" && node.depth >= 3) {
-      field = resolveSubheadingField(headingText(node as Heading)) ?? "responsibilities";
+    const label = subheadingTitle(node);
+    if (label) {
+      field = resolveSubheadingField(label) ?? "responsibilities";
       continue;
     }
 
