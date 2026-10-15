@@ -7,16 +7,17 @@
 Edit the content on the left, see a live preview in the middle, and adjust the theme, fonts, spacing, avatar, and icons on the right. You can create and manage multiple resumes in either Chinese or English.
 
 ```
-Markdown → Parser → Resume AST → Style Resolver → Semantic components → HTML/CSS → Chromium PDF
+Markdown → Parser → Resume AST → Style Resolver → Semantic components → HTML/CSS → browser print to PDF
 ```
 
 Resumes sit in this browser's `localStorage`. Clear site data or switch browsers and they are gone.
+
+Export PDF uses the browser's own print dialog ("Save as PDF"), so the resume never leaves the device and the app runs on any static or edge host, including Cloudflare Pages.
 
 ## Develop
 
 ```bash
 pnpm install
-pnpm exec playwright install chromium
 pnpm dev
 ```
 
@@ -46,7 +47,7 @@ locales/       zh-CN, en-US
 examples/      Chinese and English Markdown samples
 components/    editor, preview, settings, resume document, shadcn/ui
 app/resumes    resume list
-app/api/pdf    Playwright export
+app/print      print page used for PDF export
 ```
 
 ## Design rules

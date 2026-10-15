@@ -4,7 +4,9 @@ import { useRef, useState, type FormEvent } from "react";
 import { FileDown, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { LocaleId } from "@/core/schema";
+import { compileResume } from "@/core/compile";
 import { parseResumeMarkdown } from "@/core/parser";
+import { documentFontFamilies } from "@/core/renderer";
 import { HeaderControls } from "@/components/chrome/header-controls";
 import { ProductHeader } from "@/components/chrome/product-header";
 import { Button } from "@/components/ui/button";
@@ -20,11 +22,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEditorStore } from "@/store/editor-store";
 import { materializeAvatarSource } from "@/lib/avatar-assets";
-import {
-  defaultExportBasename,
-  exportPdfFilename,
-  sanitizeExportBasename,
-} from "@/lib/export-filename";
+import { defaultExportBasename, sanitizeExportBasename } from "@/lib/export-filename";
+import { printResume } from "@/lib/print-export";
 import { useColorScheme } from "./use-color-scheme";
 import { useUi, useUiLocale } from "./use-ui";
 
@@ -64,25 +63,17 @@ export function EditorToolbar() {
     try {
       const exportSource = materializeAvatarSource(source, window.localStorage);
       if (!exportSource) throw new Error(ui.avatarMissing);
-      const response = await fetch("/api/pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ source: exportSource, config, filename: nextBasename }),
-      });
-      if (!response.ok) {
-        const message = await response.text();
-        throw new Error(message || ui.pdfFailed);
-      }
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = exportPdfFilename(nextBasename);
-      link.click();
-      URL.revokeObjectURL(url);
+      const { style } = compileResume({ source: exportSource, config });
       lastFilenameRef.current = nextBasename;
       setExportOpen(false);
-      toast.success(ui.pdfExported);
+      // Let the dialog close before the browser's print dialog takes over.
+      await new Promise((resolve) => window.setTimeout(resolve, 0));
+      await printResume({
+        source: exportSource,
+        config,
+        title: nextBasename,
+        fontFamilies: documentFontFamilies(style.fonts),
+      });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : ui.pdfFailed);
     } finally {

@@ -29,7 +29,7 @@ If the user already has editor content, rewrite that source. Invent no jobs, dat
 | `/resumes` | Library: create, duplicate, delete. Click **Resume MD** or **Back** to get there. |
 | 中 / EN | Locale for UI labels and date formatting. Does **not** rewrite the Markdown. |
 | Design panel | Theme (`minimal` `modern` `classic` `kami`), fonts, spacing, avatar, icons, margins. Click a preview section to override that section only. |
-| 导出 PDF / Export PDF | Prints the current Markdown + design through Chromium. |
+| 导出 PDF / Export PDF | Opens the browser print dialog; choose "Save as PDF". Runs locally, nothing is uploaded. |
 
 Content lives in this browser's `localStorage`. No account. Clearing site data or switching browsers drops it.
 
