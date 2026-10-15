@@ -9,46 +9,49 @@ import {
   setFrontMatterAvatar,
   stripDesignBlock,
 } from "@/core/parser";
-import { configFromSource, syncDocumentDesign, writeDesign } from "@/lib/document-design";
+import {
+  composeDocument,
+  designBlockText,
+  splitDocument,
+  syncDocumentDesign,
+} from "@/lib/document-design";
 import { useEditorStore } from "@/store/editor-store";
 
 const example = readFileSync(path.join(process.cwd(), "examples/resume.zh-CN.md"), "utf8");
 
-describe("trailing design block", () => {
-  it("appends a commented block after the user's Markdown", () => {
+describe("design block", () => {
+  it("puts a commented block at the very top, ahead of the front matter", () => {
     const next = setDesignBlock(
       example,
       { theme: "kami", typography: { name: { fontSize: 22 } } },
       { comment: "managed by the panel" },
     );
-    expect(next.startsWith(example.replace(/\s+$/, ""))).toBe(true);
-    expect(next.endsWith(
-      "\n\n<!-- resume-md:design managed by the panel\ntheme: kami\ntypography:\n  name:\n    fontSize: 22\n-->\n",
-    )).toBe(true);
+    expect(next).toBe(
+      `<!-- resume-md:design managed by the panel\ntheme: kami\ntypography:\n  name:\n    fontSize: 22\n-->\n\n${example}`,
+    );
     expect(readDesignBlock(next)).toEqual({ theme: "kami", typography: { name: { fontSize: 22 } } });
     const parsed = parseResumeMarkdown(next);
     expect(parsed.design).toEqual({ theme: "kami", typography: { name: { fontSize: 22 } } });
     expect(parsed.resume).toEqual(parseResumeMarkdown(example).resume);
   });
 
-  it("updates the block in place, keeps its note, and survives avatar edits", () => {
-    let next = setDesignBlock(example, { theme: "kami" }, { comment: "note" });
-    next = setDesignBlock(next, { theme: "modern" }, { comment: "other" });
-    next = setFrontMatterAvatar(next, "https://cdn.example.com/me.jpg");
-    expect(next.endsWith("<!-- resume-md:design note\ntheme: modern\n-->\n")).toBe(true);
-    expect(next).not.toContain("other");
-    expect(parseResumeMarkdown(next).resume.profile.avatar).toBe("https://cdn.example.com/me.jpg");
+  it("moves an older trailing block to the top and keeps its note", () => {
+    const trailing = `${example}\n<!-- resume-md:design note\ntheme: kami\n-->\n`;
+    const next = setDesignBlock(trailing, { theme: "modern" }, { comment: "other" });
+    expect(next).toBe(`<!-- resume-md:design note\ntheme: modern\n-->\n\n${example}`);
+    expect(setFrontMatterAvatar(stripDesignBlock(next), "https://cdn.example.com/me.jpg")).toContain(
+      "avatar: https://cdn.example.com/me.jpg",
+    );
   });
 
   it("removes the block when the design is empty", () => {
-    const withDesign = setDesignBlock(example, { theme: "kami" });
-    expect(setDesignBlock(withDesign, {})).toBe(example.replace(/\n+$/, "\n"));
+    expect(setDesignBlock(setDesignBlock(example, { theme: "kami" }), {})).toBe(example);
     expect(stripDesignBlock("# A\n\n<!-- resume-md:design\ntheme: kami\n-->\n\n# B\n")).toBe("# A\n\n# B\n");
     expect(setDesignBlock("", { theme: "kami" })).toBe("<!-- resume-md:design\ntheme: kami\n-->\n");
   });
 
   it("ignores an invalid block with a warning and reports it as unreadable", () => {
-    const broken = `${example}\n<!-- resume-md:design\ntheme: 42\n-->\n`;
+    const broken = `<!-- resume-md:design\ntheme: 42\n-->\n\n${example}`;
     expect(readDesignBlock(broken)).toBeNull();
     const parsed = parseResumeMarkdown(broken);
     expect(parsed.design).toEqual({});
@@ -64,54 +67,58 @@ describe("trailing design block", () => {
 });
 
 describe("document design sync", () => {
-  it("keeps the previous config when the front matter is mid-edit", () => {
+  it("splits a pasted document into editor text and config", () => {
     const previous = { locale: "en-US" as const, theme: "kami" as const };
-    expect(configFromSource("# A\n<!-- resume-md:design\ntheme: [\n-->\n", previous)).toBe(previous);
-    expect(configFromSource(example, previous)).toEqual({ locale: "en-US" });
+    const pasted = composeDocument(example, { theme: "classic" });
+    expect(splitDocument(pasted, previous)).toEqual({
+      source: example,
+      config: { locale: "en-US", theme: "classic" },
+    });
+    expect(splitDocument(example, previous)).toEqual({ source: example, config: previous });
+    const broken = `<!-- resume-md:design\ntheme: [\n-->\n${example}`;
+    expect(splitDocument(broken, previous)).toEqual({ source: broken, config: previous });
   });
 
-  it("migrates legacy stored overrides into the source, skipping old defaults", () => {
-    const legacy = syncDocumentDesign(example, {
-      locale: "zh-CN",
-      theme: "minimal",
-      spacingPreset: "normal",
-      fonts: { latin: "Charter" },
-    });
-    expect(readDesignBlock(legacy.source)).toEqual({ fonts: { latin: "Charter" } });
-    expect(legacy.config).toEqual({ locale: "zh-CN", fonts: { latin: "Charter" } });
+  it("composes the stored document with a localized note, and nothing for defaults", () => {
+    expect(composeDocument(example, { locale: "zh-CN" })).toBe(example);
+    expect(designBlockText({ locale: "zh-CN" })).toBe("");
+    expect(designBlockText({ locale: "zh-CN", theme: "kami" })).toBe(
+      "<!-- resume-md:design 设计参数：由设计面板自动维护，请勿手动编辑\ntheme: kami\n-->",
+    );
+  });
 
-    const defaults = syncDocumentDesign(example, { locale: "zh-CN", theme: "minimal" });
-    expect(defaults.source).toBe(example);
+  it("uses legacy stored overrides when the source has no block, skipping old defaults", () => {
+    expect(
+      syncDocumentDesign(example, {
+        locale: "zh-CN",
+        theme: "minimal",
+        spacingPreset: "normal",
+        fonts: { latin: "Charter" },
+      }),
+    ).toEqual({ source: example, config: { locale: "zh-CN", fonts: { latin: "Charter" } } });
   });
 
   it("lets a design block in the source win over the stored config", () => {
-    const source = writeDesign(example, { theme: "classic" });
-    expect(syncDocumentDesign(source, { locale: "en-US", theme: "kami" })).toEqual({
-      source,
+    const stored = composeDocument(example, { theme: "classic" });
+    expect(syncDocumentDesign(stored, { locale: "en-US", theme: "kami" })).toEqual({
+      source: example,
       config: { locale: "en-US", theme: "classic" },
     });
   });
 });
 
 describe("editor store", () => {
-  it("writes design changes into the source and reads them back", () => {
+  it("keeps the design block out of the editor text", () => {
     const store = useEditorStore.getState();
-    store.loadDocument(example, { locale: "zh-CN" });
+    store.loadDocument(composeDocument(example, { theme: "kami" }), { locale: "zh-CN" });
     expect(useEditorStore.getState().source).toBe(example);
+    expect(useEditorStore.getState().config).toEqual({ locale: "zh-CN", theme: "kami" });
 
     store.patchConfig({ typography: { name: { fontSize: 24 } } });
-    expect(readDesignBlock(useEditorStore.getState().source)).toEqual({
-      typography: { name: { fontSize: 24 } },
-    });
-    expect(useEditorStore.getState().source).toContain("<!-- resume-md:design 设计参数");
+    expect(useEditorStore.getState().source).toBe(example);
 
-    store.patchConfig({ locale: "en-US" });
-    expect(useEditorStore.getState().config.locale).toBe("en-US");
-
-    store.resetConfigPath(["typography", "name", "fontSize"]);
-    expect(useEditorStore.getState().source).toBe(example.replace(/\n+$/, "\n"));
-
-    store.setSource(writeDesign(example, { theme: "kami" }));
-    expect(useEditorStore.getState().config).toEqual({ locale: "en-US", theme: "kami" });
+    store.setSource(composeDocument(example, { theme: "classic" }));
+    expect(useEditorStore.getState().source).toBe(example);
+    expect(useEditorStore.getState().config).toEqual({ locale: "zh-CN", theme: "classic" });
   });
 });

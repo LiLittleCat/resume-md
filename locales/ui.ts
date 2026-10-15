@@ -20,6 +20,7 @@ export interface UiCopy {
   document: string;
   noDocument: string;
   designBlockComment: string;
+  designBlock: string;
   markdownAria: string;
   compileError: string;
   scale: string;
@@ -117,6 +118,7 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     document: "文档",
     noDocument: "没有文档",
     designBlockComment: "设计参数：由设计面板自动维护，请勿手动编辑",
+    designBlock: "设计参数（由设计面板维护）",
     markdownAria: "简历 Markdown",
     compileError: "Markdown 无法编译。",
     scale: "缩放",
@@ -270,6 +272,7 @@ export const uiCopy: Record<LocaleId, UiCopy> = {
     document: "Document",
     noDocument: "No document",
     designBlockComment: "Design settings: maintained by the Design panel, do not edit by hand",
+    designBlock: "Design settings (managed by the Design panel)",
     markdownAria: "Resume markdown",
     compileError: "Markdown could not be compiled.",
     scale: "Scale",

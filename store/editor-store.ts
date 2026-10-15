@@ -5,12 +5,7 @@ import type { ResumeConfig, SectionId } from "@/core/schema";
 import { PREVIEW_SCALE, clampPreviewScale } from "@/lib/preview-scale";
 import { deepMerge, deletePath, resetDocumentDesign as clearDocumentDesign } from "@/core/style";
 import type { ColorSchemePreference } from "@/lib/color-scheme";
-import {
-  configFromSource,
-  designOf,
-  syncDocumentDesign,
-  writeDesign,
-} from "@/lib/document-design";
+import { splitDocument, syncDocumentDesign } from "@/lib/document-design";
 
 export interface EditorState {
   source: string;
@@ -22,8 +17,8 @@ export interface EditorState {
   rightPanelWidth: number;
   designPanelCollapsed: boolean;
   colorScheme: ColorSchemePreference;
+  /** `source` is the editor text without the design block; pasted blocks move into config. */
   setSource: (source: string) => void;
-  /** Replaces the config and mirrors its design part into the trailing design block. */
   setConfig: (config: ResumeConfig) => void;
   patchConfig: (patch: ResumeConfig) => void;
   resetConfigPath: (path: string[]) => void;
@@ -46,12 +41,6 @@ export interface EditorState {
   loadDocument: (source: string, config?: ResumeConfig) => void;
 }
 
-function withConfig(state: Pick<EditorState, "source" | "config">, config: ResumeConfig) {
-  const unchanged =
-    JSON.stringify(designOf(config)) === JSON.stringify(designOf(state.config));
-  return { config, source: unchanged ? state.source : writeDesign(state.source, config) };
-}
-
 export const useEditorStore = create<EditorState>((set, get) => ({
   source: "",
   config: {},
@@ -62,17 +51,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   rightPanelWidth: 260,
   designPanelCollapsed: false,
   colorScheme: "system",
-  setSource: (source) => set({ source, config: configFromSource(source, get().config) }),
-  setConfig: (config) => set(withConfig(get(), config)),
-  patchConfig: (patch) => set(withConfig(get(), deepMerge(get().config, patch))),
+  setSource: (source) => set(splitDocument(source, get().config)),
+  setConfig: (config) => set({ config }),
+  patchConfig: (patch) => set({ config: deepMerge(get().config, patch) }),
   resetConfigPath: (path) =>
-    set(
-      withConfig(
-        get(),
-        deletePath(get().config as Record<string, unknown>, path) as ResumeConfig,
-      ),
-    ),
-  resetDocumentDesign: () => set(withConfig(get(), clearDocumentDesign(get().config))),
+    set({
+      config: deletePath(get().config as Record<string, unknown>, path) as ResumeConfig,
+    }),
+  resetDocumentDesign: () => set({ config: clearDocumentDesign(get().config) }),
   selectSection: (selectedSectionId, selectedSectionTitle = null) =>
     set({ selectedSectionId, selectedSectionTitle, headingFocus: null }),
   setPreviewScale: (previewScale) => set({ previewScale: clampPreviewScale(previewScale) }),

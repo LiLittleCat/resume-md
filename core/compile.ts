@@ -6,7 +6,7 @@ import type { ResolvedDocumentStyle } from "./style";
 
 export interface CompileResumeInput {
   source: string;
-  /** Layered over the source's trailing design block. */
+  /** Layered over the source's design block. */
   config?: ResumeConfig;
   runtime?: ResumeConfig;
 }

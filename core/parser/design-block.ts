@@ -2,13 +2,17 @@ import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { DesignConfigSchema, type DesignConfig, type ParseWarning } from "../schema";
 
 /**
- * Editor-managed design settings live in an HTML comment at the end of the Markdown,
- * apart from everything the user writes. Copying the Markdown carries the design along,
- * and other Markdown renderers hide it.
+ * Editor-managed design settings live in an HTML comment at the very top of the
+ * Markdown, apart from everything the user writes. The editor hides it behind a collapsed
+ * strip; copying the whole document carries it along, and other renderers hide it.
  *
  *   <!-- resume-md:design <note>
  *   theme: kami
  *   -->
+ *
+ *   ---
+ *   name: …
+ *   ---
  */
 const DESIGN_MARKER = "resume-md:design";
 const DESIGN_BLOCK_RE = /<!--[ \t]*resume-md:design\b[^\n]*\n([\s\S]*?)-->/;
@@ -18,8 +22,9 @@ export function stripDesignBlock(source: string): string {
   const match = DESIGN_BLOCK_RE.exec(source);
   if (!match) return source;
   const before = source.slice(0, match.index).replace(/\n+$/, "\n");
-  const after = source.slice(match.index + match[0].length).replace(/^[ \t]*\n?/, "");
-  return before + after;
+  const after = source.slice(match.index + match[0].length);
+  if (before.trim() === "") return after.replace(/^\s+/, "");
+  return before + after.replace(/^[ \t]*\n?/, "");
 }
 
 /**
@@ -39,35 +44,35 @@ export function readDesignBlock(source: string, warnings: ParseWarning[] = []): 
   if (result.success) return result.data;
   warnings.push({
     code: "design-block",
-    message: "Design settings at the end of the document were invalid and have been ignored.",
+    message: "Design settings in the document were invalid and have been ignored.",
   });
   return null;
 }
 
+/** True when the source carries a design block anywhere. */
+export function hasDesignBlock(source: string): boolean {
+  return DESIGN_BLOCK_RE.test(source);
+}
+
 /**
- * Writes design overrides into the trailing design block, replacing an existing block in
- * place. An empty design removes the block.
+ * Writes design overrides into the design block at the top of the source, moving an
+ * existing block there and keeping its note. An empty design removes the block.
  */
 export function setDesignBlock(
   source: string,
   design: DesignConfig,
   options: { comment?: string } = {},
 ): string {
-  if (Object.keys(design).length === 0) return stripDesignBlock(source);
-
-  const yaml = stringifyYaml(design, { lineWidth: 0 });
   const match = DESIGN_BLOCK_RE.exec(source);
-  if (match) {
-    const opening = match[0].slice(0, match[0].indexOf("\n") + 1);
-    return (
-      source.slice(0, match.index) +
-      `${opening}${yaml}-->` +
-      source.slice(match.index + match[0].length)
-    );
-  }
+  const rest = stripDesignBlock(source);
+  if (Object.keys(design).length === 0) return rest;
 
   const note = options.comment ? ` ${options.comment}` : "";
-  const block = `<!-- ${DESIGN_MARKER}${note}\n${yaml}-->\n`;
-  const body = source.replace(/\s+$/, "");
-  return body ? `${body}\n\n${block}` : block;
+  const opening = match
+    ? match[0].slice(0, match[0].indexOf("\n") + 1)
+    : `<!-- ${DESIGN_MARKER}${note}\n`;
+  const block = `${opening}${stringifyYaml(design, { lineWidth: 0 })}-->\n`;
+
+  const body = rest.replace(/^\s+/, "");
+  return body ? `${block}\n${body}` : block;
 }

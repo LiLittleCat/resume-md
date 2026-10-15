@@ -1,17 +1,25 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import Link from "next/link";
-import { ChevronLeft, FileInput } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileInput } from "lucide-react";
 import { useOverlayScrollbars } from "overlayscrollbars-react";
 import type { LocaleId } from "@/core/schema";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { composeDocument, designBlockText } from "@/lib/document-design";
 import { cn } from "@/lib/utils";
 import { useEditorStore, type EditorState } from "@/store/editor-store";
 import { isTargetFullyVisible, previewAnchorAtOffset, sourceSelectionForAnchor } from "./outline";
 import { scrollToPreviewAnchor } from "./preview-scroll";
 import { useUi, useUiLocale } from "./use-ui";
+
+/** Distance from the top of the scrolling content to the textarea (the design strip). */
+function textareaTop(textarea: HTMLTextAreaElement, viewport: HTMLElement): number {
+  return (
+    textarea.getBoundingClientRect().top - viewport.getBoundingClientRect().top + viewport.scrollTop
+  );
+}
 
 function resizeEditor(
   textarea: HTMLTextAreaElement | null,
@@ -19,8 +27,9 @@ function resizeEditor(
 ) {
   if (!textarea || !viewport) return;
   const scrollTop = viewport.scrollTop;
+  const minHeight = viewport.clientHeight - textareaTop(textarea, viewport);
   textarea.style.height = "0px";
-  textarea.style.height = `${Math.max(textarea.scrollHeight, viewport.clientHeight)}px`;
+  textarea.style.height = `${Math.max(textarea.scrollHeight, minHeight)}px`;
   textarea.scrollTop = 0;
   viewport.scrollTop = scrollTop;
 }
@@ -46,7 +55,8 @@ function applyHeadingFocus(
         },
   );
   const line = source.slice(0, selection.start).split("\n").length;
-  const lineTop = (line - 1) * EDITOR_LINE_HEIGHT;
+  const offset = textareaTop(textarea, viewport);
+  const lineTop = offset + (line - 1) * EDITOR_LINE_HEIGHT;
   textarea.focus();
   textarea.setSelectionRange(selection.start, selection.end);
   if (
@@ -59,7 +69,7 @@ function applyHeadingFocus(
   ) {
     return;
   }
-  viewport.scrollTop = Math.max(0, (line - 3) * EDITOR_LINE_HEIGHT);
+  viewport.scrollTop = Math.max(0, offset + (line - 3) * EDITOR_LINE_HEIGHT);
 }
 
 const PREVIEW_CURSOR_KEYS = new Set([
@@ -140,6 +150,10 @@ export function ContentPanel({
   });
   const ui = useUi();
   const uiLocale = useUiLocale();
+  const resize = useCallback(
+    () => resizeEditor(textareaRef.current, scrollViewportRef.current),
+    [],
+  );
 
   useEffect(() => {
     const target = scrollHostRef.current;
@@ -229,9 +243,21 @@ export function ContentPanel({
           data-overlayscrollbars-initialize
           className="h-full overflow-x-hidden overflow-y-auto overscroll-contain"
         >
+          <DesignBlockStrip
+            text={designBlockText(config)}
+            label={ui.designBlock}
+            onToggle={resize}
+          />
           <textarea
             ref={textareaRef}
             value={source}
+            onCopy={(event) => {
+              // Copying the whole text copies the full document, design block included.
+              const textarea = event.currentTarget;
+              if (textarea.selectionStart !== 0 || textarea.selectionEnd !== textarea.value.length) return;
+              event.preventDefault();
+              event.clipboardData.setData("text/plain", composeDocument(textarea.value, config));
+            }}
             onChange={(event) => {
               resizeEditor(event.currentTarget, scrollViewportRef.current);
               setSource(event.target.value);
@@ -262,6 +288,40 @@ export function ContentPanel({
           />
         </div>
       </div>
+    </div>
+  );
+}
+
+/** The design block, kept out of the editable text: collapsed by default, read-only. */
+function DesignBlockStrip({
+  text,
+  label,
+  onToggle,
+}: {
+  text: string;
+  label: string;
+  onToggle: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  useLayoutEffect(onToggle, [open, text, onToggle]);
+  if (!text) return null;
+
+  return (
+    <div data-slot="design-block" className="border-b border-border/60">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+        className="flex h-8 w-full items-center gap-1.5 px-4 text-left text-xs text-muted-foreground hover:text-foreground"
+      >
+        <ChevronRight className={cn("size-3.5 transition-transform", open && "rotate-90")} />
+        {label}
+      </button>
+      {open ? (
+        <pre className="markdown-editor overflow-x-auto px-4 pb-3 text-[13px] leading-[21px] whitespace-pre text-muted-foreground select-text">
+          {text}
+        </pre>
+      ) : null}
     </div>
   );
 }

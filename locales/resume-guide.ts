@@ -52,7 +52,7 @@ export const resumeGuideCopy: Record<LocaleId, ResumeGuideCopy> = {
 
 围绕目标岗位组织内容，使用简洁、具体的描述；有真实数据时写明成果。全篇使用一种语言。默认按个人简介、技术能力、工作经历、项目经历、教育经历排序，只保留有资料的章节。
 
-严格遵守下面的 Resume MD 格式规则。最终只输出一份完整 Markdown 原文，从开头的 --- 开始，不加外层代码围栏、前言或解释。主题、字体、间距和头像上传交给网站的设计面板；如果原文末尾已有 <!-- resume-md:design … --> 设计参数块，原样保留，不要新增或修改。`,
+严格遵守下面的 Resume MD 格式规则。最终只输出一份完整 Markdown 原文，从开头的 --- 开始，不加外层代码围栏、前言或解释。主题、字体、间距和头像上传交给网站的设计面板；如果原文开头已有 <!-- resume-md:design … --> 设计参数块，把它原样保留在 --- 之前，不要新增或修改。`,
     agentMaterial: "我的资料（由我补充）：\n- 目标岗位：\n- 简历语言：\n- 现有简历或真实经历：",
     structure: "开头的 --- … --- 记录个人信息；# 是章节，## 是一条经历或技能分组，### 是经历中的内容小标题。标题与正文之间留一个空行。",
     topics: [
@@ -202,7 +202,7 @@ First confirm my target role, resume language, and any missing name, contact, wo
 
 Organize the content for the target role. Use concise, specific descriptions and include results when real data is available. Use one language throughout. The default order is Summary, Skills, Experience, Projects, Education; include only sections supported by my information.
 
-Follow the Resume MD rules below exactly. Return only one complete raw Markdown document starting with ---, without an outer code fence, preface, or explanation. Leave theme, fonts, spacing, and photo uploads to the website's Design panel. If the document already ends with a <!-- resume-md:design … --> block, keep it unchanged; never add or edit one.`,
+Follow the Resume MD rules below exactly. Return only one complete raw Markdown document starting with ---, without an outer code fence, preface, or explanation. Leave theme, fonts, spacing, and photo uploads to the website's Design panel. If the document starts with a <!-- resume-md:design … --> block, keep it unchanged above the ---; never add or edit one.`,
     agentMaterial: "My information (I will fill this in):\n- Target role:\n- Resume language:\n- Current resume or real experience:",
     structure: "The opening --- … --- block holds your profile. # starts a section, ## starts an entry or skill group, and ### labels a block within an entry. Leave a blank line between headings and content.",
     topics: [

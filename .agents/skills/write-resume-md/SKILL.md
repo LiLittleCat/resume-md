@@ -35,7 +35,7 @@ Content lives in this browser's `localStorage`. No account. Clearing site data o
 
 Photo: tell the user to upload it in Design. Put `avatar:` in front matter only when they already have a URL. Never point at `/examples/*.jpg`.
 
-Match 中/EN to the Markdown language. Theme, fonts, and spacing stay in the Design panel. The panel mirrors its settings into a `<!-- resume-md:design … -->` comment at the end of the Markdown so copied Markdown keeps its look; preserve that block as-is and never write one by hand.
+Match 中/EN to the Markdown language. Theme, fonts, and spacing stay in the Design panel. The panel mirrors its settings into a `<!-- resume-md:design … -->` comment at the top of the Markdown (above the front matter) so copied Markdown keeps its look; preserve that block as-is and never write one by hand.
 
 ## Markdown dialect
 

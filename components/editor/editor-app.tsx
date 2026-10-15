@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { persistLibraryOrToast } from "@/components/library/persist";
 import { externalizeAvatarSource } from "@/lib/avatar-assets";
-import { syncDocumentDesign } from "@/lib/document-design";
+import { composeDocument, syncDocumentDesign } from "@/lib/document-design";
 import {
   hydrateResumeLibrary,
   updateResumeChrome,
@@ -84,9 +84,17 @@ export function EditorApp({
       return;
     }
 
+    // The library stores the full document (design block on top); the editor gets the
+    // text without the block and the design as config.
     const synced = syncDocumentDesign(active.source, active.config);
-    if (synced.source !== active.source) {
-      library = updateResumeDocument(library, active.id, synced, active.updatedAt);
+    const stored = composeDocument(synced.source, synced.config);
+    if (stored !== active.source) {
+      library = updateResumeDocument(
+        library,
+        active.id,
+        { source: stored, config: synced.config },
+        active.updatedAt,
+      );
       persistLibraryOrToast(library, synced.config.locale);
     }
     active = { ...active, ...synced };
@@ -117,7 +125,7 @@ export function EditorApp({
       if (serialized !== lastSerialized) {
         lastSerialized = serialized;
         next = updateResumeDocument(next, activeId, {
-          source: state.source,
+          source: composeDocument(state.source, state.config),
           config: state.config,
         });
       }
